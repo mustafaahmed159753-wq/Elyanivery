@@ -1,6 +1,7 @@
 """
 Elyanivery — Database Module
 SQL Server helpers using pyodbc with thread-local connections.
+Includes auto-detection of SQL Server instance on startup.
 """
 
 import pyodbc
@@ -9,6 +10,103 @@ from config import Config
 
 # Thread-local storage for DB connections
 _local = threading.local()
+
+# Track the working server name once discovered
+_working_server = None
+
+
+def _build_conn_str(server, database, uid='', pwd='', driver=None, timeout=10):
+    """Build a connection string with the given parameters."""
+    drv = driver or Config.DB_DRIVER
+    if uid:
+        return (
+            f"DRIVER={drv};"
+            f"SERVER={server};"
+            f"DATABASE={database};"
+            f"UID={uid};"
+            f"PWD={pwd};"
+            f"TrustServerCertificate=yes;"
+            f"Encrypt=no;"
+            f"Connection Timeout={timeout};"
+        )
+    else:
+        return (
+            f"DRIVER={drv};"
+            f"SERVER={server};"
+            f"DATABASE={database};"
+            f"Trusted_Connection=yes;"
+            f"TrustServerCertificate=yes;"
+            f"Encrypt=no;"
+            f"Connection Timeout={timeout};"
+        )
+
+
+def _detect_sql_server():
+    """
+    Auto-detect the SQL Server instance by trying common configurations.
+    Returns the working server string, or None if nothing works.
+    """
+    global _working_server
+
+    # If we already found it, use it
+    if _working_server:
+        return _working_server
+
+    # Get available drivers
+    available_drivers = [d for d in pyodbc.drivers() if 'sql server' in d.lower()]
+    print(f"  Available ODBC drivers: {available_drivers}")
+
+    # Pick the best available driver
+    driver = None
+    for preferred in ['ODBC Driver 18 for SQL Server', 'ODBC Driver 17 for SQL Server',
+                      'SQL Server Native Client 11.0', 'SQL Server']:
+        if preferred in available_drivers:
+            driver = f'{{{preferred}}}'
+            break
+    if not driver and available_drivers:
+        driver = f'{{{available_drivers[0]}}}'
+
+    if not driver:
+        print("  ERROR: No SQL Server ODBC driver found!")
+        return None
+
+    print(f"  Using driver: {driver}")
+
+    # Common server name patterns to try
+    server_attempts = [
+        'localhost',                    # Default instance
+        r'localhost\SQLEXPRESS',        # SQL Express named instance
+        r'localhost\MSSQLSERVER',       # Named instance variant
+        '.',                            # Dot = default instance (local)
+        r'.\SQLEXPRESS',                # Dot with Express
+        '(local)',                      # (local) = default instance
+        r'(local)\SQLEXPRESS',          # (local) with Express
+        '127.0.0.1',                    # IP default instance
+    ]
+
+    uid = Config.DB_UID
+    pwd = Config.DB_PWD
+
+    for server in server_attempts:
+        try:
+            conn_str = _build_conn_str(server, 'master', uid, pwd, driver, timeout=5)
+            conn = pyodbc.connect(conn_str, autocommit=True)
+            conn.close()
+            print(f"  SUCCESS: Connected to SQL Server at '{server}'")
+            _working_server = server
+            # Update Config so all future connections use the working server
+            Config.DB_SERVER = server
+            Config.DB_DRIVER = driver
+            return server
+        except Exception as e:
+            err_str = str(e)
+            # Shorten error for display
+            short_err = err_str[:80] + '...' if len(err_str) > 80 else err_str
+            print(f"  Tried '{server}' ... failed ({short_err})")
+
+    print("  WARNING: Could not auto-detect SQL Server instance!")
+    print("  Please check that SQL Server is running and edit config.py manually.")
+    return None
 
 
 def _get_conn():
@@ -125,6 +223,13 @@ def insert(sql, params=()):
 
 def init_db():
     """Create the Elyanivery database and all required tables if they don't exist."""
+
+    # ── Auto-detect SQL Server instance ──
+    print("  Detecting SQL Server instance...")
+    detected = _detect_sql_server()
+    if not detected:
+        print("  Proceeding with configured server: " + Config.DB_SERVER)
+
     # Create database if it doesn't exist
     try:
         conn = pyodbc.connect(Config.master_conn_string(), autocommit=True)

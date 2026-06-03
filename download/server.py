@@ -2078,21 +2078,32 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY v2.0 - Delivery Platform")
+    print("  ELYANIVERY v2.1 - Delivery Platform")
     print("  + Chat, Voice Calls, Notifications,")
     print("    Address Book, Loyalty Points")
     print("=" * 50)
+
+    # init_db() now handles auto-detection of SQL Server instance
+    # and will try multiple configurations (localhost, SQLEXPRESS, etc.)
+    # with Windows Authentication or SQL Authentication
+    db_ok = False
     try:
-        import pyodbc
-        conn = pyodbc.connect(Config.master_conn_string(), autocommit=True)
-        conn.close()
-        print("DB connection OK")
+        init_db()
+        db_ok = True
     except Exception as e:
-        print(f"DB connection failed: {e}")
-        input("Press Enter to exit...")
+        print(f"\n  ERROR: Could not connect to SQL Server!")
+        print(f"  Details: {e}")
+        print(f"\n  Please check:")
+        print(f"    1. SQL Server is running (check Services or SSMS)")
+        print(f"    2. Edit config.py to set your server name and auth method")
+        print(f"    3. For Windows Auth: DB_UID='' and DB_PWD=''")
+        print(f"    4. For SQL Auth: DB_UID='sa' and DB_PWD='your_password'")
+        input("\n  Press Enter to exit...")
         exit(1)
 
-    init_db()
+    if db_ok:
+        print("  DB connection OK")
+
     seed_data()
     init_extra_tables()
     ensure_default_users()

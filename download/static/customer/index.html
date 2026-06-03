@@ -35,7 +35,8 @@ input,textarea{font-family:inherit}
 .nav-badge{position:absolute;top:2px;right:calc(50% - 18px);background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center}
 
 /* ── AUTH ── */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.auth-screen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.auth-screen.active{display:flex}
 .auth-screen h1{color:var(--pri);font-size:32px;margin-bottom:4px}
 .auth-screen p{color:var(--muted);margin-bottom:24px}
 .auth-form{width:100%;max-width:340px}
@@ -129,7 +130,8 @@ input,textarea{font-family:inherit}
 .btn-call{background:var(--green);color:#fff}
 
 /* ── CHAT ── */
-.chat-screen{padding:0!important;padding-bottom:0!important;display:flex;flex-direction:column;height:100vh}
+.chat-screen{padding:0!important;padding-bottom:0!important;flex-direction:column;height:100vh}
+.chat-screen.active{display:flex}
 .chat-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
 .chat-header .back-btn{margin:0;padding:0;font-size:20px}
 .chat-header h4{flex:1;font-size:16px}
@@ -493,6 +495,15 @@ async function api(method, path, body) {
   if (body) opts.body = JSON.stringify(body);
   try {
     const r = await fetch(API + path, opts);
+    if (r.status === 401 && token) {
+      // Token expired or invalid — auto logout
+      token = ''; user = null;
+      localStorage.removeItem('token'); localStorage.removeItem('user');
+      stopAllPolling();
+      showScreen('authScreen');
+      document.getElementById('bottomNav').style.display = 'none';
+      return { success: false, message: 'Session expired. Please login again.' };
+    }
     return await r.json();
   } catch(e) {
     console.error('API error', e);
@@ -578,17 +589,19 @@ async function loadHome() {
       av.textContent = (user.display_name || user.username || '?')[0].toUpperCase();
     }
   }
+  // Load restaurants immediately with default location
+  loadRestaurants();
+  // Then try to get actual GPS location for better results
   try {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
         userLat = pos.coords.latitude;
         userLng = pos.coords.longitude;
-        loadRestaurants();
+        loadRestaurants(); // reload with real location
         reverseGeocode();
-      }, () => { loadRestaurants(); reverseGeocode(); });
+      }, () => { reverseGeocode(); });
     }
-  } catch(e) {}
-  loadRestaurants();
+  } catch(e) { reverseGeocode(); }
 }
 
 async function reverseGeocode() {

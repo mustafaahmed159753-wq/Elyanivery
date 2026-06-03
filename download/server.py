@@ -581,13 +581,13 @@ def handle_create_order(body, payload):
         delivery_lat = body.get('delivery_lat', 41.3900) or 41.3900
         delivery_lng = body.get('delivery_lng', 2.1700) or 2.1700
 
-        # Insert order ONCE (with discount_amount if applicable)
+        # Insert order ONCE — discount is already subtracted from total
         oid = insert(
             "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
-            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng,"
-            "discount_amount) VALUES (?,?,?,'confirmed',?,?,?,?,?,?,?)",
+            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng)"
+            " VALUES (?,?,?,'confirmed',?,?,?,?,?,?)",
             (order_number, uid, restaurant_id, subtotal, delivery_fee, total,
-             'Customer Location', delivery_lat, delivery_lng, discount)
+             'Customer Location', delivery_lat, delivery_lng)
         )
 
         # Insert order items

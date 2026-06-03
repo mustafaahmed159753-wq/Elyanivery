@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Elyanivery - Customer</title>
+<style>
+:root{--pri:#ff6b35;--pri2:#ff8c5a;--dark:#1a1a2e;--card:#fff;--bg:#f5f5f5;--text:#333;--muted:#999;--border:#e0e0e0;--green:#27ae60;--red:#e74c3c;--blue:#3498db;--shadow:0 2px 12px rgba(0,0,0,.08);--glass:0}
+/* ── THEME: Ocean Blue ── */
+html[data-theme="ocean_blue"]{--pri:#2980b9;--pri2:#3498db;--bg:#e8f4fd;--card:#fff;--text:#2c3e50;--muted:#7f8c8d;--border:#bdc3c7;--shadow:0 2px 12px rgba(41,128,185,.1)}
+/* ── THEME: Sunset ── */
+html[data-theme="sunset"]{--pri:#e74c3c;--pri2:#c0392b;--bg:#fdf2e9;--card:#fff;--text:#78281f;--muted:#a04000;--border:#f0b27a;--shadow:0 2px 12px rgba(231,76,60,.1)}
+/* ── THEME: Dark Mode ── */
+html[data-theme="dark"]{--pri:#ff6b35;--pri2:#ff8c5a;--bg:#1a1a2e;--card:#16213e;--text:#e0e0e0;--muted:#a0a0a0;--border:#2a2a4a;--shadow:0 2px 12px rgba(0,0,0,.3);--dark:#0f0f23;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2}
+/* ── THEME: Glassy Aurora ── */
+html[data-theme="glassy_aurora"]{--pri:#e74c3c;--pri2:#9b59b6;--bg:transparent;--card:rgba(255,255,255,.15);--text:#fff;--muted:rgba(255,255,255,.7);--border:rgba(255,255,255,.2);--shadow:0 8px 32px rgba(0,0,0,.2);--glass:1;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2}
+html[data-theme="glassy_aurora"] body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)!important;min-height:100vh}
+html[data-theme="glassy_aurora"] .rest-card,html[data-theme="glassy_aurora"] .item-card,html[data-theme="glassy_aurora"] .conv-card,html[data-theme="glassy_aurora"] .order-card{background:rgba(255,255,255,.12)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] #app{background:transparent!important}
+html[data-theme="glassy_aurora"] .bottom-nav{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important;border-top:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassy_aurora"] .nav-item{color:rgba(255,255,255,.5)!important}
+html[data-theme="glassy_aurora"] .nav-item.active{color:#e74c3c!important}
+html[data-theme="glassy_aurora"] .auth-screen{background:transparent!important}
+html[data-theme="glassy_aurora"] .auth-form input,html[data-theme="glassy_aurora"] .auth-form select{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .chat-input-bar{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .chat-header{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .chat-messages{background:rgba(0,0,0,.2)!important}
+html[data-theme="glassy_aurora"] .msg-bubble.received{background:rgba(255,255,255,.15)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .chat-input-bar input{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .menu-list button{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .loc-bar{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .cart-summary{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .courier-info-bar{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .loyalty-card{background:linear-gradient(135deg,rgba(231,76,60,.7),rgba(155,89,182,.7))!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .search-bar{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .checkout-bar{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .modal-box{background:rgba(22,33,62,.95)!important;backdrop-filter:blur(16px)!important;color:#fff!important}
+/* ── THEME: Glassy Frost ── */
+html[data-theme="glassy_frost"]{--pri:#5dade2;--pri2:#85c1e9;--bg:transparent;--card:rgba(255,255,255,.18);--text:#2c3e50;--muted:rgba(44,62,80,.7);--border:rgba(255,255,255,.35);--shadow:0 8px 32px rgba(0,0,0,.15);--glass:1;--green:#27ae60;--red:#e74c3c;--blue:#3498db}
+html[data-theme="glassy_frost"] body{background:linear-gradient(135deg,#e0eafc,#cfdef3,#a1c4fd)!important;min-height:100vh}
+html[data-theme="glassy_frost"] .rest-card,html[data-theme="glassy_frost"] .item-card,html[data-theme="glassy_frost"] .conv-card,html[data-theme="glassy_frost"] .order-card{background:rgba(255,255,255,.35)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.5)!important}
+html[data-theme="glassy_frost"] #app{background:transparent!important}
+html[data-theme="glassy_frost"] .bottom-nav{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important;border-top:1px solid rgba(255,255,255,.4)!important}
+html[data-theme="glassy_frost"] .chat-input-bar{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_frost"] .chat-header{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_frost"] .menu-list button{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .modal-box{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(16px)!important}
+html[data-theme="glassy_frost"] .cart-summary{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .courier-info-bar{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .search-bar{background:rgba(255,255,255,.4)!important;border:1px solid rgba(255,255,255,.5)!important}
+/* ── THEME: Midnight Gold ── */
+html[data-theme="midnight_gold"]{--pri:#f1c40f;--pri2:#f39c12;--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#8b949e;--border:#30363d;--shadow:0 2px 12px rgba(241,196,15,.08);--dark:#010409;--green:#2ecc71;--red:#e74c3c;--blue:#58a6ff}
+/* ── THEME: Lavender Dream ── */
+html[data-theme="lavender_dream"]{--pri:#9b59b6;--pri2:#c39bd3;--bg:#f5eef8;--card:#fff;--text:#4a235a;--muted:#7d3c98;--border:#d2b4de;--shadow:0 2px 12px rgba(155,89,182,.1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+button{cursor:pointer;border:none;font-family:inherit}
+input,textarea{font-family:inherit}
+
+/* ── SPLASH SCREEN (Google Play style) ── */
+.splash-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#ff6b35 0%,#ff8c5a 30%,#e74c3c 60%,#c0392b 100%)}
+.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.15) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(255,255,255,.1) 0%,transparent 50%);animation:splashShift 3s ease-in-out infinite}
+@keyframes splashShift{0%,100%{transform:translate(0,0)}50%{transform:translate(2%,-2%)}}
+.splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+.splash-logo{width:110px;height:110px;background:rgba(255,255,255,.2);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:24px;animation:splashPulse 2s infinite;box-shadow:0 8px 32px rgba(0,0,0,.15);backdrop-filter:blur(10px)}
+.splash-screen h1{color:#fff;font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.1)}
+.splash-screen p{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:36px;font-weight:400}
+.splash-loader{width:44px;height:44px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.splash-progress{width:180px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:20px;overflow:hidden}
+.splash-progress-bar{height:100%;background:#fff;border-radius:2px;animation:splashLoad 2s ease-in-out forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes splashLoad{0%{width:0}30%{width:40%}70%{width:75%}100%{width:100%}}
+.splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .6s,transform .6s}
+
+/* ── APP SHELL ── */
+#app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:var(--card)}
+.screen{display:none;padding:16px;padding-bottom:80px;min-height:100vh}
+.screen.active{display:block}
+.back-btn{background:none;color:var(--pri);font-size:15px;padding:8px 0;display:flex;align-items:center;gap:4px;margin-bottom:12px}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.05)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;font-size:11px;color:var(--muted);background:none;position:relative}
+.nav-item.active{color:var(--pri)}
+.nav-item svg{width:24px;height:24px;margin-bottom:2px}
+.nav-badge{position:absolute;top:2px;right:calc(50% - 18px);background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center}
+
+/* ── AUTH ── */
+.auth-screen{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.auth-screen.active{display:flex}
+.auth-screen h1{color:var(--pri);font-size:32px;margin-bottom:4px}
+.auth-screen p{color:var(--muted);margin-bottom:24px}
+.auth-form{width:100%;max-width:340px}
+.auth-form input,.auth-form select{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;font-size:15px;outline:none;transition:border .2s}
+.auth-form input:focus,.auth-form select:focus{border-color:var(--pri)}
+.btn-pri{width:100%;padding:14px;background:var(--pri);color:#fff;border-radius:12px;font-size:16px;font-weight:600;transition:background .2s}
+.btn-pri:hover{background:var(--pri2)}
+.auth-toggle{margin-top:16px;color:var(--muted);font-size:14px}
+.auth-toggle a{color:var(--pri);text-decoration:none;font-weight:600}
+
+/* ── HOME ── */
+.home-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.home-header h2{font-size:22px}
+.home-header .avatar{width:40px;height:40px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;cursor:pointer;overflow:hidden}
+.home-header .avatar img{width:100%;height:100%;object-fit:cover}
+.loc-bar{display:flex;align-items:center;gap:8px;background:#fff3ed;padding:10px 14px;border-radius:12px;margin-bottom:16px;font-size:13px;color:var(--pri)}
+.search-bar{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:12px;font-size:14px;margin-bottom:16px;outline:none}
+.section-title{font-size:17px;font-weight:700;margin-bottom:12px}
+
+/* ── RESTAURANT CARDS ── */
+.rest-card{background:var(--card);border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s}
+.rest-card:hover{transform:translateY(-2px)}
+.rest-card-img{height:140px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px}
+.rest-card-body{padding:14px}
+.rest-card-body h3{font-size:16px;margin-bottom:4px}
+.rest-card-body .meta{font-size:12px;color:var(--muted);display:flex;gap:12px}
+.rest-card-body .meta span{display:flex;align-items:center;gap:4px}
+.fav-btn{float:right;background:none;font-size:20px;color:var(--red);padding:0 4px}
+
+/* ── MENU ── */
+.menu-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.menu-header h3{flex:1}
+.menu-header .fav-btn{font-size:24px}
+.item-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+.item-card .item-info{flex:1}
+.item-card .item-info h4{font-size:14px;margin-bottom:2px}
+.item-card .item-info p{font-size:12px;color:var(--muted)}
+.item-card .item-price{font-weight:700;color:var(--pri);font-size:15px;margin-right:8px}
+.add-btn{background:var(--pri);color:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600}
+
+/* ── CART ── */
+.cart-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.cart-item .ci-info{flex:1}
+.cart-item .ci-info h4{font-size:14px}
+.cart-item .ci-info p{font-size:12px;color:var(--muted)}
+.cart-qty{display:flex;align-items:center;gap:8px}
+.cart-qty button{width:28px;height:28px;border-radius:50%;background:var(--bg);font-size:16px;display:flex;align-items:center;justify-content:center}
+.cart-qty span{font-weight:700;min-width:20px;text-align:center}
+.cart-summary{margin-top:16px;padding:16px;background:#fff8f3;border-radius:12px}
+.cart-summary .row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}
+.cart-summary .row.total{font-weight:700;font-size:18px;color:var(--pri);border-top:1px solid var(--border);padding-top:8px}
+.checkout-bar{position:sticky;bottom:70px;background:var(--card);padding:12px 0;border-top:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.checkout-bar .total{flex:1;font-size:18px;font-weight:700}
+.checkout-bar .btn-pri{width:auto;padding:12px 28px}
+.promo-input{display:flex;gap:8px;margin:12px 0}
+.promo-input input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px}
+.promo-input button{padding:10px 16px;background:var(--pri);color:#fff;border-radius:10px;font-size:13px}
+
+/* ── ORDERS ── */
+.order-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer}
+.order-card h4{font-size:15px;margin-bottom:4px}
+.order-card .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+.status-confirmed,.status-pending{background:#fff3cd;color:#856404}
+.status-courier_assigned,.status-heading_to_restaurant,.status-arrived_at_restaurant,.status-order_picked_up,.status-heading_to_customer,.status-arrived_at_customer{background:#cce5ff;color:#004085}
+.status-delivered{background:#d4edda;color:#155724}
+.status-cancelled{background:#f8d7da;color:#721c24}
+
+/* ── ORDER TRACKING ── */
+.tracker-header{text-align:center;padding:20px 0}
+.tracker-header h3{font-size:20px;margin-bottom:4px}
+.tracker-header .order-num{color:var(--muted);font-size:13px}
+.status-timeline{margin:20px 0;padding:0 8px}
+.timeline-step{display:flex;gap:12px;margin-bottom:4px;position:relative}
+.timeline-step .dot{width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0;z-index:1}
+.timeline-step .dot.done{background:var(--green)}
+.timeline-step .dot.current{background:var(--pri);animation:pulse 1.5s infinite}
+.timeline-step .line{position:absolute;left:13px;top:28px;width:2px;height:calc(100% - 12px);background:var(--border)}
+.timeline-step .line.done{background:var(--green)}
+.timeline-step .step-info{padding-bottom:16px}
+.timeline-step .step-info h5{font-size:14px}
+.timeline-step .step-info p{font-size:12px;color:var(--muted)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,53,.4)}50%{box-shadow:0 0 0 8px rgba(255,107,53,0)}}
+.courier-info-bar{display:flex;align-items:center;gap:12px;padding:14px;background:#fff8f3;border-radius:12px;margin:12px 0}
+.courier-info-bar .cavatar{width:44px;height:44px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+.courier-info-bar .cinfo{flex:1}
+.courier-info-bar .cinfo h4{font-size:15px}
+.courier-info-bar .cinfo p{font-size:12px;color:var(--muted)}
+.chat-call-btns{display:flex;gap:8px}
+.chat-call-btns button{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px}
+.btn-chat{background:var(--blue);color:#fff}
+.btn-call{background:var(--green);color:#fff}
+
+/* ── CHAT ── */
+.chat-screen{padding:0!important;padding-bottom:0!important;flex-direction:column;height:100vh}
+.chat-screen.active{display:flex}
+.chat-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.chat-header .back-btn{margin:0;padding:0;font-size:20px}
+.chat-header h4{flex:1;font-size:16px}
+.chat-header .call-icon{background:none;font-size:22px;color:var(--green)}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;background:var(--bg)}
+.msg-bubble{max-width:78%;padding:10px 14px;border-radius:16px;margin-bottom:8px;font-size:14px;line-height:1.4;word-wrap:break-word}
+.msg-bubble.sent{background:var(--pri);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+.msg-bubble.received{background:var(--card);border-bottom-left-radius:4px}
+.msg-bubble .msg-time{font-size:10px;opacity:.7;margin-top:4px}
+.msg-bubble .sender-name{font-size:11px;font-weight:600;opacity:.8;margin-bottom:2px}
+.chat-input-bar{display:flex;gap:8px;padding:12px 16px;background:var(--card);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:10}
+.chat-input-bar input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-size:14px;outline:none}
+.chat-input-bar button{width:42px;height:42px;border-radius:50%;background:var(--pri);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* ── CONVERSATIONS LIST ── */
+.conv-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.conv-card:hover{transform:translateY(-1px)}
+.conv-card .conv-avatar{width:44px;height:44px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.conv-card .conv-info{flex:1;min-width:0}
+.conv-card .conv-info h4{font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-info p{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-meta{text-align:right;flex-shrink:0}
+.conv-card .conv-meta .conv-time{font-size:10px;color:var(--muted)}
+.conv-card .conv-meta .conv-unread{background:var(--red);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;margin-left:auto;margin-top:4px}
+
+/* ── VOICE CALL ── */
+.call-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center}
+.call-overlay.active{display:flex}
+.call-overlay .call-avatar{width:90px;height:90px;border-radius:50%;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;margin-bottom:20px}
+.call-overlay h3{font-size:22px;margin-bottom:6px}
+.call-overlay .call-status{color:rgba(255,255,255,.6);font-size:14px;margin-bottom:40px}
+.call-overlay .call-timer{font-size:32px;font-weight:300;margin-bottom:40px}
+.call-btns{display:flex;gap:24px}
+.call-btns button{width:64px;height:64px;border-radius:50%;font-size:28px;display:flex;align-items:center;justify-content:center}
+.btn-call-end{background:var(--red);color:#fff}
+.btn-call-accept{background:var(--green);color:#fff}
+.btn-call-reject{background:var(--red);color:#fff}
+
+/* ── RATING MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:380px;text-align:center}
+.modal-box h3{font-size:20px;margin-bottom:16px}
+.star-rating{display:flex;justify-content:center;gap:8px;margin-bottom:16px}
+.star-rating span{font-size:32px;cursor:pointer;color:#ddd;transition:color .2s}
+.star-rating span.active{color:#f1c40f}
+.modal-box textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;font-size:14px;height:70px;resize:none;margin-bottom:16px;outline:none}
+.modal-box .btn-pri{margin-bottom:8px}
+.modal-box .btn-skip{background:none;color:var(--muted);font-size:14px;text-decoration:underline}
+
+/* ── NOTIFICATIONS ── */
+.notif-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.notif-item .n-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.notif-item .n-body{flex:1}
+.notif-item .n-body h5{font-size:14px;margin-bottom:2px}
+.notif-item .n-body p{font-size:12px;color:var(--muted)}
+.notif-item.unread{background:#fff8f3;margin:0 -16px;padding:14px 16px;border-radius:8px}
+
+/* ── LOYALTY ── */
+.loyalty-card{background:linear-gradient(135deg,var(--pri),#e74c3c);color:#fff;border-radius:16px;padding:24px;margin-bottom:20px}
+.loyalty-card h4{font-size:14px;opacity:.8;margin-bottom:4px}
+.loyalty-card .pts{font-size:40px;font-weight:800}
+.loyalty-card .pts-label{font-size:12px;opacity:.7}
+
+/* ── PROFILE ── */
+.profile-header{text-align:center;padding:24px 0}
+.profile-header .p-avatar{width:80px;height:80px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;margin:0 auto 12px}
+.profile-header .p-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-header h3{font-size:20px;margin-bottom:2px}
+.profile-header p{color:var(--muted);font-size:13px}
+.menu-list{margin-top:16px}
+.menu-list button{width:100%;text-align:left;padding:14px 16px;background:var(--bg);border-radius:12px;margin-bottom:8px;font-size:15px;display:flex;align-items:center;gap:10px}
+.menu-list button .icon{font-size:20px}
+.menu-list button .arrow{margin-left:auto;color:var(--muted)}
+
+/* ── INCOMING CALL BANNER ── */
+.incoming-call-banner{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--green);color:#fff;padding:14px 20px;z-index:500;display:none;align-items:center;gap:12px;animation:slideDown .3s}
+.incoming-call-banner.active{display:flex}
+@keyframes slideDown{from{transform:translateX(-50%) translateY(-100%)}to{transform:translateX(-50%) translateY(0)}}
+.incoming-call-banner .icb-info{flex:1}
+.incoming-call-banner .icb-info h4{font-size:14px}
+.incoming-call-banner .icb-info p{font-size:12px;opacity:.8}
+.incoming-call-banner button{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.incoming-call-banner .icb-accept{background:#fff;color:var(--green);margin-right:6px}
+.incoming-call-banner .icb-reject{background:rgba(255,255,255,.2);color:#fff}
+
+/* ── UTIL ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:14px}
+.loading{text-align:center;padding:20px;color:var(--muted)}
+
+/* ── THEME PICKER ── */
+.theme-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.theme-picker-overlay.active{display:flex}
+.theme-picker-box{background:var(--card);border-radius:20px;padding:24px;width:100%;max-width:360px;max-height:80vh;overflow-y:auto}
+.theme-picker-box h3{font-size:18px;margin-bottom:16px;text-align:center}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.theme-swatch{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:12px;border:2px solid transparent;transition:all .2s}
+.theme-swatch:hover{transform:scale(1.05)}
+.theme-swatch.active{border-color:var(--pri);box-shadow:0 0 0 3px rgba(255,107,53,.2)}
+.theme-swatch .swatch-color{width:44px;height:44px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.theme-swatch .swatch-label{font-size:10px;text-align:center;color:var(--muted);line-height:1.2}
+.theme-picker-close{width:100%;margin-top:16px;padding:12px;background:var(--pri);color:#fff;border-radius:12px;font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- ════════ SPLASH SCREEN ════════ -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-bg"></div>
+  <div class="splash-content">
+    <div class="splash-logo">&#127829;</div>
+    <h1>Elyanivery</h1>
+    <p>Food delivered to your door</p>
+    <div class="splash-loader"></div>
+    <div class="splash-progress"><div class="splash-progress-bar"></div></div>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- ════════ AUTH SCREEN ════════ -->
+<div id="authScreen" class="auth-screen screen">
+  <h1>Elyanivery</h1>
+  <p>Food delivered to your door</p>
+  <div class="auth-form">
+    <input id="authUser" placeholder="Username" autocomplete="off">
+    <input id="authPass" type="password" placeholder="Password">
+    <input id="authName" placeholder="Display Name (optional)" style="display:none">
+    <div id="authRoleWrap" style="display:none;margin-bottom:12px">
+      <select id="authRole" style="width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:12px;font-size:15px">
+        <option value="customer">Customer</option>
+        <option value="courier">Courier</option>
+      </select>
+    </div>
+    <button class="btn-pri" id="authSubmit" onclick="doAuth()">Login</button>
+    <div class="auth-toggle">
+      <span id="authToggleText">Don't have an account?</span>
+      <a href="#" id="authToggleLink" onclick="toggleAuthMode()">Register</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ HOME SCREEN ════════ -->
+<div id="homeScreen" class="screen">
+  <div class="home-header">
+    <div>
+      <h2 id="homeGreeting">Hello!</h2>
+      <p id="homeLocation" style="font-size:12px;color:var(--muted)">Detecting location...</p>
+    </div>
+    <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen')">?</div>
+  </div>
+  <div class="loc-bar">&#128205; <span id="locAddr">Loading address...</span></div>
+  <input class="search-bar" placeholder="Search restaurants..." oninput="filterRestaurants(this.value)">
+  <div class="section-title">Restaurants Near You</div>
+  <div id="restaurantList"></div>
+</div>
+
+<!-- ════════ RESTAURANT / MENU SCREEN ════════ -->
+<div id="menuScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <div class="menu-header">
+    <h3 id="menuRestName">Restaurant</h3>
+    <button class="fav-btn" id="favBtn" onclick="toggleFav()">&#9825;</button>
+  </div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="menuRestAddr"></div>
+  <div class="section-title">Menu</div>
+  <div id="menuItems"></div>
+  <div id="cartFloat" style="position:sticky;bottom:70px;background:var(--pri);color:#fff;padding:14px 20px;border-radius:14px;display:none;align-items:center;justify-content:space-between;cursor:pointer;margin-top:12px" onclick="showScreen('cartScreen')">
+    <span id="cartFloatText">View Cart</span>
+    <span style="font-weight:700">&#8594;</span>
+  </div>
+</div>
+
+<!-- ════════ CART SCREEN ════════ -->
+<div id="cartScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('menuScreen')">&#8592; Back</button>
+  <h3 style="margin-bottom:14px">Your Cart</h3>
+  <div id="cartItems"></div>
+  <div class="promo-input">
+    <input id="promoInput" placeholder="Promo code">
+    <button onclick="applyPromo()">Apply</button>
+  </div>
+  <div id="promoMsg" style="font-size:13px;margin-bottom:8px"></div>
+  <div id="loyaltyRedeem" style="display:none;margin-bottom:12px">
+    <label style="font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="redeemPtsCheck" onchange="toggleRedeem()"> Use <span id="availPts">0</span> loyalty points (-<span id="ptsDiscount">0.00</span>&euro;)
+    </label>
+  </div>
+  <div class="cart-summary" id="cartSummary"></div>
+  <div class="checkout-bar">
+    <div class="total" id="cartTotal">Total: &euro;0.00</div>
+    <button class="btn-pri" onclick="placeOrder()">Place Order</button>
+  </div>
+</div>
+
+<!-- ════════ ORDERS SCREEN ════════ -->
+<div id="ordersScreen" class="screen">
+  <h3 style="margin-bottom:14px">My Orders</h3>
+  <div id="ordersList"></div>
+</div>
+
+<!-- ════════ ORDER TRACKING SCREEN ════════ -->
+<div id="trackScreen" class="screen">
+  <button class="back-btn" onclick="goBackFromTrack()">&#8592; Back</button>
+  <div class="tracker-header">
+    <h3 id="trackRestName">Order</h3>
+    <div class="order-num" id="trackOrderNum"></div>
+  </div>
+  <div id="trackCourierBar" style="display:none"></div>
+  <div class="status-timeline" id="trackTimeline"></div>
+  <div id="trackItems" style="margin-top:12px"></div>
+  <div id="trackActions" style="margin-top:16px"></div>
+</div>
+
+<!-- ════════ CHAT SCREEN ════════ -->
+<div id="chatScreen" class="screen chat-screen">
+  <div class="chat-header">
+    <button class="back-btn" onclick="closeChat()">&#8592;</button>
+    <h4 id="chatWithName">Chat</h4>
+    <button class="call-icon" onclick="startCall()" title="Voice Call">&#128222;</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-bar" id="chatInputBar">
+    <input id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChat()">
+    <button onclick="sendChat()">&#10148;</button>
+  </div>
+</div>
+
+<!-- ════════ CONVERSATIONS LIST SCREEN ════════ -->
+<div id="convScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <h3 style="margin-bottom:14px">Messages</h3>
+  <div id="convList"></div>
+</div>
+
+<!-- ════════ NOTIFICATIONS SCREEN ════════ -->
+<div id="notifScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <h3 style="margin-bottom:14px">Notifications</h3>
+  <div id="notifList"></div>
+</div>
+
+<!-- ════════ PROFILE SCREEN ════════ -->
+<div id="profileScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <div class="profile-header">
+    <div class="p-avatar" id="profileAvatar">?</div>
+    <h3 id="profileName">User</h3>
+    <p id="profileRole">Customer</p>
+  </div>
+  <div id="profileLoyalty" style="display:none">
+    <div class="loyalty-card">
+      <h4>Loyalty Points</h4>
+      <div class="pts" id="profilePts">0</div>
+      <div class="pts-label">points earned</div>
+    </div>
+  </div>
+  <div class="menu-list">
+    <button onclick="showScreen('notifScreen');loadNotifications()"><span class="icon">&#128276;</span> Notifications <span class="arrow">&#8250;</span></button>
+    <button onclick="showScreen('ordersScreen');loadOrders()"><span class="icon">&#128230;</span> My Orders <span class="arrow">&#8250;</span></button>
+    <button onclick="openThemePicker()"><span class="icon">&#127912;</span> Change Theme <span class="arrow">&#8250;</span></button>
+    <button onclick="logout()"><span class="icon">&#128682;</span> Logout <span class="arrow">&#8250;</span></button>
+  </div>
+</div>
+
+<!-- ════════ BOTTOM NAV ════════ -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <button class="nav-item active" onclick="navTo('homeScreen',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+    Home
+  </button>
+  <button class="nav-item" onclick="navTo('ordersScreen',this);loadOrders()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    Orders
+  </button>
+  <button class="nav-item" onclick="navTo('convScreen',this);loadConversations()" id="navChat">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    Chat
+    <span class="nav-badge" id="chatBadge" style="display:none">0</span>
+  </button>
+  <button class="nav-item" onclick="navTo('profileScreen',this);loadProfile()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    Profile
+  </button>
+</div>
+
+<!-- ════════ RATING MODAL ════════ -->
+<div class="modal-overlay" id="ratingModal">
+  <div class="modal-box">
+    <h3>Rate Your Order</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">How was your delivery experience?</p>
+    <div style="font-size:13px;margin-bottom:6px">Courier Rating</div>
+    <div class="star-rating" id="courierStars"></div>
+    <div style="font-size:13px;margin-bottom:6px">Service Rating</div>
+    <div class="star-rating" id="serviceStars"></div>
+    <textarea id="ratingComment" placeholder="Comments (optional)"></textarea>
+    <button class="btn-pri" onclick="submitRating()">Submit Rating</button>
+    <button class="btn-skip" onclick="skipRating()">Skip</button>
+  </div>
+</div>
+
+<!-- ════════ CALL OVERLAY ════════ -->
+<div class="call-overlay" id="callOverlay">
+  <div class="call-avatar" id="callAvatar">?</div>
+  <h3 id="callName">User</h3>
+  <div class="call-status" id="callStatus">Calling...</div>
+  <div class="call-timer" id="callTimer" style="display:none">00:00</div>
+  <div class="call-btns" id="callBtns">
+    <button class="btn-call-end" onclick="endCall()">&#128308;</button>
+  </div>
+</div>
+
+<!-- ════════ INCOMING CALL BANNER ════════ -->
+<div class="incoming-call-banner" id="incomingCallBanner">
+  <div class="icb-info">
+    <h4 id="incomingCallName">Incoming Call</h4>
+    <p>Voice call from courier</p>
+  </div>
+  <button class="icb-accept" onclick="acceptIncomingCall()">Accept</button>
+  <button class="icb-reject" onclick="rejectIncomingCall()">Reject</button>
+</div>
+
+<!-- ════════ THEME PICKER MODAL ════════ -->
+<div class="theme-picker-overlay" id="themePickerOverlay" onclick="if(event.target===this)closeThemePicker()">
+  <div class="theme-picker-box">
+    <h3>Choose Theme</h3>
+    <div class="theme-grid" id="themeGrid"></div>
+    <button class="theme-picker-close" onclick="closeThemePicker()">Done</button>
+  </div>
+</div>
+
+</div><!-- end app -->
+
+<script>
+// ════════════════════════════════════════
+//  SPLASH SCREEN
+// ════════════════════════════════════════
+(function() {
+  const splash = document.getElementById('splashScreen');
+  // Show splash for 2.2 seconds then fade out (matching progress bar animation)
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    setTimeout(() => { splash.style.display = 'none'; }, 600);
+  }, 2200);
+})();
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let token = localStorage.getItem('token') || '';
+let user = JSON.parse(localStorage.getItem('user') || 'null');
+let currentRest = null;
+let cart = null;
+let currentOrder = null;
+let isRegister = false;
+let promoData = null;
+let chatOrderId = null;
+let chatLastId = 0;
+let chatPollTimer = null;
+let allRestaurants = [];
+let userLat = 41.3874, userLng = 2.1686;
+let ratingOrderId = null;
+let courierRatingVal = 0, serviceRatingVal = 0;
+let callPollTimer = null;
+let currentCallId = null;
+let callTimerInterval = null;
+let callSeconds = 0;
+let incomingCallPollTimer = null;
+let activeOrderTrackTimer = null;
+let unreadChatPollTimer = null;
+
+const API = '';
+const STATUS_FLOW = ['confirmed','courier_assigned','heading_to_restaurant','arrived_at_restaurant','order_picked_up','heading_to_customer','arrived_at_customer','delivered'];
+const STATUS_LABELS = {
+  confirmed:'Order Confirmed',courier_assigned:'Courier Assigned',heading_to_restaurant:'Heading to Restaurant',
+  arrived_at_restaurant:'At Restaurant',order_picked_up:'Order Picked Up',heading_to_customer:'Heading to You',
+  arrived_at_customer:'Courier Arrived',delivered:'Delivered',cancelled:'Cancelled'
+};
+
+// ════════════════════════════════════════
+//  HTTP HELPERS
+// ════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  try {
+    const r = await fetch(API + path, opts);
+    if (r.status === 401 && token) {
+      // Token expired or invalid — auto logout
+      token = ''; user = null;
+      localStorage.removeItem('token'); localStorage.removeItem('user');
+      stopAllPolling();
+      showScreen('authScreen');
+      document.getElementById('bottomNav').style.display = 'none';
+      return { success: false, message: 'Session expired. Please login again.' };
+    }
+    return await r.json();
+  } catch(e) {
+    console.error('API error', e);
+    return { success: false, message: 'Network error' };
+  }
+}
+
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+function toggleAuthMode() {
+  isRegister = !isRegister;
+  document.getElementById('authSubmit').textContent = isRegister ? 'Register' : 'Login';
+  document.getElementById('authToggleText').textContent = isRegister ? 'Already have an account?' : "Don't have an account?";
+  document.getElementById('authToggleLink').textContent = isRegister ? 'Login' : 'Register';
+  document.getElementById('authName').style.display = isRegister ? '' : 'none';
+  document.getElementById('authRoleWrap').style.display = isRegister ? '' : 'none';
+}
+
+async function doAuth() {
+  const username = document.getElementById('authUser').value.trim();
+  const password = document.getElementById('authPass').value;
+  if (!username || !password) return alert('Enter username and password');
+  let res;
+  if (isRegister) {
+    const display_name = document.getElementById('authName').value.trim() || username;
+    const role = document.getElementById('authRole').value;
+    res = await api('POST', '/api/auth/register', { username, password, display_name, role });
+  } else {
+    res = await api('POST', '/api/auth/login', { username, password });
+  }
+  if (res.success) {
+    token = res.data.token;
+    user = res.data;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    enterApp();
+  } else {
+    alert(res.message || 'Auth failed');
+  }
+}
+
+function logout() {
+  token = ''; user = null;
+  localStorage.removeItem('token'); localStorage.removeItem('user');
+  stopAllPolling();
+  showScreen('authScreen');
+  document.getElementById('bottomNav').style.display = 'none';
+}
+
+function enterApp() {
+  document.getElementById('bottomNav').style.display = 'flex';
+  showScreen('homeScreen');
+  loadHome();
+  startUnreadPolling();
+  startIncomingCallPolling();
+}
+
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  // Hide bottom nav when chat screen is active
+  const bn = document.getElementById('bottomNav');
+  if (id === 'chatScreen') {
+    if (bn) bn.style.display = 'none';
+  } else if (token && user) {
+    if (bn) bn.style.display = 'flex';
+  }
+}
+
+function navTo(screenId, el) {
+  showScreen(screenId);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  HOME / RESTAURANTS
+// ════════════════════════════════════════
+async function loadHome() {
+  if (user) {
+    document.getElementById('homeGreeting').textContent = 'Hello, ' + (user.display_name || user.username) + '!';
+    const av = document.getElementById('homeAvatar');
+    if (user.avatar_url) {
+      av.innerHTML = '<img src="'+user.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+    } else {
+      av.textContent = (user.display_name || user.username || '?')[0].toUpperCase();
+    }
+  }
+  // Load restaurants immediately with default location
+  loadRestaurants();
+  // Then try to get actual GPS location for better results
+  try {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        userLat = pos.coords.latitude;
+        userLng = pos.coords.longitude;
+        loadRestaurants(); // reload with real location
+        reverseGeocode();
+      }, () => { reverseGeocode(); });
+    }
+  } catch(e) { reverseGeocode(); }
+}
+
+async function reverseGeocode() {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}&zoom=16`);
+    const d = await r.json();
+    const addr = d.display_name || `${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+    document.getElementById('locAddr').textContent = addr.substring(0, 60);
+    document.getElementById('homeLocation').textContent = addr.substring(0, 40);
+  } catch(e) {
+    document.getElementById('locAddr').textContent = `${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
+  }
+}
+
+async function loadRestaurants() {
+  const res = await api('GET', `/api/restaurants?lat=${userLat}&lng=${userLng}`);
+  if (res.success) {
+    allRestaurants = res.data;
+    renderRestaurants(allRestaurants);
+  }
+}
+
+function renderRestaurants(list) {
+  const el = document.getElementById('restaurantList');
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#127869;</div><p>No restaurants found</p></div>'; return; }
+  el.innerHTML = list.map(r => `
+    <div class="rest-card" onclick="openRestaurant(${r.id})">
+      <div class="rest-card-img">${(r.name||'')[0]}</div>
+      <div class="rest-card-body">
+        <h3>${esc(r.name)}</h3>
+        <div class="meta">
+          <span>&#128205; ${r.distance_km||'?'} km</span>
+          <span>${r.is_open ? '&#128994; Open' : '&#128308; Closed'}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterRestaurants(q) {
+  q = q.toLowerCase();
+  renderRestaurants(allRestaurants.filter(r => r.name.toLowerCase().includes(q)));
+}
+
+// ════════════════════════════════════════
+//  RESTAURANT / MENU
+// ════════════════════════════════════════
+async function openRestaurant(id) {
+  const res = await api('GET', '/api/restaurants/' + id);
+  if (!res.success) return alert(res.message);
+  currentRest = res.data;
+  document.getElementById('menuRestName').textContent = currentRest.name;
+  document.getElementById('menuRestAddr').textContent = currentRest.address || '';
+  renderMenuItems();
+  checkFav();
+  showScreen('menuScreen');
+  loadCart();
+}
+
+function renderMenuItems() {
+  const items = currentRest.items || [];
+  document.getElementById('menuItems').innerHTML = items.length ? items.map(i => `
+    <div class="item-card">
+      <div class="item-info">
+        <h4>${esc(i.name)}</h4>
+        <p>${esc(i.description||'')}</p>
+      </div>
+      <div class="item-price">&euro;${parseFloat(i.price).toFixed(2)}</div>
+      <button class="add-btn" onclick="addToCart(${i.id})">Add</button>
+    </div>
+  `).join('') : '<div class="empty-state"><p>No items available</p></div>';
+}
+
+async function checkFav() {
+  if (!currentRest) return;
+  const res = await api('GET', '/api/favorites/' + currentRest.id);
+  if (res.success) {
+    document.getElementById('favBtn').innerHTML = res.data.is_favorite ? '&#10084;' : '&#9825;';
+  }
+}
+
+async function toggleFav() {
+  if (!currentRest) return;
+  const res = await api('POST', '/api/favorites', { restaurant_id: currentRest.id });
+  if (res.success) {
+    document.getElementById('favBtn').innerHTML = res.data.is_favorite ? '&#10084;' : '&#9825;';
+  }
+}
+
+// ════════════════════════════════════════
+//  CART
+// ════════════════════════════════════════
+async function loadCart() {
+  const res = await api('GET', '/api/cart');
+  if (res.success) {
+    cart = res.data;
+    updateCartFloat();
+  }
+}
+
+function updateCartFloat() {
+  const el = document.getElementById('cartFloat');
+  if (cart && cart.items && cart.items.length) {
+    const count = cart.items.reduce((s,i) => s + i.quantity, 0);
+    const total = cart.items.reduce((s,i) => s + i.price * i.quantity, 0);
+    document.getElementById('cartFloatText').textContent = `${count} item(s) - \u20AC${total.toFixed(2)}`;
+    el.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+async function addToCart(itemId) {
+  const res = await api('POST', '/api/cart/add', { item_id: itemId, quantity: 1, restaurant_id: currentRest?.id });
+  if (res.success) {
+    cart = res.data;
+    updateCartFloat();
+    renderCart();
+  }
+}
+
+async function removeFromCart(itemId) {
+  const res = await api('POST', '/api/cart/remove/' + itemId);
+  if (res.success) { cart = res.data; renderCart(); updateCartFloat(); }
+}
+
+async function clearCart() {
+  const res = await api('POST', '/api/cart/clear');
+  if (res.success) { cart = res.data; renderCart(); updateCartFloat(); }
+}
+
+function renderCart() {
+  const el = document.getElementById('cartItems');
+  if (!cart || !cart.items || !cart.items.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128722;</div><p>Your cart is empty</p></div>';
+    document.getElementById('cartSummary').innerHTML = '';
+    document.getElementById('cartTotal').textContent = 'Total: \u20AC0.00';
+    return;
+  }
+  el.innerHTML = cart.items.map(i => `
+    <div class="cart-item">
+      <div class="ci-info">
+        <h4>${esc(i.name)}</h4>
+        <p>&euro;${i.price.toFixed(2)} x ${i.quantity}</p>
+      </div>
+      <div class="cart-qty">
+        <button onclick="changeQty(${i.item_id},-1)">-</button>
+        <span>${i.quantity}</span>
+        <button onclick="changeQty(${i.item_id},1)">+</button>
+      </div>
+      <button style="background:none;color:var(--red);font-size:18px" onclick="removeFromCart(${i.item_id})">&#128465;</button>
+    </div>
+  `).join('');
+  updateCartSummary();
+}
+
+async function changeQty(itemId, delta) {
+  if (!cart) return;
+  const item = cart.items.find(i => i.item_id === itemId);
+  if (!item) return;
+  const newQty = item.quantity + delta;
+  if (newQty <= 0) return removeFromCart(itemId);
+  item.quantity = newQty;
+  await api('POST', '/api/cart/add', { item_id: itemId, quantity: delta, restaurant_id: cart.restaurant_id });
+  loadCart().then(() => renderCart());
+}
+
+function updateCartSummary() {
+  if (!cart || !cart.items) return;
+  const subtotal = cart.items.reduce((s,i) => s + i.price * i.quantity, 0);
+  const delivery = 2.50;
+  const discount = promoData ? promoData.discount : 0;
+  const ptsDiscount = document.getElementById('redeemPtsCheck')?.checked ? (parseInt(document.getElementById('availPts')?.textContent||'0')/100) : 0;
+  const total = Math.max(0, subtotal + delivery - discount - ptsDiscount);
+  document.getElementById('cartSummary').innerHTML = `
+    <div class="row"><span>Subtotal</span><span>&euro;${subtotal.toFixed(2)}</span></div>
+    <div class="row"><span>Delivery Fee</span><span>&euro;${delivery.toFixed(2)}</span></div>
+    ${discount > 0 ? `<div class="row" style="color:var(--green)"><span>Promo Discount</span><span>-&euro;${discount.toFixed(2)}</span></div>` : ''}
+    ${ptsDiscount > 0 ? `<div class="row" style="color:var(--green)"><span>Points Discount</span><span>-&euro;${ptsDiscount.toFixed(2)}</span></div>` : ''}
+    <div class="row total"><span>Total</span><span>&euro;${total.toFixed(2)}</span></div>
+  `;
+  document.getElementById('cartTotal').textContent = `Total: \u20AC${total.toFixed(2)}`;
+  loadLoyaltyForCart();
+}
+
+async function loadLoyaltyForCart() {
+  const res = await api('GET', '/api/loyalty');
+  if (res.success && res.data.points > 0) {
+    document.getElementById('loyaltyRedeem').style.display = '';
+    document.getElementById('availPts').textContent = res.data.points;
+    document.getElementById('ptsDiscount').textContent = (res.data.points / 100).toFixed(2);
+  }
+}
+
+function toggleRedeem() { updateCartSummary(); }
+
+async function applyPromo() {
+  const code = document.getElementById('promoInput').value.trim();
+  if (!code) return;
+  const subtotal = cart?.items?.reduce((s,i) => s + i.price * i.quantity, 0) || 0;
+  const res = await api('POST', '/api/promo/validate', { code, subtotal });
+  if (res.success) {
+    promoData = res.data;
+    document.getElementById('promoMsg').innerHTML = `<span style="color:var(--green)">&#10003; ${res.data.description || 'Discount applied!'} -\u20AC${res.data.discount.toFixed(2)}</span>`;
+  } else {
+    promoData = null;
+    document.getElementById('promoMsg').innerHTML = `<span style="color:var(--red)">${res.message}</span>`;
+  }
+  updateCartSummary();
+}
+
+// ════════════════════════════════════════
+//  ORDERS
+// ════════════════════════════════════════
+async function placeOrder() {
+  if (!cart || !cart.items?.length) return alert('Cart is empty');
+  const pts = document.getElementById('redeemPtsCheck')?.checked ? parseInt(document.getElementById('availPts')?.textContent||'0') : 0;
+  const res = await api('POST', '/api/orders', {
+    promo_code: promoData?.code || '',
+    redeem_points: pts,
+    delivery_lat: userLat,
+    delivery_lng: userLng
+  });
+  if (res.success) {
+    cart = null; promoData = null;
+    currentOrder = res.data;
+    showScreen('trackScreen');
+    openTracker(res.data.id);
+  } else {
+    alert(res.message || 'Order failed');
+  }
+}
+
+async function loadOrders() {
+  const res = await api('GET', '/api/orders');
+  if (res.success) {
+    const el = document.getElementById('ordersList');
+    const orders = res.data;
+    if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128230;</div><p>No orders yet</p></div>'; return; }
+    el.innerHTML = orders.map(o => `
+      <div class="order-card" onclick="openTracker(${o.id})">
+        <h4>${esc(o.restaurant_name||'Order #'+o.id)}</h4>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]||o.status}</span>
+          <span style="font-size:13px">&euro;${parseFloat(o.total).toFixed(2)}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// ════════════════════════════════════════
+//  ORDER TRACKING
+// ════════════════════════════════════════
+async function openTracker(oid) {
+  stopOrderTrackPolling();
+  const res = await api('GET', '/api/orders/' + oid);
+  if (!res.success) return alert(res.message);
+  currentOrder = res.data;
+  showScreen('trackScreen');
+  renderTracker();
+  if (!['delivered','cancelled'].includes(currentOrder.status)) {
+    activeOrderTrackTimer = setInterval(() => pollOrder(oid), 4000);
+  }
+  // If already delivered and not rated, show rating
+  if (currentOrder.status === 'delivered' && !currentOrder.is_rated) {
+    ratingOrderId = oid;
+    setTimeout(() => showRatingModal(), 500);
+  }
+}
+
+async function pollOrder(oid) {
+  const res = await api('GET', '/api/orders/' + oid);
+  if (res.success) {
+    currentOrder = res.data;
+    renderTracker();
+    if (currentOrder.status === 'delivered' && !currentOrder.is_rated) {
+      stopOrderTrackPolling();
+      ratingOrderId = oid;
+      showRatingModal();
+    }
+    if (currentOrder.status === 'cancelled') {
+      stopOrderTrackPolling();
+    }
+  }
+}
+
+function stopOrderTrackPolling() {
+  if (activeOrderTrackTimer) { clearInterval(activeOrderTrackTimer); activeOrderTrackTimer = null; }
+}
+
+function renderTracker() {
+  const o = currentOrder;
+  if (!o) return;
+  document.getElementById('trackRestName').textContent = o.restaurant_name || 'Order';
+  document.getElementById('trackOrderNum').textContent = o.order_number || '#' + o.id;
+
+  // Courier info bar with chat & call buttons
+  const cbar = document.getElementById('trackCourierBar');
+  if (o.courier_id && !['delivered','cancelled'].includes(o.status)) {
+    cbar.style.display = '';
+    cbar.innerHTML = `
+      <div class="courier-info-bar">
+        <div class="cavatar">${(o.courier_name||'C')[0]}</div>
+        <div class="cinfo">
+          <h4>${esc(o.courier_name||'Courier')}</h4>
+          <p>Your delivery courier</p>
+        </div>
+        <div class="chat-call-btns">
+          <button class="btn-chat" onclick="openChat(${o.id})">&#128172; Chat</button>
+          <button class="btn-call" onclick="startCall()">&#128222; Call</button>
+        </div>
+      </div>`;
+  } else {
+    cbar.style.display = 'none';
+  }
+
+  // Timeline
+  const currentIdx = STATUS_FLOW.indexOf(o.status);
+  const timeline = document.getElementById('trackTimeline');
+  timeline.innerHTML = STATUS_FLOW.map((s, i) => {
+    const done = i <= currentIdx && currentIdx >= 0;
+    const current = i === currentIdx;
+    const nextLine = i < STATUS_FLOW.length - 1;
+    return `
+      <div class="timeline-step">
+        <div class="dot ${done?'done':''} ${current?'current':''}">${done?'&#10003;':i+1}</div>
+        ${nextLine ? `<div class="line ${done && i < currentIdx ? 'done' : ''}"></div>` : ''}
+        <div class="step-info">
+          <h5>${STATUS_LABELS[s]||s}</h5>
+          <p>${current ? 'Current status' : (done ? 'Completed' : '')}</p>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Items
+  document.getElementById('trackItems').innerHTML = (o.items||[]).map(i =>
+    `<div style="font-size:13px;padding:4px 0">${esc(i.item_name)} x${i.quantity} - &euro;${parseFloat(i.item_price).toFixed(2)}</div>`
+  ).join('');
+
+  // Actions
+  const actions = document.getElementById('trackActions');
+  if (o.status === 'delivered' && !o.is_rated) {
+    actions.innerHTML = `<button class="btn-pri" onclick="ratingOrderId=${o.id};showRatingModal()">Rate Order</button>`;
+  } else if (['pending','confirmed','courier_assigned'].includes(o.status)) {
+    actions.innerHTML = `<button style="padding:12px 24px;background:var(--red);color:#fff;border-radius:12px;font-size:14px" onclick="cancelOrder(${o.id})">Cancel Order</button>`;
+  } else if (o.status === 'delivered' && o.is_rated) {
+    actions.innerHTML = `<button class="btn-pri" onclick="goHome()">Back to Home</button>`;
+  } else {
+    actions.innerHTML = '';
+  }
+}
+
+function goHome() {
+  stopOrderTrackPolling();
+  showScreen('homeScreen');
+  loadHome();
+  // Reset nav active state
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i === 0));
+}
+
+async function cancelOrder(oid) {
+  if (!confirm('Cancel this order?')) return;
+  const res = await api('POST', '/api/orders/' + oid + '/cancel');
+  if (res.success) {
+    alert('Order cancelled');
+    goHome();
+  } else {
+    alert(res.message);
+  }
+}
+
+function goBackFromTrack() {
+  stopOrderTrackPolling();
+  showScreen('ordersScreen');
+  loadOrders();
+}
+
+// ════════════════════════════════════════
+//  RATING
+// ════════════════════════════════════════
+function showRatingModal() {
+  courierRatingVal = 0; serviceRatingVal = 0;
+  renderStars('courierStars', 'courier');
+  renderStars('serviceStars', 'service');
+  document.getElementById('ratingComment').value = '';
+  document.getElementById('ratingModal').classList.add('active');
+}
+
+function renderStars(containerId, type) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = [1,2,3,4,5].map(v => `<span data-val="${v}" onclick="setRating('${type}',${v})">&#9734;</span>`).join('');
+}
+
+function setRating(type, val) {
+  if (type === 'courier') courierRatingVal = val;
+  else serviceRatingVal = val;
+  const containerId = type === 'courier' ? 'courierStars' : 'serviceStars';
+  document.getElementById(containerId).querySelectorAll('span').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+    s.innerHTML = parseInt(s.dataset.val) <= val ? '&#9733;' : '&#9734;';
+  });
+}
+
+async function submitRating() {
+  if (!courierRatingVal || !serviceRatingVal) return alert('Please select both ratings');
+  const comment = document.getElementById('ratingComment').value.trim();
+  const res = await api('POST', '/api/orders/' + ratingOrderId + '/rate', {
+    courier_rating: courierRatingVal, service_rating: serviceRatingVal, comment
+  });
+  document.getElementById('ratingModal').classList.remove('active');
+  if (res.success) {
+    alert('Thank you for your rating!');
+    goHome();
+  } else {
+    alert(res.message);
+    goHome();
+  }
+}
+
+function skipRating() {
+  document.getElementById('ratingModal').classList.remove('active');
+  goHome();
+}
+
+// ════════════════════════════════════════
+//  CHAT (Customer <-> Courier)
+// ════════════════════════════════════════
+async function openChat(orderId) {
+  chatOrderId = orderId;
+  chatLastId = 0;
+  // Get order to know other party name
+  const orderRes = await api('GET', '/api/orders/' + orderId);
+  if (orderRes.success) {
+    const o = orderRes.data;
+    document.getElementById('chatWithName').textContent = o.courier_name || 'Courier';
+    // Also store as currentOrder for call functionality
+    if (!currentOrder) currentOrder = o;
+  }
+  document.getElementById('chatMessages').innerHTML = '';
+  showScreen('chatScreen');
+  await loadChatMessages();
+  startChatPolling();
+}
+
+async function loadChatMessages() {
+  if (!chatOrderId) return;
+  const res = await api('GET', `/api/chat/messages/${chatOrderId}?after_id=${chatLastId}`);
+  if (res.success && res.data.length) {
+    const msgs = res.data;
+    const container = document.getElementById('chatMessages');
+    msgs.forEach(m => {
+      const isSent = m.sender_id === user.id;
+      const div = document.createElement('div');
+      div.className = 'msg-bubble ' + (isSent ? 'sent' : 'received');
+      div.innerHTML = `${!isSent ? `<div class="sender-name">${esc(m.sender_name||'')}</div>` : ''}${esc(m.message)}<div class="msg-time">${formatTime(m.created_at)}</div>`;
+      container.appendChild(div);
+      chatLastId = Math.max(chatLastId, m.id);
+    });
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || !chatOrderId) return;
+  input.value = '';
+  const res = await api('POST', '/api/chat/send', { order_id: chatOrderId, message: msg, message_type: 'text' });
+  if (res.success) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg-bubble sent';
+    div.innerHTML = `${esc(msg)}<div class="msg-time">Just now</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    chatLastId = Math.max(chatLastId, res.data.id || chatLastId);
+  } else {
+    alert(res.message || 'Failed to send message');
+  }
+}
+
+function startChatPolling() {
+  stopChatPolling();
+  chatPollTimer = setInterval(loadChatMessages, 3000);
+}
+
+function stopChatPolling() {
+  if (chatPollTimer) { clearInterval(chatPollTimer); chatPollTimer = null; }
+}
+
+function closeChat() {
+  stopChatPolling();
+  chatOrderId = null;
+  chatLastId = 0;
+  if (currentOrder && !['delivered','cancelled'].includes(currentOrder.status)) {
+    showScreen('trackScreen');
+  } else {
+    showScreen('convScreen');
+    loadConversations();
+  }
+}
+
+async function loadConversations() {
+  const res = await api('GET', '/api/chat/conversations');
+  const el = document.getElementById('convList');
+  if (!res.success || !res.data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128172;</div><p>No conversations yet. Chat with your courier when you place an order!</p></div>';
+    return;
+  }
+  el.innerHTML = res.data.map(c => `
+    <div class="conv-card" onclick="openChat(${c.order_id})">
+      <div class="conv-avatar">${(c.other_name||'?')[0].toUpperCase()}</div>
+      <div class="conv-info">
+        <h4>${esc(c.other_name||'User')}</h4>
+        <p>${esc(c.last_message||'')}</p>
+      </div>
+      <div class="conv-meta">
+        <div class="conv-time">${formatTime(c.last_message_at)}</div>
+        ${c.unread_count > 0 ? `<div class="conv-unread">${c.unread_count}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function startUnreadPolling() {
+  stopUnreadPolling();
+  unreadChatPollTimer = setInterval(async () => {
+    const res = await api('GET', '/api/chat/unread');
+    if (res.success) {
+      const badge = document.getElementById('chatBadge');
+      if (res.data.unread_count > 0) {
+        badge.style.display = 'flex';
+        badge.textContent = res.data.unread_count;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }, 10000);
+}
+
+function stopUnreadPolling() {
+  if (unreadChatPollTimer) { clearInterval(unreadChatPollTimer); unreadChatPollTimer = null; }
+}
+
+// ════════════════════════════════════════
+//  VOICE CALLING (WebRTC)
+// ════════════════════════════════════════
+let peerConnection = null;
+let localStream = null;
+const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
+
+async function startCall() {
+  if (!currentOrder || !currentOrder.courier_id) return alert('No courier assigned yet');
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e) {
+    return alert('Microphone access required for voice calls');
+  }
+
+  peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+  peerConnection.onicecandidate = (e) => {
+    if (e.candidate && currentCallId) {
+      api('POST', '/api/call/ice-candidate', { call_id: currentCallId, candidate: JSON.stringify(e.candidate) });
+    }
+  };
+
+  peerConnection.ontrack = (e) => {
+    const audio = document.getElementById('remoteAudio') || document.createElement('audio');
+    audio.id = 'remoteAudio';
+    audio.autoplay = true;
+    audio.srcObject = e.streams[0];
+    document.body.appendChild(audio);
+  };
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+
+  const res = await api('POST', '/api/call/initiate', {
+    order_id: currentOrder.id,
+    offer_sdp: JSON.stringify(offer)
+  });
+
+  if (res.success) {
+    currentCallId = res.data.call_id;
+    showCallOverlay(currentOrder.courier_name || 'Courier', 'Ringing...');
+    pollCallAnswer();
+    pollIceCandidates();
+  } else {
+    alert(res.message);
+    cleanupCall();
+  }
+}
+
+async function pollCallAnswer() {
+  stopCallPoll();
+  callPollTimer = setInterval(async () => {
+    if (!currentCallId) return;
+    const res = await api('GET', `/api/call/${currentCallId}/status`);
+    if (res.success) {
+      if (res.data.status === 'answered' && res.data.answer_sdp) {
+        stopCallPoll();
+        await peerConnection.setRemoteDescription(JSON.parse(res.data.answer_sdp));
+        document.getElementById('callStatus').textContent = 'Connected';
+        startCallTimer();
+      } else if (res.data.status === 'rejected') {
+        stopCallPoll();
+        alert('Call was rejected');
+        cleanupCall();
+      } else if (res.data.status === 'ended') {
+        stopCallPoll();
+        cleanupCall();
+      }
+    }
+  }, 2000);
+}
+
+async function pollIceCandidates() {
+  let lastId = 0;
+  const iv = setInterval(async () => {
+    if (!currentCallId || !peerConnection) { clearInterval(iv); return; }
+    const res = await api('GET', `/api/call/${currentCallId}/ice?after_id=${lastId}`);
+    if (res.success && res.data.length) {
+      for (const c of res.data) {
+        try {
+          await peerConnection.addIceCandidate(JSON.parse(c.candidate));
+          lastId = Math.max(lastId, c.id);
+        } catch(e) {}
+      }
+    }
+  }, 2000);
+  window._icePollInterval = iv;
+}
+
+function showCallOverlay(name, status) {
+  document.getElementById('callAvatar').textContent = (name||'?')[0].toUpperCase();
+  document.getElementById('callName').textContent = name;
+  document.getElementById('callStatus').textContent = status;
+  document.getElementById('callTimer').style.display = 'none';
+  document.getElementById('callBtns').innerHTML = '<button class="btn-call-end" onclick="endCall()">&#128308;</button>';
+  document.getElementById('callOverlay').classList.add('active');
+}
+
+function startCallTimer() {
+  callSeconds = 0;
+  document.getElementById('callTimer').style.display = '';
+  document.getElementById('callTimer').textContent = '00:00';
+  callTimerInterval = setInterval(() => {
+    callSeconds++;
+    const m = String(Math.floor(callSeconds/60)).padStart(2,'0');
+    const s = String(callSeconds%60).padStart(2,'0');
+    document.getElementById('callTimer').textContent = m+':'+s;
+  }, 1000);
+}
+
+async function endCall() {
+  if (currentCallId) {
+    await api('POST', '/api/call/end', { call_id: currentCallId });
+  }
+  cleanupCall();
+}
+
+function cleanupCall() {
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+  if (callPollTimer) { clearInterval(callPollTimer); callPollTimer = null; }
+  if (window._icePollInterval) { clearInterval(window._icePollInterval); window._icePollInterval = null; }
+  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  const audio = document.getElementById('remoteAudio');
+  if (audio) audio.remove();
+  document.getElementById('callOverlay').classList.remove('active');
+  currentCallId = null;
+  callSeconds = 0;
+}
+
+function stopCallPoll() {
+  if (callPollTimer) { clearInterval(callPollTimer); callPollTimer = null; }
+}
+
+// ── INCOMING CALL (customer receives from courier) ──
+function startIncomingCallPolling() {
+  stopIncomingCallPolling();
+  incomingCallPollTimer = setInterval(async () => {
+    const res = await api('GET', '/api/call/incoming');
+    if (res.success && res.data.length) {
+      const call = res.data[0];
+      if (call.status === 'ringing') {
+        document.getElementById('incomingCallName').textContent = call.caller_name || 'Courier';
+        document.getElementById('incomingCallBanner').classList.add('active');
+        window._incomingCall = call;
+      }
+    }
+  }, 5000);
+}
+
+function stopIncomingCallPolling() {
+  if (incomingCallPollTimer) { clearInterval(incomingCallPollTimer); incomingCallPollTimer = null; }
+}
+
+async function acceptIncomingCall() {
+  const call = window._incomingCall;
+  if (!call) return;
+  document.getElementById('incomingCallBanner').classList.remove('active');
+
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch(e) {
+    return alert('Microphone access required');
+  }
+
+  peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+  localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+  peerConnection.onicecandidate = (e) => {
+    if (e.candidate) {
+      api('POST', '/api/call/ice-candidate', { call_id: call.id, candidate: JSON.stringify(e.candidate) });
+    }
+  };
+
+  peerConnection.ontrack = (e) => {
+    const audio = document.getElementById('remoteAudio') || document.createElement('audio');
+    audio.id = 'remoteAudio';
+    audio.autoplay = true;
+    audio.srcObject = e.streams[0];
+    document.body.appendChild(audio);
+  };
+
+  await peerConnection.setRemoteDescription(JSON.parse(call.offer_sdp));
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+
+  const res = await api('POST', '/api/call/answer', {
+    call_id: call.id,
+    answer_sdp: JSON.stringify(answer)
+  });
+
+  if (res.success) {
+    currentCallId = call.id;
+    showCallOverlay(call.caller_name || 'Courier', 'Connected');
+    startCallTimer();
+    pollIceCandidates();
+  } else {
+    cleanupCall();
+  }
+}
+
+async function rejectIncomingCall() {
+  const call = window._incomingCall;
+  if (!call) return;
+  document.getElementById('incomingCallBanner').classList.remove('active');
+  await api('POST', '/api/call/reject', { call_id: call.id });
+  window._incomingCall = null;
+}
+
+// ════════════════════════════════════════
+//  NOTIFICATIONS
+// ════════════════════════════════════════
+async function loadNotifications() {
+  const res = await api('GET', '/api/notifications');
+  if (res.success) {
+    const el = document.getElementById('notifList');
+    if (!res.data.length) { el.innerHTML = '<div class="empty-state"><p>No notifications</p></div>'; return; }
+    el.innerHTML = res.data.map(n => `
+      <div class="notif-item ${n.is_read ? '' : 'unread'}">
+        <div class="n-icon" style="background:${n.type?.includes('call')?'var(--green)':n.type?.includes('chat')?'var(--blue)':'var(--pri)'};color:#fff">&#128276;</div>
+        <div class="n-body">
+          <h5>${esc(n.title)}</h5>
+          <p>${esc(n.body)}</p>
+        </div>
+      </div>
+    `).join('');
+    api('POST', '/api/notifications/mark-all-read');
+  }
+}
+
+// ════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════
+async function loadProfile() {
+  const res = await api('GET', '/api/me');
+  if (res.success) {
+    const u = res.data;
+    document.getElementById('profileName').textContent = u.display_name || u.username;
+    document.getElementById('profileRole').textContent = u.role;
+    const av = document.getElementById('profileAvatar');
+    if (u.avatar_url) {
+      av.innerHTML = `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    } else {
+      av.textContent = (u.display_name || u.username || '?')[0].toUpperCase();
+    }
+    if (u.loyalty_points > 0) {
+      document.getElementById('profileLoyalty').style.display = '';
+      document.getElementById('profilePts').textContent = u.loyalty_points;
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════
+function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+function formatTime(t) {
+  if (!t) return '';
+  try { return new Date(t).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); } catch(e) { return ''; }
+}
+
+function stopAllPolling() {
+  stopOrderTrackPolling();
+  stopChatPolling();
+  stopUnreadPolling();
+  stopIncomingCallPolling();
+  stopCallPoll();
+  if (window._icePollInterval) { clearInterval(window._icePollInterval); window._icePollInterval = null; }
+}
+
+// ════════════════════════════════════════
+//  THEME MANAGEMENT
+// ════════════════════════════════════════
+const CUSTOMER_THEMES = [
+  { id: 'default', name: 'Default Orange', color: '#ff6b35' },
+  { id: 'ocean_blue', name: 'Ocean Blue', color: '#2980b9' },
+  { id: 'sunset', name: 'Sunset', color: '#e74c3c' },
+  { id: 'dark', name: 'Dark Mode', color: '#1a1a2e' },
+  { id: 'glassy_aurora', name: 'Glassy Aurora', color: 'linear-gradient(135deg,#e74c3c,#9b59b6)' },
+  { id: 'glassy_frost', name: 'Glassy Frost', color: 'linear-gradient(135deg,#e0eafc,#a1c4fd)' },
+  { id: 'midnight_gold', name: 'Midnight Gold', color: '#0d1117' },
+  { id: 'lavender_dream', name: 'Lavender Dream', color: '#9b59b6' }
+];
+
+function applyTheme(themeId) {
+  if (themeId === 'default') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', themeId);
+  }
+  localStorage.setItem('customer_theme', themeId);
+  // Update active swatch
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === themeId);
+  });
+}
+
+function openThemePicker() {
+  const grid = document.getElementById('themeGrid');
+  const currentTheme = localStorage.getItem('customer_theme') || 'default';
+  grid.innerHTML = CUSTOMER_THEMES.map(t => {
+    const isGrad = t.color.includes('gradient');
+    const style = isGrad ? `background:${t.color}` : `background:${t.color}`;
+    return `<div class="theme-swatch ${t.id === currentTheme ? 'active' : ''}" data-theme="${t.id}" onclick="applyTheme('${t.id}')">
+      <div class="swatch-color" style="${style}"></div>
+      <div class="swatch-label">${t.name}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('themePickerOverlay').classList.add('active');
+}
+
+function closeThemePicker() {
+  document.getElementById('themePickerOverlay').classList.remove('active');
+}
+
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('customer_theme');
+  if (saved && saved !== 'default') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+})();
+
+// ════════════════════════════════════════
+//  AUTO-LOGIN ON PAGE LOAD
+// ════════════════════════════════════════
+if (token && user) {
+  enterApp();
+} else {
+  // Wait for splash to finish before showing auth
+  setTimeout(() => { showScreen('authScreen'); }, 2200);
+}
+</script>
+</body>
+</html>

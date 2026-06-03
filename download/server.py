@@ -1,5 +1,7 @@
 """
 Elyanivery — Pure Python HTTP Server + SQL Server
+  v2.0 — Added: In-App Chat, Voice Calling (WebRTC Signaling),
+         Notifications, Address Book, Loyalty Points
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -13,11 +15,128 @@ import urllib.request
 import traceback
 import base64
 import uuid
+import random
 from config import Config
 from db import query, insert, init_db, seed_data, close_conn
 from services.auth import AuthService
 
 
+# ────────────────────────────────────────────
+# EXTRA TABLES (auto-created on startup)
+# ────────────────────────────────────────────
+def init_extra_tables():
+    """Create new tables for v2.0 features. Uses IF NOT EXISTS for safety."""
+    tables = [
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ChatMessages' AND xtype='U')
+        CREATE TABLE ChatMessages (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            order_id INT NOT NULL,
+            sender_id INT NOT NULL,
+            receiver_id INT NOT NULL,
+            message NVARCHAR(2000),
+            message_type VARCHAR(20) DEFAULT 'text',
+            is_read BIT DEFAULT 0,
+            created_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CallSessions' AND xtype='U')
+        CREATE TABLE CallSessions (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            order_id INT NOT NULL,
+            caller_id INT NOT NULL,
+            callee_id INT NOT NULL,
+            status VARCHAR(20) DEFAULT 'ringing',
+            offer_sdp NVARCHAR(MAX),
+            answer_sdp NVARCHAR(MAX),
+            started_at DATETIME DEFAULT GETUTCDATE(),
+            answered_at DATETIME NULL,
+            ended_at DATETIME NULL
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='IceCandidates' AND xtype='U')
+        CREATE TABLE IceCandidates (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            call_id INT NOT NULL,
+            user_id INT NOT NULL,
+            candidate NVARCHAR(MAX),
+            created_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Notifications' AND xtype='U')
+        CREATE TABLE Notifications (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            user_id INT NOT NULL,
+            title NVARCHAR(200),
+            body NVARCHAR(1000),
+            type VARCHAR(50),
+            reference_id INT NULL,
+            is_read BIT DEFAULT 0,
+            created_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Addresses' AND xtype='U')
+        CREATE TABLE Addresses (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            user_id INT NOT NULL,
+            label NVARCHAR(100),
+            address NVARCHAR(500),
+            latitude FLOAT,
+            longitude FLOAT,
+            is_default BIT DEFAULT 0,
+            created_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='LoyaltyPoints' AND xtype='U')
+        CREATE TABLE LoyaltyPoints (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            user_id INT NOT NULL,
+            points INT DEFAULT 0,
+            total_earned INT DEFAULT 0,
+            updated_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='PointTransactions' AND xtype='U')
+        CREATE TABLE PointTransactions (
+            id INT PRIMARY KEY IDENTITY(1,1),
+            user_id INT NOT NULL,
+            order_id INT NULL,
+            points INT NOT NULL,
+            transaction_type VARCHAR(20),
+            description NVARCHAR(200),
+            created_at DATETIME DEFAULT GETUTCDATE()
+        )""",
+    ]
+    for sql in tables:
+        try:
+            query(sql)
+        except Exception as e:
+            print(f"  Table init note: {e}")
+
+
+def push_notification(user_id, title, body, ntype='', reference_id=None):
+    """Helper: insert a notification row."""
+    try:
+        insert(
+            "INSERT INTO Notifications (user_id,title,body,type,reference_id) VALUES (?,?,?,?,?)",
+            (user_id, title, body, ntype, reference_id)
+        )
+    except Exception as e:
+        print(f"  Notification error: {e}")
+
+
+def award_loyalty_points(user_id, order_id, order_total):
+    """Award 1 point per euro spent. Called after order is delivered."""
+    try:
+        pts = max(1, int(order_total))
+        existing = query("SELECT id FROM LoyaltyPoints WHERE user_id=?", (user_id,), fetch_one=True)
+        if existing:
+            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=GETUTCDATE() WHERE user_id=?",
+                  (pts, pts, user_id))
+        else:
+            insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,?,?)", (user_id, pts, pts))
+        insert("INSERT INTO PointTransactions (user_id,order_id,points,transaction_type,description) VALUES (?,?,?,'earn',?)",
+               (user_id, order_id, pts, f'Earned {pts} points from order'))
+    except Exception as e:
+        print(f"  Loyalty error: {e}")
+
+
+# ────────────────────────────────────────────
+# UTILITY
+# ────────────────────────────────────────────
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0
     lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
@@ -66,6 +185,9 @@ def auto_assign_courier(order_id, restaurant_lat, restaurant_lng):
                   (c['courier_id'], order_id))
             query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'courier_assigned', ?)",
                   (order_id, f"Courier {c['courier_id']} assigned ({c['dist_km']:.1f}km away)"))
+            # Notify courier
+            push_notification(c['courier_id'], 'New Order Assigned',
+                              f'You have been assigned to order #{order_id}', 'order_assigned', order_id)
             return c['courier_id']
     except Exception as e:
         print(f"  Auto-assign error: {e}")
@@ -106,7 +228,7 @@ def save_avatar(user_id, base64_data):
 
 
 # ────────────────────────────────────────────
-# API HANDLERS
+# API HANDLERS — AUTH / PROFILE
 # ────────────────────────────────────────────
 def handle_register(body):
     try:
@@ -126,6 +248,11 @@ def handle_register(body):
                      (username, pw_hash, role, display_name))
         if role == 'courier':
             insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,0)", (uid,))
+        # Init loyalty
+        try:
+            insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,0,0)", (uid,))
+        except:
+            pass
         token_val = AuthService.make_token(uid, role)
         return 201, {"success": True, "data": {"id": uid, "username": username, "role": role, "token": token_val, "display_name": display_name, "avatar_url": None}}
     except Exception as e:
@@ -153,6 +280,10 @@ def handle_me(payload):
         user = query("SELECT id,username,role,display_name,avatar_url FROM Users WHERE id=?", (payload['uid'],), fetch_one=True)
         if not user:
             return 404, {"success": False, "message": "User not found"}
+        # Append loyalty points
+        lp = query("SELECT points, total_earned FROM LoyaltyPoints WHERE user_id=?", (payload['uid'],), fetch_one=True)
+        user['loyalty_points'] = lp['points'] if lp else 0
+        user['total_earned_points'] = lp['total_earned'] if lp else 0
         return 200, {"success": True, "data": user}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -252,7 +383,7 @@ def handle_validate_promo(body):
         return 500, {"success": False, "message": str(e)}
 
 
-# ── CANCEL ORDER ──
+# ── CANCEL / REORDER ──
 def handle_cancel_order(payload, oid):
     try:
         order = query("SELECT * FROM Orders WHERE id=? AND customer_id=?", (oid, payload['uid']), fetch_one=True)
@@ -262,13 +393,14 @@ def handle_cancel_order(payload, oid):
             return 400, {"success": False, "message": "Cannot cancel order in current status"}
         query("UPDATE Orders SET status='cancelled', cancelled_at=GETUTCDATE(), updated_at=GETUTCDATE() WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'cancelled','Cancelled by customer')", (oid,))
-        # Free up courier if assigned
+        if order['courier_id']:
+            push_notification(order['courier_id'], 'Order Cancelled',
+                              f'Order #{oid} has been cancelled by the customer', 'order_cancelled', oid)
         return 200, {"success": True, "message": "Order cancelled"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
 
-# ── REORDER ──
 def handle_reorder(payload, oid):
     try:
         items = query("SELECT item_id, item_name, item_price, quantity FROM OrderItems WHERE order_id=?", (oid,), fetch=True)
@@ -278,10 +410,8 @@ def handle_reorder(payload, oid):
         if not order:
             return 404, {"success": False, "message": "Order not found"}
         rid = order['restaurant_id']
-        # Build cart
         cart = {"restaurant_id": rid, "items": []}
         for i in items:
-            # Check item still exists
             item = query("SELECT id, name, price FROM Items WHERE id=? AND is_available=1", (i['item_id'],), fetch_one=True)
             if item:
                 cart['items'].append({"item_id": item['id'], "name": item['name'], "price": float(item['price']), "quantity": i['quantity']})
@@ -293,7 +423,7 @@ def handle_reorder(payload, oid):
         return 500, {"success": False, "message": str(e)}
 
 
-# ── ADMIN TOGGLE RESTAURANT ──
+# ── ADMIN ──
 def handle_toggle_restaurant(payload, rid):
     try:
         if payload['role'] != 'admin':
@@ -308,7 +438,6 @@ def handle_toggle_restaurant(payload, rid):
         return 500, {"success": False, "message": str(e)}
 
 
-# ── ADMIN ALL ORDERS ──
 def handle_admin_all_orders(payload):
     try:
         if payload['role'] != 'admin':
@@ -548,7 +677,7 @@ def handle_create_order(body, payload):
 
         subtotal = sum(i['price'] * i['quantity'] for i in cart['items'])
 
-        # Check promo code BEFORE calculating total
+        # Check promo code
         discount = 0
         promo_code_str = body.get('promo_code', '').strip().upper()
         if promo_code_str:
@@ -569,11 +698,22 @@ def handle_create_order(body, payload):
                         discount = round(discount, 2)
                         query("UPDATE PromoCodes SET used_count=used_count+1 WHERE code=?", (promo_code_str,))
 
+        # Loyalty points redemption (100 points = 1 euro)
+        points_to_redeem = int(body.get('redeem_points', 0) or 0)
+        points_discount = 0
+        if points_to_redeem > 0:
+            lp = query("SELECT points FROM LoyaltyPoints WHERE user_id=?", (uid,), fetch_one=True)
+            available = lp['points'] if lp else 0
+            points_to_redeem = min(points_to_redeem, available)
+            points_discount = round(points_to_redeem / 100.0, 2)  # 100 pts = 1 euro
+            if points_discount > subtotal + 2.50 - discount:
+                points_discount = round(subtotal + 2.50 - discount, 2)
+                points_to_redeem = int(points_discount * 100)
+
         delivery_fee = 2.50
-        total = round(subtotal + delivery_fee - discount, 2)
+        total = round(subtotal + delivery_fee - discount - points_discount, 2)
 
         # Generate unique order number
-        import random
         order_number = f"ELY-{random.randint(100000, 999999)}"
         while query("SELECT id FROM Orders WHERE order_number=?", (order_number,), fetch_one=True):
             order_number = f"ELY-{random.randint(100000, 999999)}"
@@ -581,7 +721,7 @@ def handle_create_order(body, payload):
         delivery_lat = body.get('delivery_lat', 41.3900) or 41.3900
         delivery_lng = body.get('delivery_lng', 2.1700) or 2.1700
 
-        # Insert order ONCE — discount is already subtracted from total
+        # Insert order
         oid = insert(
             "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
             "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng)"
@@ -597,11 +737,22 @@ def handle_create_order(body, payload):
                 (oid, item['item_id'], item['name'], item['price'], item['quantity'])
             )
 
+        # Deduct redeemed loyalty points
+        if points_to_redeem > 0:
+            query("UPDATE LoyaltyPoints SET points=points-?, updated_at=GETUTCDATE() WHERE user_id=?",
+                  (points_to_redeem, uid))
+            insert("INSERT INTO PointTransactions (user_id,order_id,points,transaction_type,description) VALUES (?,?,?,'redeem',?)",
+                   (uid, oid, points_to_redeem, f'Redeemed {points_to_redeem} points for €{points_discount:.2f} discount'))
+
         # Clear cart
         _carts.pop(uid, None)
 
         # Auto-assign courier
         courier_id = auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+
+        # Notify customer
+        push_notification(uid, 'Order Confirmed',
+                          f'Your order {order_number} has been placed!', 'order_confirmed', oid)
 
         # Build response
         order = query(
@@ -641,7 +792,6 @@ def handle_get_order(oid, payload):
             order['courier_location'] = cloc
             order['courier_name'] = cloc['display_name'] if cloc else 'Courier'
             order['courier_avatar'] = cloc.get('avatar_url') if cloc else None
-        # Check if rated
         rating = query("SELECT id FROM Ratings WHERE order_id=? AND user_id=?", (oid, payload.get('uid', 0)), fetch_one=True)
         order['is_rated'] = bool(rating)
         return 200, {"success": True, "data": order}
@@ -669,7 +819,16 @@ def handle_rate_order(body, payload, oid):
         comment = body.get('comment', '') or ''
         insert("INSERT INTO Ratings (order_id,user_id,courier_rating,service_rating,comment) VALUES (?,?,?,?,?)",
                (oid, payload['uid'], courier_rating, service_rating, comment))
-        return 201, {"success": True, "message": "Rating submitted!"}
+        # Award bonus loyalty points for rating
+        try:
+            bonus_pts = 10
+            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=GETUTCDATE() WHERE user_id=?",
+                  (bonus_pts, bonus_pts, payload['uid']))
+            insert("INSERT INTO PointTransactions (user_id,order_id,points,transaction_type,description) VALUES (?,?,?,'earn',?)",
+                   (payload['uid'], oid, bonus_pts, 'Bonus points for rating order'))
+        except:
+            pass
+        return 201, {"success": True, "message": "Rating submitted! +10 loyalty points!"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -745,9 +904,26 @@ def handle_courier_update_status(body, payload, oid):
             update_fields += ", courier_arrived_customer_at=GETUTCDATE()"
         elif new_status == 'delivered':
             update_fields += ", delivered_at=GETUTCDATE()"
+            # Award loyalty points on delivery
+            try:
+                award_loyalty_points(order['customer_id'], oid, float(order['total']))
+            except:
+                pass
         params.append(oid)
         query(f"UPDATE Orders SET {update_fields} WHERE id=?", tuple(params))
         query("INSERT INTO OrderLog (order_id,status) VALUES (?,?)", (oid, new_status))
+        # Notify customer of status change
+        status_labels = {
+            'heading_to_restaurant': 'Courier is heading to the restaurant',
+            'arrived_at_restaurant': 'Courier arrived at the restaurant',
+            'order_picked_up': 'Your order has been picked up!',
+            'heading_to_customer': 'Courier is heading to you',
+            'arrived_at_customer': 'Courier has arrived at your location!',
+            'delivered': 'Your order has been delivered!'
+        }
+        push_notification(order['customer_id'], 'Order Update',
+                          status_labels.get(new_status, f'Order status: {new_status}'),
+                          'order_status', oid)
         return 200, {"success": True, "data": {"status": new_status}}
     except Exception as e:
         traceback.print_exc()
@@ -784,7 +960,448 @@ def handle_admin_assign_order(body, payload):
             return 400, {"success": False, "message": "order_id and courier_id required"}
         query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=GETUTCDATE() WHERE id=?", (cid, oid))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'courier_assigned','Manually assigned')", (oid,))
+        push_notification(cid, 'Order Assigned', f'Admin assigned you to order #{oid}', 'order_assigned', oid)
         return 200, {"success": True, "message": "Courier assigned"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ══════════════════════════════════════════════
+#  NEW: IN-APP CHAT (Customer <-> Courier)
+# ══════════════════════════════════════════════
+def handle_chat_send(body, payload):
+    """Send a chat message. Both customer and courier can use this."""
+    try:
+        order_id = body.get('order_id')
+        message = (body.get('message') or '').strip()
+        msg_type = body.get('message_type', 'text')  # text, image, location
+        if not order_id or not message:
+            return 400, {"success": False, "message": "order_id and message required"}
+
+        # Verify the user is part of this order
+        order = query("SELECT customer_id, courier_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+
+        uid = payload['uid']
+        if uid != order['customer_id'] and uid != order['courier_id']:
+            return 403, {"success": False, "message": "Not authorized for this conversation"}
+
+        # Determine receiver
+        receiver_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
+        if not receiver_id:
+            return 400, {"success": False, "message": "No courier assigned yet"}
+
+        msg_id = insert(
+            "INSERT INTO ChatMessages (order_id,sender_id,receiver_id,message,message_type) VALUES (?,?,?,?,?)",
+            (order_id, uid, receiver_id, message, msg_type)
+        )
+        # Push notification to receiver
+        sender = query("SELECT display_name FROM Users WHERE id=?", (uid,), fetch_one=True)
+        sender_name = sender['display_name'] if sender else 'User'
+        push_notification(receiver_id, f'New message from {sender_name}',
+                          message[:100], 'chat_message', order_id)
+
+        return 201, {"success": True, "data": {"id": msg_id, "order_id": order_id,
+                     "sender_id": uid, "receiver_id": receiver_id, "message": message,
+                     "message_type": msg_type}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_chat_messages(payload, order_id, after_id=0):
+    """Get messages for an order conversation. Use after_id for polling (only new messages)."""
+    try:
+        order = query("SELECT customer_id, courier_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        uid = payload['uid']
+        if uid != order['customer_id'] and uid != order['courier_id']:
+            return 403, {"success": False, "message": "Not authorized"}
+
+        rows = query(
+            "SELECT cm.*, u.display_name as sender_name, u.avatar_url as sender_avatar "
+            "FROM ChatMessages cm JOIN Users u ON cm.sender_id=u.id "
+            "WHERE cm.order_id=? AND cm.id>? ORDER BY cm.id ASC",
+            (order_id, after_id), fetch=True
+        )
+        # Mark messages sent TO this user as read
+        query("UPDATE ChatMessages SET is_read=1 WHERE order_id=? AND receiver_id=? AND is_read=0",
+              (order_id, uid))
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_chat_conversations(payload):
+    """List all active chat conversations for the current user."""
+    try:
+        uid = payload['uid']
+        rows = query("""
+            SELECT o.id as order_id, o.order_number, o.status,
+                   cm.message as last_message, cm.created_at as last_message_at,
+                   cm.message_type as last_message_type,
+                   u.display_name as other_name, u.avatar_url as other_avatar,
+                   (SELECT COUNT(*) FROM ChatMessages WHERE order_id=o.id
+                    AND receiver_id=? AND is_read=0) as unread_count
+            FROM Orders o
+            JOIN ChatMessages cm ON cm.id = (
+                SELECT TOP 1 id FROM ChatMessages WHERE order_id=o.id ORDER BY id DESC
+            )
+            JOIN Users u ON u.id = CASE WHEN o.customer_id=? THEN o.courier_id ELSE o.customer_id END
+            WHERE (o.customer_id=? OR o.courier_id=?)
+            ORDER BY cm.created_at DESC
+        """, (uid, uid, uid, uid), fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_chat_unread(payload):
+    """Get total unread message count for the current user."""
+    try:
+        row = query("SELECT COUNT(*) as cnt FROM ChatMessages WHERE receiver_id=? AND is_read=0",
+                    (payload['uid'],), fetch_one=True)
+        return 200, {"success": True, "data": {"unread_count": row['cnt'] if row else 0}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ══════════════════════════════════════════════
+#  NEW: VOICE CALLING (WebRTC Signaling)
+#  Architecture:
+#    1. Caller initiates -> server stores offer SDP + creates CallSession
+#    2. Callee polls for incoming calls -> gets offer SDP
+#    3. Callee answers -> server stores answer SDP
+#    4. Both exchange ICE candidates through server
+#    5. Actual audio goes P2P via WebRTC (browser handles this)
+#    6. End call -> server marks session ended
+#  Privacy: No phone numbers shared — only user IDs are used.
+# ══════════════════════════════════════════════
+def handle_call_initiate(body, payload):
+    """Caller starts a call. Sends WebRTC offer SDP."""
+    try:
+        order_id = body.get('order_id')
+        offer_sdp = body.get('offer_sdp', '')
+        if not order_id:
+            return 400, {"success": False, "message": "order_id required"}
+
+        order = query("SELECT customer_id, courier_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+
+        uid = payload['uid']
+        if uid != order['customer_id'] and uid != order['courier_id']:
+            return 403, {"success": False, "message": "Not authorized for this order"}
+
+        callee_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
+        if not callee_id:
+            return 400, {"success": False, "message": "No courier assigned yet"}
+
+        # Check no active call for this order
+        active = query(
+            "SELECT id FROM CallSessions WHERE order_id=? AND status IN ('ringing','answered')",
+            (order_id,), fetch_one=True
+        )
+        if active:
+            return 409, {"success": False, "message": "A call is already active for this order"}
+
+        call_id = insert(
+            "INSERT INTO CallSessions (order_id,caller_id,callee_id,status,offer_sdp) VALUES (?,?,?,'ringing',?)",
+            (order_id, uid, callee_id, offer_sdp)
+        )
+
+        # Notify callee
+        caller = query("SELECT display_name FROM Users WHERE id=?", (uid,), fetch_one=True)
+        caller_name = caller['display_name'] if caller else 'User'
+        push_notification(callee_id, 'Incoming Call',
+                          f'{caller_name} is calling you about order #{order_id}',
+                          'voice_call', call_id)
+
+        return 201, {"success": True, "data": {"call_id": call_id, "callee_id": callee_id, "status": "ringing"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_incoming(payload):
+    """Check for incoming calls (callee polls this)."""
+    try:
+        rows = query(
+            "SELECT cs.*, u.display_name as caller_name, u.avatar_url as caller_avatar "
+            "FROM CallSessions cs JOIN Users u ON cs.caller_id=u.id "
+            "WHERE cs.callee_id=? AND cs.status='ringing' ORDER BY cs.started_at DESC",
+            (payload['uid'],), fetch=True
+        )
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_answer(body, payload):
+    """Callee answers the call. Sends WebRTC answer SDP."""
+    try:
+        call_id = body.get('call_id')
+        answer_sdp = body.get('answer_sdp', '')
+        if not call_id:
+            return 400, {"success": False, "message": "call_id required"}
+
+        call = query("SELECT * FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+        if call['callee_id'] != payload['uid']:
+            return 403, {"success": False, "message": "Not the callee of this call"}
+        if call['status'] != 'ringing':
+            return 400, {"success": False, "message": f"Call is not ringing (status: {call['status']})"}
+
+        query("UPDATE CallSessions SET status='answered', answer_sdp=?, answered_at=GETUTCDATE() WHERE id=?",
+              (answer_sdp, call_id))
+
+        # Notify caller that call was answered
+        push_notification(call['caller_id'], 'Call Answered',
+                          'Your call has been answered', 'call_answered', call_id)
+
+        return 200, {"success": True, "data": {"call_id": call_id, "status": "answered"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_ice_candidate(body, payload):
+    """Exchange ICE candidates for NAT traversal."""
+    try:
+        call_id = body.get('call_id')
+        candidate = body.get('candidate', '')
+        if not call_id or not candidate:
+            return 400, {"success": False, "message": "call_id and candidate required"}
+
+        call = query("SELECT * FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+
+        uid = payload['uid']
+        if uid != call['caller_id'] and uid != call['callee_id']:
+            return 403, {"success": False, "message": "Not part of this call"}
+
+        ice_id = insert(
+            "INSERT INTO IceCandidates (call_id,user_id,candidate) VALUES (?,?,?)",
+            (call_id, uid, candidate)
+        )
+        return 201, {"success": True, "data": {"id": ice_id}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_get_ice_candidates(payload, call_id, after_id=0):
+    """Poll for ICE candidates from the other party."""
+    try:
+        call = query("SELECT * FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+
+        uid = payload['uid']
+        if uid != call['caller_id'] and uid != call['callee_id']:
+            return 403, {"success": False, "message": "Not part of this call"}
+
+        # Get candidates from the OTHER user only
+        rows = query(
+            "SELECT * FROM IceCandidates WHERE call_id=? AND user_id!=? AND id>? ORDER BY id ASC",
+            (call_id, uid, after_id), fetch=True
+        )
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_get_answer(payload, call_id):
+    """Caller polls to check if the call has been answered (to get answer SDP)."""
+    try:
+        call = query("SELECT id,status,answer_sdp FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+        if call['caller_id'] != payload['uid']:
+            return 403, {"success": False, "message": "Not the caller"}
+        return 200, {"success": True, "data": {"status": call['status'], "answer_sdp": call.get('answer_sdp')}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_end(body, payload):
+    """End a call (either party can end it)."""
+    try:
+        call_id = body.get('call_id')
+        if not call_id:
+            return 400, {"success": False, "message": "call_id required"}
+
+        call = query("SELECT * FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+
+        uid = payload['uid']
+        if uid != call['caller_id'] and uid != call['callee_id']:
+            return 403, {"success": False, "message": "Not part of this call"}
+
+        query("UPDATE CallSessions SET status='ended', ended_at=GETUTCDATE() WHERE id=?", (call_id,))
+
+        # Notify the other party
+        other_id = call['callee_id'] if uid == call['caller_id'] else call['caller_id']
+        push_notification(other_id, 'Call Ended', 'The call has ended', 'call_ended', call_id)
+
+        return 200, {"success": True, "data": {"call_id": call_id, "status": "ended"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_call_reject(body, payload):
+    """Callee rejects an incoming call."""
+    try:
+        call_id = body.get('call_id')
+        if not call_id:
+            return 400, {"success": False, "message": "call_id required"}
+
+        call = query("SELECT * FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        if not call:
+            return 404, {"success": False, "message": "Call not found"}
+        if call['callee_id'] != payload['uid']:
+            return 403, {"success": False, "message": "Not the callee"}
+
+        query("UPDATE CallSessions SET status='rejected', ended_at=GETUTCDATE() WHERE id=?", (call_id,))
+
+        push_notification(call['caller_id'], 'Call Rejected', 'The other party rejected the call', 'call_rejected', call_id)
+
+        return 200, {"success": True, "data": {"call_id": call_id, "status": "rejected"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ══════════════════════════════════════════════
+#  NEW: NOTIFICATIONS
+# ══════════════════════════════════════════════
+def handle_get_notifications(payload):
+    try:
+        rows = query(
+            "SELECT TOP 50 * FROM Notifications WHERE user_id=? ORDER BY created_at DESC",
+            (payload['uid'],), fetch=True
+        )
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_mark_notification_read(payload, nid):
+    try:
+        query("UPDATE Notifications SET is_read=1 WHERE id=? AND user_id=?", (nid, payload['uid']))
+        return 200, {"success": True, "message": "Marked as read"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_mark_all_notifications_read(payload):
+    try:
+        query("UPDATE Notifications SET is_read=1 WHERE user_id=? AND is_read=0", (payload['uid'],))
+        return 200, {"success": True, "message": "All marked as read"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_unread_notification_count(payload):
+    try:
+        row = query("SELECT COUNT(*) as cnt FROM Notifications WHERE user_id=? AND is_read=0",
+                    (payload['uid'],), fetch_one=True)
+        return 200, {"success": True, "data": {"unread_count": row['cnt'] if row else 0}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ══════════════════════════════════════════════
+#  NEW: ADDRESS BOOK
+# ══════════════════════════════════════════════
+def handle_get_addresses(payload):
+    try:
+        rows = query("SELECT * FROM Addresses WHERE user_id=? ORDER BY is_default DESC, created_at DESC",
+                     (payload['uid'],), fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_add_address(body, payload):
+    try:
+        label = (body.get('label') or '').strip()
+        address = (body.get('address') or '').strip()
+        if not address:
+            return 400, {"success": False, "message": "Address required"}
+        lat = body.get('latitude')
+        lng = body.get('longitude')
+        is_default = 1 if body.get('is_default') else 0
+        if is_default:
+            query("UPDATE Addresses SET is_default=0 WHERE user_id=?", (payload['uid'],))
+        aid = insert(
+            "INSERT INTO Addresses (user_id,label,address,latitude,longitude,is_default) VALUES (?,?,?,?,?,?)",
+            (payload['uid'], label, address, lat, lng, is_default)
+        )
+        return 201, {"success": True, "data": {"id": aid, "label": label, "address": address}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_update_address(body, payload, aid):
+    try:
+        addr = query("SELECT id FROM Addresses WHERE id=? AND user_id=?", (aid, payload['uid']), fetch_one=True)
+        if not addr:
+            return 404, {"success": False, "message": "Address not found"}
+        fields, params = [], []
+        for key in ['label', 'address']:
+            if key in body:
+                fields.append(f"{key}=?")
+                params.append(body[key])
+        if 'latitude' in body:
+            fields.append("latitude=?")
+            params.append(body['latitude'])
+        if 'longitude' in body:
+            fields.append("longitude=?")
+            params.append(body['longitude'])
+        if 'is_default' in body and body['is_default']:
+            query("UPDATE Addresses SET is_default=0 WHERE user_id=?", (payload['uid'],))
+            fields.append("is_default=1")
+        if not fields:
+            return 400, {"success": False, "message": "No fields to update"}
+        params.append(aid)
+        query(f"UPDATE Addresses SET {', '.join(fields)} WHERE id=?", tuple(params))
+        return 200, {"success": True, "message": "Address updated"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_delete_address(payload, aid):
+    try:
+        addr = query("SELECT id FROM Addresses WHERE id=? AND user_id=?", (aid, payload['uid']), fetch_one=True)
+        if not addr:
+            return 404, {"success": False, "message": "Address not found"}
+        query("DELETE FROM Addresses WHERE id=?", (aid,))
+        return 200, {"success": True, "message": "Address deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ══════════════════════════════════════════════
+#  NEW: LOYALTY POINTS
+# ══════════════════════════════════════════════
+def handle_get_loyalty(payload):
+    try:
+        lp = query("SELECT * FROM LoyaltyPoints WHERE user_id=?", (payload['uid'],), fetch_one=True)
+        if not lp:
+            return 200, {"success": True, "data": {"points": 0, "total_earned": 0}}
+        return 200, {"success": True, "data": {"points": lp['points'], "total_earned": lp['total_earned']}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_get_loyalty_history(payload):
+    try:
+        rows = query(
+            "SELECT * FROM PointTransactions WHERE user_id=? ORDER BY created_at DESC",
+            (payload['uid'],), fetch=True
+        )
+        return 200, {"success": True, "data": rows or []}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -825,12 +1442,106 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split('?')[0]
         qs = urllib.parse.parse_qs(self.path.split('?')[1]) if '?' in self.path else {}
         try:
+            # ── Static files ──
             if path == '/' or path == '/customer':
                 self._serve('/static/customer/index.html')
             elif path == '/courier':
                 self._serve('/static/courier/index.html')
             elif path.startswith('/static/'):
                 self._serve(path)
+
+            # ── Chat ──
+            elif path.startswith('/api/chat/messages/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                after_id = int(qs.get('after_id', [0])[0])
+                code, data = handle_chat_messages(p, oid, after_id)
+                self._json(code, data)
+            elif path == '/api/chat/conversations':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_chat_conversations(p)
+                self._json(code, data)
+            elif path == '/api/chat/unread':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_chat_unread(p)
+                self._json(code, data)
+
+            # ── Voice Call ──
+            elif path == '/api/call/incoming':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_incoming(p)
+                self._json(code, data)
+            elif path.startswith('/api/call/answer/') and path.endswith('/status'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    call_id = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid call ID"})
+                code, data = handle_call_get_answer(p, call_id)
+                self._json(code, data)
+            elif path.startswith('/api/call/') and '/ice/' in path:
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    parts = path.strip('/').split('/')
+                    call_id = int(parts[2])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid call ID"})
+                after_id = int(qs.get('after_id', [0])[0])
+                code, data = handle_call_get_ice_candidates(p, call_id, after_id)
+                self._json(code, data)
+
+            # ── Notifications ──
+            elif path == '/api/notifications':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_get_notifications(p)
+                self._json(code, data)
+            elif path == '/api/notifications/unread-count':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_unread_notification_count(p)
+                self._json(code, data)
+
+            # ── Address Book ──
+            elif path == '/api/addresses':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_get_addresses(p)
+                self._json(code, data)
+
+            # ── Loyalty ──
+            elif path == '/api/loyalty':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_get_loyalty(p)
+                self._json(code, data)
+            elif path == '/api/loyalty/history':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_get_loyalty_history(p)
+                self._json(code, data)
+
+            # ── Restaurants ──
             elif path == '/api/restaurants':
                 p = self._auth()
                 if not p:
@@ -848,12 +1559,16 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_get_restaurant(rid)
                 self._json(code, data)
+
+            # ── Cart ──
             elif path == '/api/cart':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_get_cart(p)
                 self._json(code, data)
+
+            # ── Orders ──
             elif path == '/api/orders':
                 p = self._auth()
                 if not p:
@@ -870,12 +1585,16 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_get_order(oid, p)
                 self._json(code, data)
+
+            # ── Courier ──
             elif path == '/api/courier/orders':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_courier_assigned_orders(p)
                 self._json(code, data)
+
+            # ── Admin ──
             elif path == '/api/admin/couriers':
                 p = self._auth()
                 if not p:
@@ -894,6 +1613,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_all_orders(p)
                 self._json(code, data)
+
+            # ── Me / Favorites ──
             elif path == '/api/me':
                 p = self._auth()
                 if not p:
@@ -907,7 +1628,6 @@ class Handler(BaseHTTPRequestHandler):
                 code, data = handle_get_favorites(p)
                 self._json(code, data)
             elif path.startswith('/api/favorites/'):
-                # GET /api/favorites/{rid} — check if favorite
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
@@ -917,6 +1637,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid restaurant ID"})
                 code, data = handle_check_favorite(p, rid)
                 self._json(code, data)
+
             else:
                 self._json(404, {"success": False, "message": "Not found"})
         except Exception as e:
@@ -932,12 +1653,81 @@ class Handler(BaseHTTPRequestHandler):
         except:
             body = {}
         try:
+            # ── Auth ──
             if path == '/api/auth/register':
                 code, data = handle_register(body)
                 return self._json(code, data)
             elif path == '/api/auth/login':
                 code, data = handle_login(body)
                 return self._json(code, data)
+
+            # ── Chat ──
+            elif path == '/api/chat/send':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_chat_send(body, p)
+                self._json(code, data)
+
+            # ── Voice Call ──
+            elif path == '/api/call/initiate':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_initiate(body, p)
+                self._json(code, data)
+            elif path == '/api/call/answer':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_answer(body, p)
+                self._json(code, data)
+            elif path == '/api/call/ice-candidate':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_ice_candidate(body, p)
+                self._json(code, data)
+            elif path == '/api/call/end':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_end(body, p)
+                self._json(code, data)
+            elif path == '/api/call/reject':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_call_reject(body, p)
+                self._json(code, data)
+
+            # ── Notifications ──
+            elif path == '/api/notifications/mark-all-read':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_mark_all_notifications_read(p)
+                self._json(code, data)
+            elif path.startswith('/api/notifications/') and path.endswith('/read'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    nid = int(path.split('/')[3])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ID"})
+                code, data = handle_mark_notification_read(p, nid)
+                self._json(code, data)
+
+            # ── Address Book ──
+            elif path == '/api/addresses':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_add_address(body, p)
+                self._json(code, data)
+
+            # ── Profile ──
             elif path == '/api/upload/avatar':
                 p = self._auth()
                 if not p:
@@ -950,7 +1740,9 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_update_profile(body, p)
                 self._json(code, data)
-            elif path.startswith('/api/restaurants/') and '/items' in path:
+
+            # ── Restaurants / Items ──
+            elif path.startswith('/api/restaurants/') and '/items' in path and '/items/' not in path:
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
@@ -966,6 +1758,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_create_restaurant(body, p)
                 self._json(code, data)
+
+            # ── Cart ──
             elif path == '/api/cart/add':
                 p = self._auth()
                 if not p:
@@ -988,6 +1782,8 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_clear_cart(p)
                 self._json(code, data)
+
+            # ── Orders ──
             elif path == '/api/orders':
                 p = self._auth()
                 if not p:
@@ -1004,6 +1800,28 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_rate_order(body, p, oid)
                 self._json(code, data)
+            elif path.startswith('/api/orders/') and path.endswith('/cancel'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[3])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ID"})
+                code, data = handle_cancel_order(p, oid)
+                self._json(code, data)
+            elif path.startswith('/api/orders/') and path.endswith('/reorder'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[3])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ID"})
+                code, data = handle_reorder(p, oid)
+                self._json(code, data)
+
+            # ── Courier ──
             elif path == '/api/courier/location':
                 p = self._auth()
                 if not p:
@@ -1026,41 +1844,29 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_courier_update_status(body, p, oid)
                 self._json(code, data)
+
+            # ── Admin ──
             elif path == '/api/admin/assign':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_assign_order(body, p)
                 self._json(code, data)
+
+            # ── Favorites ──
             elif path == '/api/favorites':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_add_favorite(body, p)
                 self._json(code, data)
+
+            # ── Promo ──
             elif path == '/api/promo/validate':
                 code, data = handle_validate_promo(body)
                 self._json(code, data)
-            elif path.startswith('/api/orders/') and path.endswith('/cancel'):
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                try:
-                    oid = int(path.split('/')[3])
-                except:
-                    return self._json(400, {"success": False, "message": "Invalid ID"})
-                code, data = handle_cancel_order(p, oid)
-                self._json(code, data)
-            elif path.startswith('/api/orders/') and path.endswith('/reorder'):
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                try:
-                    oid = int(path.split('/')[3])
-                except:
-                    return self._json(400, {"success": False, "message": "Invalid ID"})
-                code, data = handle_reorder(p, oid)
-                self._json(code, data)
+
+            # ── Restaurant Toggle ──
             elif path.startswith('/api/restaurants/') and path.endswith('/toggle'):
                 p = self._auth()
                 if not p:
@@ -1071,6 +1877,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_toggle_restaurant(p, rid)
                 self._json(code, data)
+
             else:
                 self._json(404, {"success": False, "message": "Not found"})
         except Exception as e:
@@ -1086,8 +1893,19 @@ class Handler(BaseHTTPRequestHandler):
         except:
             body = {}
         try:
-            if path.startswith('/api/restaurants/') and '/items/' in path:
-                # PUT /api/restaurants/{rid}/items/{iid}
+            # ── Address Book ──
+            if path.startswith('/api/addresses/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    aid = int(path.split('/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid address ID"})
+                code, data = handle_update_address(body, p, aid)
+                self._json(code, data)
+            # ── Items ──
+            elif path.startswith('/api/restaurants/') and '/items/' in path:
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
@@ -1098,6 +1916,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid item ID"})
                 code, data = handle_update_item(body, p, item_id)
                 self._json(code, data)
+            # ── Restaurant ──
             elif path.startswith('/api/restaurants/'):
                 p = self._auth()
                 if not p:
@@ -1117,7 +1936,19 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         path = self.path.split('?')[0]
         try:
-            if path.startswith('/api/restaurants/') and '/items/' in path:
+            # ── Address Book ──
+            if path.startswith('/api/addresses/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    aid = int(path.split('/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid address ID"})
+                code, data = handle_delete_address(p, aid)
+                self._json(code, data)
+            # ── Items ──
+            elif path.startswith('/api/restaurants/') and '/items/' in path:
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
@@ -1128,6 +1959,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid item ID"})
                 code, data = handle_delete_item(p, item_id)
                 self._json(code, data)
+            # ── Restaurant ──
             elif path.startswith('/api/restaurants/'):
                 p = self._auth()
                 if not p:
@@ -1194,7 +2026,9 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY - Delivery Platform")
+    print("  ELYANIVERY v2.0 - Delivery Platform")
+    print("  + Chat, Voice Calls, Notifications,")
+    print("    Address Book, Loyalty Points")
     print("=" * 50)
     try:
         import pyodbc
@@ -1208,6 +2042,7 @@ if __name__ == '__main__':
 
     init_db()
     seed_data()
+    init_extra_tables()
 
     try:
         srv = ThreadedServer((Config.HOST, Config.PORT), Handler)
@@ -1220,6 +2055,12 @@ if __name__ == '__main__':
     print(f"  Customer: http://localhost:{Config.PORT}/customer")
     print(f"  Courier:  http://localhost:{Config.PORT}/courier")
     print(f"\n  admin / admin | customer1 / 1234 | courier1 / 1234\n")
+    print("  New API Endpoints:")
+    print("    Chat:    /api/chat/send | /api/chat/messages/{oid} | /api/chat/conversations | /api/chat/unread")
+    print("    Call:    /api/call/initiate | /api/call/answer | /api/call/end | /api/call/reject | /api/call/incoming | /api/call/ice-candidate")
+    print("    Notif:   /api/notifications | /api/notifications/unread-count")
+    print("    Address: /api/addresses")
+    print("    Loyalty: /api/loyalty | /api/loyalty/history")
 
     try:
         srv.serve_forever()

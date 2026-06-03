@@ -764,6 +764,9 @@ def handle_create_order(body, payload):
              'Customer Location', delivery_lat, delivery_lng)
         )
 
+        if not oid:
+            return 500, {"success": False, "message": "Failed to create order: could not retrieve order ID"}
+
         # Insert order items
         for item in cart['items']:
             insert(

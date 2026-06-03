@@ -21,3 +21,31 @@ Stage Summary:
 - Server version bumped to v2.1
 - Login and registration handlers verified correct - the issue was purely DB connectivity
 - Files modified: config.py, db.py, server.py
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix order placement error - Cannot insert NULL into order_id column in OrderItems
+
+Work Log:
+- User reported error: "Cannot insert the value NULL into column 'order_id', table 'Elyanivery.dbo.OrderItems'; column does not allow nulls. INSERT fails."
+- Analyzed the error screenshot using VLM to identify the exact SQL Server error message
+- Traced the root cause to the `insert()` function in db.py
+- Root cause: With `autocommit=True`, each `cursor.execute()` is a separate SQL batch/scope
+  - `cursor.execute("INSERT INTO Orders ...")` runs in batch 1 (auto-commits)
+  - `cursor.execute("SELECT SCOPE_IDENTITY()")` runs in batch 2 (new scope)
+  - SCOPE_IDENTITY() returns NULL in the new scope because the INSERT scope is gone
+  - The order is created but `oid = None`, causing OrderItems INSERT to fail with NULL order_id
+- Fix: Replaced SCOPE_IDENTITY() approach with OUTPUT INSERTED.id clause
+  - The OUTPUT clause returns the identity value directly from the INSERT statement
+  - It works in the same batch as the INSERT, so it's reliable with autocommit=True
+  - Added regex transformation to automatically convert INSERT statements to include OUTPUT clause
+  - Added fallback to @@IDENTITY (session-scoped, works across batches with autocommit)
+- Added safety check in handle_create_order: if oid is None, return 500 error instead of crashing
+- Files modified: db.py (insert function), server.py (added oid null check)
+
+Stage Summary:
+- Key fix: Changed identity retrieval from SCOPE_IDENTITY() (scope-broken with autocommit) to OUTPUT INSERTED.id clause (same-batch, reliable)
+- The insert() function now auto-transforms INSERT SQL to add OUTPUT INSERTED.id clause
+- Multiple fallback mechanisms: OUTPUT clause → @@IDENTITY → reconnection retry
+- Order placement should now work correctly

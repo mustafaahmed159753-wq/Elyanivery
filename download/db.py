@@ -5,6 +5,7 @@ Includes auto-detection of SQL Server instance on startup.
 """
 
 import pyodbc
+import re
 import threading
 from config import Config
 
@@ -188,27 +189,70 @@ def query(sql, params=(), fetch_one=False, fetch=False):
 def insert(sql, params=()):
     """
     Execute an INSERT and return the newly generated identity ID.
-    Uses SCOPE_IDENTITY() to retrieve the new ID.
+    Uses OUTPUT INSERTED.id clause for reliable identity retrieval.
+    
+    NOTE: With autocommit=True, each cursor.execute() is a separate SQL batch.
+    SCOPE_IDENTITY() returns NULL in a new batch because the INSERT scope is gone.
+    The OUTPUT clause returns the identity value directly from the INSERT statement,
+    so it works reliably regardless of autocommit settings.
     """
     conn = _get_conn()
     try:
         cursor = conn.cursor()
-        cursor.execute(sql, params)
-        # Get the identity value
-        cursor.execute("SELECT SCOPE_IDENTITY()")
+        
+        # Check if the SQL already contains OUTPUT clause (caller managed identity)
+        if 'OUTPUT' in sql.upper() and 'INSERTED' in sql.upper():
+            cursor.execute(sql, params)
+            if cursor.description is not None:
+                row = cursor.fetchone()
+                if row and row[0] is not None:
+                    return int(row[0])
+            return None
+        
+        # Transform: INSERT INTO Table (cols) VALUES (...) 
+        #      → INSERT INTO Table (cols) OUTPUT INSERTED.id VALUES (...)
+        # This lets SQL Server return the new identity in the same statement
+        transformed = re.sub(
+            r'(INSERT\s+INTO\s+\w+\s*\([^)]+\))\s*(VALUES)',
+            r'\1 OUTPUT INSERTED.id \2',
+            sql,
+            flags=re.IGNORECASE
+        )
+        
+        cursor.execute(transformed, params)
+        
+        # The OUTPUT clause produces a result set with the inserted id
+        if cursor.description is not None:
+            row = cursor.fetchone()
+            if row and row[0] is not None:
+                return int(row[0])
+        
+        # Fallback: try @@IDENTITY (session-scoped, works with autocommit)
+        cursor.execute("SELECT @@IDENTITY")
         row = cursor.fetchone()
         if row and row[0] is not None:
             return int(row[0])
+        
         return None
     except Exception as e:
-        # Try to reconnect once
+        # If the OUTPUT clause fails (e.g. complex SQL), fall back to @@IDENTITY
+        try:
+            cursor2 = conn.cursor()
+            cursor2.execute("SELECT @@IDENTITY")
+            row = cursor2.fetchone()
+            if row and row[0] is not None:
+                return int(row[0])
+        except:
+            pass
+        
+        # Try to reconnect once on connection error
         if '08S01' in str(e) or 'HY000' in str(e) or 'closed' in str(e).lower():
             try:
                 close_conn()
                 conn = _get_conn()
                 cursor = conn.cursor()
                 cursor.execute(sql, params)
-                cursor.execute("SELECT SCOPE_IDENTITY()")
+                cursor.execute("SELECT @@IDENTITY")
                 row = cursor.fetchone()
                 if row and row[0] is not None:
                     return int(row[0])

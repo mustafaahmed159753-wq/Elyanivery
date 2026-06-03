@@ -49,3 +49,37 @@ Stage Summary:
 - The insert() function now auto-transforms INSERT SQL to add OUTPUT INSERTED.id clause
 - Multiple fallback mechanisms: OUTPUT clause → @@IDENTITY → reconnection retry
 - Order placement should now work correctly
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Add courier reject/reassign, Google Play splash, fix chat input, floating order overlay
+
+Work Log:
+- Added courier reject order API: POST /api/courier/order/{id}/reject
+  - Courier can reject orders in 'courier_assigned' or 'confirmed' status
+  - On rejection: order is unassigned, status reset to 'confirmed', auto-assign tries another courier
+  - Customer is notified about courier change
+- Added handle_courier_reject_order() function in server.py with full business logic
+- Added route handler for reject endpoint in do_POST()
+- Rewrote courier/index.html with all 4 features:
+  1. Reject/reassign: Reject button on order cards + in floating overlay
+  2. Google Play-style splash screen: gradient background with animated radial overlays, progress bar, blur effect
+  3. Chat input bar: Always visible in chat screen (removed display:none)
+  4. Floating order overlay: Bottom-sheet style overlay with order details, Accept/Reject buttons
+     - Auto-shows when new order is detected via polling
+     - Slides up from bottom with animation
+     - Shows restaurant, customer, items, total
+     - Accept button starts trip, Reject button rejects and reassigns
+- Updated customer/index.html:
+  1. Google Play-style splash screen (same style with orange theme)
+  2. Chat input bar: Removed inline display:none, always visible in chat screen
+  3. Removed JS show/hide lines for chatInputBar
+- Server version bumped to v2.2
+
+Stage Summary:
+- Courier can now reject/reassign orders from both the order card and the floating overlay
+- Google Play-style splash screens on both courier and customer pages
+- Chat input box is now always visible when in chat screen
+- New orders appear as a floating bottom-sheet overlay on courier page (not splash)
+- Files modified: server.py, courier/index.html, customer/index.html

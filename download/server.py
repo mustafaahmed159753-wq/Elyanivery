@@ -967,6 +967,31 @@ def handle_courier_update_status(body, payload, oid):
         return 500, {"success": False, "message": str(e)}
 
 
+def handle_courier_reject_order(payload, oid):
+    """Courier rejects an assigned order. Order goes back to unassigned pool."""
+    try:
+        uid = payload['uid']
+        order = query("SELECT * FROM Orders WHERE id=? AND courier_id=?", (oid, uid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found or not assigned to you"}
+        if order['status'] not in ('courier_assigned', 'confirmed'):
+            return 400, {"success": False, "message": "Cannot reject order in current status"}
+        # Unassign courier and try to reassign to another
+        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=GETUTCDATE() WHERE id=?", (oid,))
+        query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'courier_rejected','Courier rejected order')", (oid,))
+        # Notify customer
+        push_notification(order['customer_id'], 'Courier Update',
+                          'Your assigned courier has changed. Finding a new courier...', 'order_status', oid)
+        # Try auto-assign to another courier
+        restaurant = query("SELECT latitude, longitude FROM Restaurants WHERE id=?", (order['restaurant_id'],), fetch_one=True)
+        if restaurant:
+            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+        return 200, {"success": True, "message": "Order rejected. It has been reassigned to another courier."}
+    except Exception as e:
+        traceback.print_exc()
+        return 500, {"success": False, "message": str(e)}
+
+
 # ── ADMIN ──
 def handle_admin_couriers(payload):
     try:
@@ -1899,6 +1924,16 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_courier_update_status(body, p, oid)
                 self._json(code, data)
+            elif path.startswith('/api/courier/order/') and path.endswith('/reject'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ID"})
+                code, data = handle_courier_reject_order(p, oid)
+                self._json(code, data)
 
             # ── Admin ──
             elif path == '/api/admin/assign':
@@ -2081,7 +2116,7 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY v2.1 - Delivery Platform")
+    print("  ELYANIVERY v2.2 - Delivery Platform")
     print("  + Chat, Voice Calls, Notifications,")
     print("    Address Book, Loyalty Points")
     print("=" * 50)

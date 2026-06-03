@@ -24,6 +24,40 @@ from services.auth import AuthService
 # ────────────────────────────────────────────
 # EXTRA TABLES (auto-created on startup)
 # ────────────────────────────────────────────
+def ensure_default_users():
+    """Ensure the default admin, customer1, courier1 accounts exist with known passwords."""
+    defaults = [
+        ('admin', 'admin', 'admin', 'Administrator'),
+        ('customer1', '1234', 'customer', 'Customer One'),
+        ('courier1', '1234', 'courier', 'Courier One'),
+    ]
+    for username, password, role, display_name in defaults:
+        existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
+        if not existing:
+            pw_hash = AuthService.hash_pw(password)
+            uid = insert("INSERT INTO Users (username,password_hash,role,display_name) VALUES (?,?,?,?)",
+                         (username, pw_hash, role, display_name))
+            if role == 'courier':
+                try:
+                    insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,0)", (uid,))
+                except:
+                    pass
+            # Init loyalty
+            try:
+                insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,0,0)", (uid,))
+            except:
+                pass
+            print(f"  Created default user: {username} / {password} ({role})")
+        else:
+            # Always reset password to known value so login always works
+            pw_hash = AuthService.hash_pw(password)
+            try:
+                query("UPDATE Users SET password_hash=?, display_name=? WHERE username=?",
+                      (pw_hash, display_name, username))
+            except:
+                pass
+
+
 def init_extra_tables():
     """Create new tables for v2.0 features. Uses IF NOT EXISTS for safety."""
     tables = [
@@ -1412,15 +1446,23 @@ def handle_get_loyalty_history(payload):
 class Handler(BaseHTTPRequestHandler):
     # Suppress noisy polling logs (heartbeat endpoints)
     _SUPPRESS_LOGS = ('/api/courier/orders', '/api/call/incoming', '/api/chat/unread',
-                      '/api/notifications/unread-count', '/api/chat/messages/')
+                      '/api/notifications/unread-count', '/api/chat/messages/',
+                      '/api/call/', '/api/courier/location', '/api/loyalty',
+                      '/favicon.ico')
 
     def log_message(self, fmt, *args):
-        msg = args[0] if args else ''
-        # Skip logging for frequent polling requests to reduce console noise
+        # The default fmt is '"%s" %s %s' where args are (request_line, code, size)
+        # Or '%s - - [%s] %s' where args are (addr, date, request_line)
+        # We check if the path is in our suppress list
+        full_msg = fmt % args if args else ''
         for prefix in self._SUPPRESS_LOGS:
-            if prefix in msg:
+            if prefix in full_msg:
                 return
-        print(f"  [{self.log_date_time_string()}] {msg}")
+        # Also check self.path directly for the current request
+        for prefix in self._SUPPRESS_LOGS:
+            if hasattr(self, 'path') and prefix in self.path:
+                return
+        print(f"  [{self.log_date_time_string()}] {full_msg}")
 
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -2053,6 +2095,7 @@ if __name__ == '__main__':
     init_db()
     seed_data()
     init_extra_tables()
+    ensure_default_users()
 
     try:
         srv = ThreadedServer((Config.HOST, Config.PORT), Handler)

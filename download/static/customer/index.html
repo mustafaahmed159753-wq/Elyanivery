@@ -11,6 +11,16 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 button{cursor:pointer;border:none;font-family:inherit}
 input,textarea{font-family:inherit}
 
+/* ── SPLASH SCREEN ── */
+.splash-screen{position:fixed;inset:0;background:linear-gradient(135deg,#ff6b35,#ff8c5a,#e74c3c);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,transform .6s}
+.splash-screen.fade-out{opacity:0;transform:scale(1.05)}
+.splash-logo{width:100px;height:100px;background:rgba(255,255,255,.2);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:20px;animation:splashPulse 2s infinite}
+.splash-screen h1{color:#fff;font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.splash-screen p{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:30px}
+.splash-loader{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
 /* ── APP SHELL ── */
 #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:var(--card)}
 .screen{display:none;padding:16px;padding-bottom:80px;min-height:100vh}
@@ -134,6 +144,17 @@ input,textarea{font-family:inherit}
 .chat-input-bar input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-size:14px;outline:none}
 .chat-input-bar button{width:42px;height:42px;border-radius:50%;background:var(--pri);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
 
+/* ── CONVERSATIONS LIST ── */
+.conv-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.conv-card:hover{transform:translateY(-1px)}
+.conv-card .conv-avatar{width:44px;height:44px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.conv-card .conv-info{flex:1;min-width:0}
+.conv-card .conv-info h4{font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-info p{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-meta{text-align:right;flex-shrink:0}
+.conv-card .conv-meta .conv-time{font-size:10px;color:var(--muted)}
+.conv-card .conv-meta .conv-unread{background:var(--red);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;margin-left:auto;margin-top:4px}
+
 /* ── VOICE CALL ── */
 .call-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center}
 .call-overlay.active{display:flex}
@@ -204,10 +225,18 @@ input,textarea{font-family:inherit}
 </head>
 <body>
 
+<!-- ════════ SPLASH SCREEN ════════ -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-logo">&#127829;</div>
+  <h1>Elyanivery</h1>
+  <p>Food delivered to your door</p>
+  <div class="splash-loader"></div>
+</div>
+
 <div id="app">
 
 <!-- ════════ AUTH SCREEN ════════ -->
-<div id="authScreen" class="auth-screen screen active">
+<div id="authScreen" class="auth-screen screen">
   <h1>Elyanivery</h1>
   <p>Food delivered to your door</p>
   <div class="auth-form">
@@ -308,10 +337,17 @@ input,textarea{font-family:inherit}
     <button class="call-icon" onclick="startCall()" title="Voice Call">&#128222;</button>
   </div>
   <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input-bar">
+  <div class="chat-input-bar" id="chatInputBar" style="display:none">
     <input id="chatInput" placeholder="Type a message..." onkeypress="if(event.key==='Enter')sendChat()">
     <button onclick="sendChat()">&#10148;</button>
   </div>
+</div>
+
+<!-- ════════ CONVERSATIONS LIST SCREEN ════════ -->
+<div id="convScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <h3 style="margin-bottom:14px">Messages</h3>
+  <div id="convList"></div>
 </div>
 
 <!-- ════════ NOTIFICATIONS SCREEN ════════ -->
@@ -353,7 +389,7 @@ input,textarea{font-family:inherit}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
     Orders
   </button>
-  <button class="nav-item" onclick="navTo('chatScreen',this);loadConversations()" id="navChat">
+  <button class="nav-item" onclick="navTo('convScreen',this);loadConversations()" id="navChat">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
     Chat
     <span class="nav-badge" id="chatBadge" style="display:none">0</span>
@@ -403,6 +439,18 @@ input,textarea{font-family:inherit}
 </div><!-- end app -->
 
 <script>
+// ════════════════════════════════════════
+//  SPLASH SCREEN
+// ════════════════════════════════════════
+(function() {
+  const splash = document.getElementById('splashScreen');
+  // Show splash for 2 seconds then fade out
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    setTimeout(() => { splash.style.display = 'none'; }, 600);
+  }, 2000);
+})();
+
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
@@ -723,7 +771,6 @@ function updateCartSummary() {
     <div class="row total"><span>Total</span><span>&euro;${total.toFixed(2)}</span></div>
   `;
   document.getElementById('cartTotal').textContent = `Total: \u20AC${total.toFixed(2)}`;
-  // Loyalty
   loadLoyaltyForCart();
 }
 
@@ -803,9 +850,13 @@ async function openTracker(oid) {
   currentOrder = res.data;
   showScreen('trackScreen');
   renderTracker();
-  // Start polling if order is active
   if (!['delivered','cancelled'].includes(currentOrder.status)) {
     activeOrderTrackTimer = setInterval(() => pollOrder(oid), 4000);
+  }
+  // If already delivered and not rated, show rating
+  if (currentOrder.status === 'delivered' && !currentOrder.is_rated) {
+    ratingOrderId = oid;
+    setTimeout(() => showRatingModal(), 500);
   }
 }
 
@@ -814,13 +865,11 @@ async function pollOrder(oid) {
   if (res.success) {
     currentOrder = res.data;
     renderTracker();
-    // If delivered and not rated, show rating
     if (currentOrder.status === 'delivered' && !currentOrder.is_rated) {
       stopOrderTrackPolling();
       ratingOrderId = oid;
       showRatingModal();
     }
-    // If cancelled, stop and go home
     if (currentOrder.status === 'cancelled') {
       stopOrderTrackPolling();
     }
@@ -887,10 +936,18 @@ function renderTracker() {
   } else if (['pending','confirmed','courier_assigned'].includes(o.status)) {
     actions.innerHTML = `<button style="padding:12px 24px;background:var(--red);color:#fff;border-radius:12px;font-size:14px" onclick="cancelOrder(${o.id})">Cancel Order</button>`;
   } else if (o.status === 'delivered' && o.is_rated) {
-    actions.innerHTML = `<div style="text-align:center;color:var(--green);padding:12px">&#10003; Order rated. Thank you!</div>`;
+    actions.innerHTML = `<button class="btn-pri" onclick="goHome()">Back to Home</button>`;
   } else {
     actions.innerHTML = '';
   }
+}
+
+function goHome() {
+  stopOrderTrackPolling();
+  showScreen('homeScreen');
+  loadHome();
+  // Reset nav active state
+  document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', i === 0));
 }
 
 async function cancelOrder(oid) {
@@ -898,8 +955,7 @@ async function cancelOrder(oid) {
   const res = await api('POST', '/api/orders/' + oid + '/cancel');
   if (res.success) {
     alert('Order cancelled');
-    showScreen('homeScreen');
-    loadHome();
+    goHome();
   } else {
     alert(res.message);
   }
@@ -907,7 +963,6 @@ async function cancelOrder(oid) {
 
 function goBackFromTrack() {
   stopOrderTrackPolling();
-  closeChat();
   showScreen('ordersScreen');
   loadOrders();
 }
@@ -946,20 +1001,17 @@ async function submitRating() {
   });
   document.getElementById('ratingModal').classList.remove('active');
   if (res.success) {
-    // After rating, redirect to main screen
-    showScreen('homeScreen');
-    loadHome();
-    loadOrders();
+    alert('Thank you for your rating!');
+    goHome();
   } else {
     alert(res.message);
+    goHome();
   }
 }
 
 function skipRating() {
   document.getElementById('ratingModal').classList.remove('active');
-  // After skipping rating, redirect to main screen
-  showScreen('homeScreen');
-  loadHome();
+  goHome();
 }
 
 // ════════════════════════════════════════
@@ -973,8 +1025,11 @@ async function openChat(orderId) {
   if (orderRes.success) {
     const o = orderRes.data;
     document.getElementById('chatWithName').textContent = o.courier_name || 'Courier';
+    // Also store as currentOrder for call functionality
+    if (!currentOrder) currentOrder = o;
   }
   document.getElementById('chatMessages').innerHTML = '';
+  document.getElementById('chatInputBar').style.display = 'flex';
   showScreen('chatScreen');
   await loadChatMessages();
   startChatPolling();
@@ -1005,7 +1060,6 @@ async function sendChat() {
   input.value = '';
   const res = await api('POST', '/api/chat/send', { order_id: chatOrderId, message: msg, message_type: 'text' });
   if (res.success) {
-    // Add to UI immediately
     const container = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = 'msg-bubble sent';
@@ -1013,6 +1067,8 @@ async function sendChat() {
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     chatLastId = Math.max(chatLastId, res.data.id || chatLastId);
+  } else {
+    alert(res.message || 'Failed to send message');
   }
 }
 
@@ -1029,21 +1085,35 @@ function closeChat() {
   stopChatPolling();
   chatOrderId = null;
   chatLastId = 0;
+  document.getElementById('chatInputBar').style.display = 'none';
   if (currentOrder && !['delivered','cancelled'].includes(currentOrder.status)) {
     showScreen('trackScreen');
-  } else if (currentOrder) {
-    showScreen('ordersScreen');
+  } else {
+    showScreen('convScreen');
+    loadConversations();
   }
 }
 
 async function loadConversations() {
-  // Show conversations list in chat screen
   const res = await api('GET', '/api/chat/conversations');
-  if (res.success && res.data.length) {
-    // For now just open the first conversation
-    const conv = res.data[0];
-    if (conv) openChat(conv.order_id);
+  const el = document.getElementById('convList');
+  if (!res.success || !res.data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128172;</div><p>No conversations yet. Chat with your courier when you place an order!</p></div>';
+    return;
   }
+  el.innerHTML = res.data.map(c => `
+    <div class="conv-card" onclick="openChat(${c.order_id})">
+      <div class="conv-avatar">${(c.other_name||'?')[0].toUpperCase()}</div>
+      <div class="conv-info">
+        <h4>${esc(c.other_name||'User')}</h4>
+        <p>${esc(c.last_message||'')}</p>
+      </div>
+      <div class="conv-meta">
+        <div class="conv-time">${formatTime(c.last_message_at)}</div>
+        ${c.unread_count > 0 ? `<div class="conv-unread">${c.unread_count}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 function startUnreadPolling() {
@@ -1059,7 +1129,7 @@ function startUnreadPolling() {
         badge.style.display = 'none';
       }
     }
-  }, 8000);
+  }, 10000);
 }
 
 function stopUnreadPolling() {
@@ -1085,7 +1155,7 @@ async function startCall() {
   localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
 
   peerConnection.onicecandidate = (e) => {
-    if (e.candidate) {
+    if (e.candidate && currentCallId) {
       api('POST', '/api/call/ice-candidate', { call_id: currentCallId, candidate: JSON.stringify(e.candidate) });
     }
   };
@@ -1212,7 +1282,6 @@ function startIncomingCallPolling() {
       if (call.status === 'ringing') {
         document.getElementById('incomingCallName').textContent = call.caller_name || 'Courier';
         document.getElementById('incomingCallBanner').classList.add('active');
-        // Store for accept/reject
         window._incomingCall = call;
       }
     }
@@ -1295,7 +1364,6 @@ async function loadNotifications() {
         </div>
       </div>
     `).join('');
-    // Mark all as read
     api('POST', '/api/notifications/mark-all-read');
   }
 }
@@ -1346,7 +1414,8 @@ function stopAllPolling() {
 if (token && user) {
   enterApp();
 } else {
-  showScreen('authScreen');
+  // Wait for splash to finish before showing auth
+  setTimeout(() => { showScreen('authScreen'); }, 2200);
 }
 </script>
 </body>

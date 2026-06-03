@@ -11,6 +11,16 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 button{cursor:pointer;border:none;font-family:inherit}
 input,textarea{font-family:inherit}
 
+/* ── SPLASH SCREEN ── */
+.splash-screen{position:fixed;inset:0;background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s,transform .6s}
+.splash-screen.fade-out{opacity:0;transform:scale(1.05)}
+.splash-logo{width:100px;height:100px;background:rgba(255,255,255,.2);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:20px;animation:splashPulse 2s infinite}
+.splash-screen h1{color:#fff;font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.splash-screen p{color:rgba(255,255,255,.8);font-size:15px;margin-bottom:30px}
+.splash-loader{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
 #app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:var(--card)}
 .screen{display:none;padding:16px;padding-bottom:80px;min-height:100vh}
 .screen.active{display:block}
@@ -81,6 +91,17 @@ input,textarea{font-family:inherit}
 .chat-input-bar input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-size:14px;outline:none}
 .chat-input-bar button{width:42px;height:42px;border-radius:50%;background:var(--pri);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
 
+/* CONVERSATIONS LIST */
+.conv-card{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.conv-card:hover{transform:translateY(-1px)}
+.conv-card .conv-avatar{width:44px;height:44px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex-shrink:0}
+.conv-card .conv-info{flex:1;min-width:0}
+.conv-card .conv-info h4{font-size:14px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-info p{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-card .conv-meta{text-align:right;flex-shrink:0}
+.conv-card .conv-meta .conv-time{font-size:10px;color:var(--muted)}
+.conv-card .conv-meta .conv-unread{background:var(--red);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;display:flex;align-items:center;justify-content:center;margin-left:auto;margin-top:4px}
+
 /* CALL */
 .call-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center}
 .call-overlay.active{display:flex}
@@ -123,10 +144,19 @@ input,textarea{font-family:inherit}
 </style>
 </head>
 <body>
+
+<!-- ════════ SPLASH SCREEN ════════ -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-logo">&#128666;</div>
+  <h1>Elyanivery</h1>
+  <p>Courier Partner</p>
+  <div class="splash-loader"></div>
+</div>
+
 <div id="app">
 
 <!-- ════════ AUTH SCREEN ════════ -->
-<div id="authScreen" class="auth-screen screen active">
+<div id="authScreen" class="auth-screen screen">
   <h1>Elyanivery</h1>
   <p>Courier Partner</p>
   <div class="auth-form">
@@ -185,6 +215,13 @@ input,textarea{font-family:inherit}
   </div>
 </div>
 
+<!-- ════════ CONVERSATIONS LIST SCREEN ════════ -->
+<div id="convScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('dashScreen')">&#8592; Back</button>
+  <h3 style="margin-bottom:14px">Messages</h3>
+  <div id="convList"></div>
+</div>
+
 <!-- ════════ PROFILE SCREEN ════════ -->
 <div id="profileScreen" class="screen">
   <button class="back-btn" onclick="showScreen('dashScreen')">&#8592; Back</button>
@@ -204,7 +241,7 @@ input,textarea{font-family:inherit}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
     Dashboard
   </button>
-  <button class="nav-item" onclick="navTo('chatScreen',this);loadConversations()" id="navChat">
+  <button class="nav-item" onclick="navTo('convScreen',this);loadConversations()" id="navChat">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
     Chat
     <span class="nav-badge" id="chatBadge" style="display:none">0</span>
@@ -239,6 +276,17 @@ input,textarea{font-family:inherit}
 </div>
 
 <script>
+// ════════════════════════════════════════
+//  SPLASH SCREEN
+// ════════════════════════════════════════
+(function() {
+  const splash = document.getElementById('splashScreen');
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    setTimeout(() => { splash.style.display = 'none'; }, 600);
+  }, 2000);
+})();
+
 // ════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════
@@ -368,7 +416,6 @@ async function loadOrders() {
   if (res.success) {
     const orders = res.data || [];
     let delivered = 0, earning = 0;
-    // Count delivered from separate history query if needed
     document.getElementById('statActive').textContent = orders.length;
     const el = document.getElementById('activeOrdersList');
     if (!orders.length) {
@@ -462,7 +509,7 @@ async function sendLocation() {
 
 function startOrdersPolling() {
   stopOrdersPolling();
-  ordersPollTimer = setInterval(loadOrders, 8000);
+  ordersPollTimer = setInterval(loadOrders, 10000);
 }
 
 function stopOrdersPolling() {
@@ -515,6 +562,8 @@ async function sendChat() {
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     chatLastId = Math.max(chatLastId, res.data.id || chatLastId);
+  } else {
+    alert(res.message || 'Failed to send message');
   }
 }
 
@@ -536,13 +585,24 @@ function closeChat() {
 
 async function loadConversations() {
   const res = await api('GET', '/api/chat/conversations');
-  if (res.success && res.data.length) {
-    const conv = res.data[0];
-    if (conv) {
-      // Need to find the customer name
-      openChatFromOrder(conv.order_id, null, conv.other_name || 'Customer');
-    }
+  const el = document.getElementById('convList');
+  if (!res.success || !res.data.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">&#128172;</div><p>No conversations yet. Chat with customers when you get assigned orders!</p></div>';
+    return;
   }
+  el.innerHTML = res.data.map(c => `
+    <div class="conv-card" onclick="openChatFromOrder(${c.order_id},null,'${esc(c.other_name||'Customer')}')">
+      <div class="conv-avatar">${(c.other_name||'?')[0].toUpperCase()}</div>
+      <div class="conv-info">
+        <h4>${esc(c.other_name||'Customer')}</h4>
+        <p>${esc(c.last_message||'')}</p>
+      </div>
+      <div class="conv-meta">
+        <div class="conv-time">${formatTime(c.last_message_at)}</div>
+        ${c.unread_count > 0 ? `<div class="conv-unread">${c.unread_count}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 function startUnreadPolling() {
@@ -558,7 +618,7 @@ function startUnreadPolling() {
         badge.style.display = 'none';
       }
     }
-  }, 8000);
+  }, 10000);
 }
 
 function stopUnreadPolling() {
@@ -573,7 +633,6 @@ let localStream = null;
 const ICE_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }];
 
 function callFromOrder(orderId) {
-  // Load order details and then start call
   currentOrder = { id: orderId };
   startCall();
 }
@@ -590,7 +649,7 @@ async function startCall() {
   localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
 
   peerConnection.onicecandidate = (e) => {
-    if (e.candidate) {
+    if (e.candidate && currentCallId) {
       api('POST', '/api/call/ice-candidate', { call_id: currentCallId, candidate: JSON.stringify(e.candidate) });
     }
   };
@@ -823,7 +882,7 @@ function stopAllPolling() {
 if (token && user) {
   enterApp();
 } else {
-  showScreen('authScreen');
+  setTimeout(() => { showScreen('authScreen'); }, 2200);
 }
 </script>
 </body>

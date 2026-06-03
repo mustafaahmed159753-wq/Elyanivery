@@ -73,17 +73,28 @@ def _detect_sql_server():
 
     print(f"  Using driver: {driver}")
 
-    # Common server name patterns to try
-    server_attempts = [
-        'localhost',                    # Default instance
-        r'localhost\SQLEXPRESS',        # SQL Express named instance
-        r'localhost\MSSQLSERVER',       # Named instance variant
-        '.',                            # Dot = default instance (local)
-        r'.\SQLEXPRESS',                # Dot with Express
-        '(local)',                      # (local) = default instance
-        r'(local)\SQLEXPRESS',          # (local) with Express
-        '127.0.0.1',                    # IP default instance
-    ]
+    # IMPORTANT: Update the driver in Config immediately, even before we
+    # try to connect. This ensures all connections use the correct driver
+    # even if no local SQL Server is found (e.g. on Railway/cloud).
+    Config.DB_DRIVER = driver
+
+    # Common server name patterns to try (only relevant for local development)
+    # On Railway/cloud, DB_SERVER env var should be set to the cloud SQL Server
+    if Config.DB_UID:
+        # Cloud: only try the configured server (from env var)
+        server_attempts = [Config.DB_SERVER]
+    else:
+        # Local: try common local SQL Server patterns
+        server_attempts = [
+            'localhost',                    # Default instance
+            r'localhost\SQLEXPRESS',        # SQL Express named instance
+            r'localhost\MSSQLSERVER',       # Named instance variant
+            '.',                            # Dot = default instance (local)
+            r'.\SQLEXPRESS',                # Dot with Express
+            '(local)',                      # (local) = default instance
+            r'(local)\SQLEXPRESS',          # (local) with Express
+            '127.0.0.1',                    # IP default instance
+        ]
 
     uid = Config.DB_UID
     pwd = Config.DB_PWD

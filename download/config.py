@@ -1,39 +1,42 @@
 """
 Elyanivery — Configuration
 SQL Server connection settings.
-Edit the values below to match your SQL Server setup.
+Supports both local development and Railway (cloud) deployment.
+Environment variables take precedence over hardcoded values.
 """
+
+import os
+
 
 class Config:
     # ── SQL Server Connection ──
-    # For SQL Server 2025 with Windows Authentication:
-    #   - DB_SERVER: 'localhost' for default instance, or r'localhost\INSTANCE_NAME' for named instances
+    # For LOCAL development (SQL Server 2025 with Windows Authentication):
+    #   - DB_SERVER: 'localhost' for default instance
     #   - DB_UID: '' (empty) for Windows Authentication
     #   - DB_PWD: '' (empty) for Windows Authentication
     #
-    # For SQL Server Authentication:
-    #   - DB_UID: your SQL username (e.g. 'sa')
-    #   - DB_PWD: your SQL password
+    # For RAILWAY / CLOUD deployment:
+    #   - Set environment variables: DB_SERVER, DB_DATABASE, DB_UID, DB_PWD, DB_DRIVER
+    #   - Railway will auto-provide DATABASE_URL if you add a SQL Server addon
     #
-    # The server will AUTO-DETECT the correct instance name on startup
-    # if the default connection fails. You can also set it manually below.
+    # Environment variables OVERRIDE the defaults below.
 
-    DB_SERVER = 'localhost'                  # Default instance (most common for SQL Server 2025)
-    DB_DATABASE = 'Elyanivery'               # Database name
-    DB_UID = ''                              # Empty = Windows Authentication
-    DB_PWD = ''                              # Empty = Windows Authentication
-    DB_DRIVER = '{ODBC Driver 17 for SQL Server}'  # ODBC driver name
-    DB_TRUST_CERT = 'yes'                    # Trust server certificate
-    DB_ENCRYPT = 'no'                        # Encrypt connection
-    DB_TIMEOUT = 10                          # Connection timeout in seconds
+    DB_SERVER = os.environ.get('DB_SERVER', 'localhost')
+    DB_DATABASE = os.environ.get('DB_DATABASE', 'Elyanivery')
+    DB_UID = os.environ.get('DB_UID', '')           # Empty = Windows Auth (local)
+    DB_PWD = os.environ.get('DB_PWD', '')           # Empty = Windows Auth (local)
+    DB_DRIVER = os.environ.get('DB_DRIVER', '{ODBC Driver 17 for SQL Server}')
+    DB_TRUST_CERT = os.environ.get('DB_TRUST_CERT', 'yes')
+    DB_ENCRYPT = os.environ.get('DB_ENCRYPT', 'no')
+    DB_TIMEOUT = int(os.environ.get('DB_TIMEOUT', '10'))
 
     # ── Server Settings ──
-    HOST = '0.0.0.0'                         # Listen on all interfaces
-    PORT = 8080                              # HTTP port
+    HOST = os.environ.get('HOST', '0.0.0.0')
+    PORT = int(os.environ.get('PORT', '8080'))       # Railway sets PORT automatically
 
     # ── JWT Settings ──
-    JWT_SECRET = 'elyanivery-secret-key-change-in-production-2024'
-    JWT_EXPIRY_HOURS = 72
+    JWT_SECRET = os.environ.get('JWT_SECRET', 'elyanivery-secret-key-change-in-production-2024')
+    JWT_EXPIRY_HOURS = int(os.environ.get('JWT_EXPIRY_HOURS', '72'))
 
     @classmethod
     def conn_string(cls, database=None):
@@ -41,6 +44,7 @@ class Config:
         db = database or cls.DB_DATABASE
         timeout_str = f"Connection Timeout={cls.DB_TIMEOUT};"
         if cls.DB_UID:
+            # SQL Server Authentication (used on Railway/cloud)
             return (
                 f"DRIVER={cls.DB_DRIVER};"
                 f"SERVER={cls.DB_SERVER};"
@@ -52,7 +56,7 @@ class Config:
                 f"{timeout_str}"
             )
         else:
-            # Windows Authentication
+            # Windows Authentication (used locally)
             return (
                 f"DRIVER={cls.DB_DRIVER};"
                 f"SERVER={cls.DB_SERVER};"

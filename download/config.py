@@ -25,7 +25,7 @@ class Config:
     DB_DATABASE = os.environ.get('DB_DATABASE', 'Elyanivery')
     DB_UID = os.environ.get('DB_UID', '')           # Empty = Windows Auth (local)
     DB_PWD = os.environ.get('DB_PWD', '')           # Empty = Windows Auth (local)
-    DB_DRIVER = os.environ.get('DB_DRIVER', '{ODBC Driver 17 for SQL Server}')
+    DB_DRIVER = os.environ.get('DB_DRIVER', '{ODBC Driver 18 for SQL Server}')  # Driver 18 is what Dockerfile installs
     DB_TRUST_CERT = os.environ.get('DB_TRUST_CERT', 'yes')
     DB_ENCRYPT = os.environ.get('DB_ENCRYPT', 'no')
     DB_TIMEOUT = int(os.environ.get('DB_TIMEOUT', '10'))

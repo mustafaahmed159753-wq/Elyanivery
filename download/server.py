@@ -2174,24 +2174,31 @@ if __name__ == '__main__':
         print(f"  Details: {e}")
         print(f"\n  Please check:")
         print(f"    1. SQL Server is running (check Services or SSMS)")
-        print(f"    2. Edit config.py to set your server name and auth method")
-        print(f"    3. For Windows Auth: DB_UID='' and DB_PWD=''")
-        print(f"    4. For SQL Auth: DB_UID='sa' and DB_PWD='your_password'")
-        input("\n  Press Enter to exit...")
-        exit(1)
+        print(f"    2. Set DB_SERVER, DB_UID, DB_PWD environment variables")
+        print(f"    3. For Railway: Add a SQL Server database service")
 
     if db_ok:
         print("  DB connection OK")
-
-    seed_data()
-    init_extra_tables()
-    ensure_default_users()
+        try:
+            seed_data()
+        except Exception as e:
+            print(f"  Seed data note: {e}")
+        try:
+            init_extra_tables()
+        except Exception as e:
+            print(f"  Extra tables note: {e}")
+        try:
+            ensure_default_users()
+        except Exception as e:
+            print(f"  Default users note: {e}")
+    else:
+        print("  WARNING: Starting server WITHOUT database - API calls will fail!")
+        print("  Set environment variables DB_SERVER, DB_UID, DB_PWD to connect.")
 
     try:
         srv = ThreadedServer((Config.HOST, Config.PORT), Handler)
     except OSError:
         print(f"\nPort {Config.PORT} in use!")
-        input("Press Enter...")
         exit(1)
 
     print(f"\nServer: http://localhost:{Config.PORT}")

@@ -1,140 +1,30 @@
 """
-Elyanivery — Database Module
-SQL Server helpers using pyodbc with thread-local connections.
-Includes auto-detection of SQL Server instance on startup.
+Elyanivery — Database Module (PostgreSQL)
+Uses psycopg2 with thread-local connections.
+All SQL Server-specific syntax has been converted to PostgreSQL.
 """
 
-import pyodbc
-import re
+import psycopg2
+import psycopg2.extras
 import threading
 from config import Config
 
 # Thread-local storage for DB connections
 _local = threading.local()
 
-# Track the working server name once discovered
-_working_server = None
-
-
-def _build_conn_str(server, database, uid='', pwd='', driver=None, timeout=10):
-    """Build a connection string with the given parameters."""
-    drv = driver or Config.DB_DRIVER
-    if uid:
-        return (
-            f"DRIVER={drv};"
-            f"SERVER={server};"
-            f"DATABASE={database};"
-            f"UID={uid};"
-            f"PWD={pwd};"
-            f"TrustServerCertificate=yes;"
-            f"Encrypt=no;"
-            f"Connection Timeout={timeout};"
-        )
-    else:
-        return (
-            f"DRIVER={drv};"
-            f"SERVER={server};"
-            f"DATABASE={database};"
-            f"Trusted_Connection=yes;"
-            f"TrustServerCertificate=yes;"
-            f"Encrypt=no;"
-            f"Connection Timeout={timeout};"
-        )
-
-
-def _detect_sql_server():
-    """
-    Auto-detect the SQL Server instance by trying common configurations.
-    Returns the working server string, or None if nothing works.
-    """
-    global _working_server
-
-    # If we already found it, use it
-    if _working_server:
-        return _working_server
-
-    # Get available drivers
-    available_drivers = [d for d in pyodbc.drivers() if 'sql server' in d.lower()]
-    print(f"  Available ODBC drivers: {available_drivers}")
-
-    # Pick the best available driver
-    driver = None
-    for preferred in ['ODBC Driver 18 for SQL Server', 'ODBC Driver 17 for SQL Server',
-                      'SQL Server Native Client 11.0', 'SQL Server']:
-        if preferred in available_drivers:
-            driver = f'{{{preferred}}}'
-            break
-    if not driver and available_drivers:
-        driver = f'{{{available_drivers[0]}}}'
-
-    if not driver:
-        print("  ERROR: No SQL Server ODBC driver found!")
-        return None
-
-    print(f"  Using driver: {driver}")
-
-    # IMPORTANT: Update the driver in Config immediately, even before we
-    # try to connect. This ensures all connections use the correct driver
-    # even if no local SQL Server is found (e.g. on Railway/cloud).
-    Config.DB_DRIVER = driver
-
-    # Common server name patterns to try (only relevant for local development)
-    # On Railway/cloud, DB_SERVER env var should be set to the cloud SQL Server
-    if Config.DB_UID:
-        # Cloud: only try the configured server (from env var)
-        server_attempts = [Config.DB_SERVER]
-    else:
-        # Local: try common local SQL Server patterns
-        server_attempts = [
-            'localhost',                    # Default instance
-            r'localhost\SQLEXPRESS',        # SQL Express named instance
-            r'localhost\MSSQLSERVER',       # Named instance variant
-            '.',                            # Dot = default instance (local)
-            r'.\SQLEXPRESS',                # Dot with Express
-            '(local)',                      # (local) = default instance
-            r'(local)\SQLEXPRESS',          # (local) with Express
-            '127.0.0.1',                    # IP default instance
-        ]
-
-    uid = Config.DB_UID
-    pwd = Config.DB_PWD
-
-    for server in server_attempts:
-        try:
-            conn_str = _build_conn_str(server, 'master', uid, pwd, driver, timeout=5)
-            conn = pyodbc.connect(conn_str, autocommit=True)
-            conn.close()
-            print(f"  SUCCESS: Connected to SQL Server at '{server}'")
-            _working_server = server
-            # Update Config so all future connections use the working server
-            Config.DB_SERVER = server
-            Config.DB_DRIVER = driver
-            return server
-        except Exception as e:
-            err_str = str(e)
-            # Shorten error for display
-            short_err = err_str[:80] + '...' if len(err_str) > 80 else err_str
-            print(f"  Tried '{server}' ... failed ({short_err})")
-
-    print("  WARNING: Could not auto-detect SQL Server instance!")
-    print("  Please check that SQL Server is running and edit config.py manually.")
-    return None
-
 
 def _get_conn():
-    """Get or create a connection for the current thread."""
-    if not hasattr(_local, 'conn') or _local.conn is None:
-        try:
-            _local.conn = pyodbc.connect(Config.conn_string(), autocommit=True)
-        except Exception as e:
-            print(f"  DB connection error: {e}")
-            raise
+    """Get or create a PostgreSQL connection for the current thread."""
+    if not hasattr(_local, 'conn') or _local.conn is None or _local.conn.closed:
+        dsn = Config.get_dsn()
+        _local.conn = psycopg2.connect(dsn)
+        _local.conn.autocommit = True
     return _local.conn
 
 
 def close_conn():
     """Close the connection for the current thread."""
-    if hasattr(_local, 'conn') and _local.conn is not None:
+    if hasattr(_local, 'conn') and _local.conn is not None and not _local.conn.closed:
         try:
             _local.conn.close()
         except:
@@ -142,53 +32,65 @@ def close_conn():
         _local.conn = None
 
 
+def _convert_params(sql, params):
+    """Convert ? placeholders to %s for psycopg2 compatibility.
+    This allows the rest of the codebase to keep using ? style."""
+    if params:
+        sql = sql.replace('?', '%s')
+    return sql, params
+
+
 def query(sql, params=(), fetch_one=False, fetch=False):
     """
     Execute a SELECT query and return results.
     - fetch_one=True -> returns a single dict or None
     - fetch=True     -> returns a list of dicts
-    - otherwise      -> returns cursor (for UPDATE/DELETE that don't need results)
+    - otherwise      -> returns None (for UPDATE/DELETE)
     """
     conn = _get_conn()
     try:
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        sql, params = _convert_params(sql, params)
         cursor.execute(sql, params)
 
         # For non-SELECT statements
         if cursor.description is None:
+            cursor.close()
             return None
-
-        columns = [desc[0] for desc in cursor.description]
 
         if fetch_one:
             row = cursor.fetchone()
-            if row is None:
-                return None
-            return dict(zip(columns, row))
+            cursor.close()
+            return dict(row) if row else None
 
         if fetch:
             rows = cursor.fetchall()
-            return [dict(zip(columns, row)) for row in rows]
+            cursor.close()
+            return [dict(r) for r in rows]
 
-        # Default: return nothing useful for non-fetch queries
+        cursor.close()
         return None
     except Exception as e:
-        # Try to reconnect once on connection error
-        if '08S01' in str(e) or 'HY000' in str(e) or 'closed' in str(e).lower():
+        if 'closed' in str(e).lower() or 'connection' in str(e).lower():
             try:
                 close_conn()
                 conn = _get_conn()
-                cursor = conn.cursor()
+                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                sql, params = _convert_params(sql, params)
                 cursor.execute(sql, params)
                 if cursor.description is None:
+                    cursor.close()
                     return None
-                columns = [desc[0] for desc in cursor.description]
                 if fetch_one:
                     row = cursor.fetchone()
-                    return dict(zip(columns, row)) if row else None
+                    cursor.close()
+                    return dict(row) if row else None
                 if fetch:
                     rows = cursor.fetchall()
-                    return [dict(zip(columns, row)) for row in rows]
+                    cursor.close()
+                    return [dict(r) for r in rows]
+                cursor.close()
+                return None
             except Exception as e2:
                 print(f"  DB query retry failed: {e2}")
                 raise
@@ -199,233 +101,175 @@ def query(sql, params=(), fetch_one=False, fetch=False):
 
 def insert(sql, params=()):
     """
-    Execute an INSERT and return the newly generated identity ID.
-    Uses OUTPUT INSERTED.id clause for reliable identity retrieval.
-    
-    NOTE: With autocommit=True, each cursor.execute() is a separate SQL batch.
-    SCOPE_IDENTITY() returns NULL in a new batch because the INSERT scope is gone.
-    The OUTPUT clause returns the identity value directly from the INSERT statement,
-    so it works reliably regardless of autocommit settings.
+    Execute an INSERT and return the newly generated id.
+    Uses PostgreSQL RETURNING id clause for reliable identity retrieval.
     """
     conn = _get_conn()
     try:
         cursor = conn.cursor()
-        
-        # Check if the SQL already contains OUTPUT clause (caller managed identity)
-        if 'OUTPUT' in sql.upper() and 'INSERTED' in sql.upper():
-            cursor.execute(sql, params)
-            if cursor.description is not None:
-                row = cursor.fetchone()
-                if row and row[0] is not None:
-                    return int(row[0])
-            return None
-        
-        # Transform: INSERT INTO Table (cols) VALUES (...) 
-        #      → INSERT INTO Table (cols) OUTPUT INSERTED.id VALUES (...)
-        # This lets SQL Server return the new identity in the same statement
-        transformed = re.sub(
-            r'(INSERT\s+INTO\s+\w+\s*\([^)]+\))\s*(VALUES)',
-            r'\1 OUTPUT INSERTED.id \2',
-            sql,
-            flags=re.IGNORECASE
-        )
-        
-        cursor.execute(transformed, params)
-        
-        # The OUTPUT clause produces a result set with the inserted id
-        if cursor.description is not None:
-            row = cursor.fetchone()
-            if row and row[0] is not None:
-                return int(row[0])
-        
-        # Fallback: try @@IDENTITY (session-scoped, works with autocommit)
-        cursor.execute("SELECT @@IDENTITY")
+        sql, params = _convert_params(sql, params)
+
+        # Add RETURNING id if not already present
+        if 'RETURNING' not in sql.upper():
+            sql = sql.rstrip()
+            if sql.endswith(';'):
+                sql = sql[:-1]
+            sql += ' RETURNING id'
+
+        cursor.execute(sql, params)
         row = cursor.fetchone()
+        cursor.close()
         if row and row[0] is not None:
             return int(row[0])
-        
         return None
     except Exception as e:
-        # If the OUTPUT clause fails (e.g. complex SQL), fall back to @@IDENTITY
         try:
-            cursor2 = conn.cursor()
-            cursor2.execute("SELECT @@IDENTITY")
-            row = cursor2.fetchone()
+            close_conn()
+            conn = _get_conn()
+            cursor = conn.cursor()
+            sql, params = _convert_params(sql, params)
+            if 'RETURNING' not in sql.upper():
+                sql = sql.rstrip() + ' RETURNING id'
+            cursor.execute(sql, params)
+            row = cursor.fetchone()
+            cursor.close()
             if row and row[0] is not None:
                 return int(row[0])
-        except:
-            pass
-        
-        # Try to reconnect once on connection error
-        if '08S01' in str(e) or 'HY000' in str(e) or 'closed' in str(e).lower():
-            try:
-                close_conn()
-                conn = _get_conn()
-                cursor = conn.cursor()
-                cursor.execute(sql, params)
-                cursor.execute("SELECT @@IDENTITY")
-                row = cursor.fetchone()
-                if row and row[0] is not None:
-                    return int(row[0])
-                return None
-            except Exception as e2:
-                print(f"  DB insert retry failed: {e2}")
-                raise
-        else:
-            print(f"  DB insert error: {e}")
+            return None
+        except Exception as e2:
+            print(f"  DB insert error: {e2}")
             raise
 
 
 def init_db():
-    """Create the Elyanivery database and all required tables if they don't exist."""
+    """Create the Elyanivery database and all required tables if they don't exist.
+    PostgreSQL uses CREATE TABLE IF NOT EXISTS instead of SQL Server's sysobjects check."""
 
-    # ── Auto-detect SQL Server instance ──
-    print("  Detecting SQL Server instance...")
-    detected = _detect_sql_server()
-    if not detected:
-        print("  Proceeding with configured server: " + Config.DB_SERVER)
-
-    # Create database if it doesn't exist
+    # Test connection
+    params = Config.get_dsn()
+    print(f"  Connecting to PostgreSQL...")
     try:
-        conn = pyodbc.connect(Config.master_conn_string(), autocommit=True)
-        cursor = conn.cursor()
-        # Check if database exists
-        cursor.execute("SELECT database_id FROM sys.databases WHERE name=?", (Config.DB_DATABASE,))
-        row = cursor.fetchone()
-        if not row:
-            cursor.execute(f"CREATE DATABASE [{Config.DB_DATABASE}]")
-            print(f"  Created database: {Config.DB_DATABASE}")
-        else:
-            print(f"  Database exists: {Config.DB_DATABASE}")
-        conn.close()
+        conn = _get_conn()
+        print("  PostgreSQL connection OK")
     except Exception as e:
-        print(f"  DB init (create database) note: {e}")
+        print(f"  PostgreSQL connection failed: {e}")
+        raise
 
     # Create tables
     tables = [
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Users' AND xtype='U')
-        CREATE TABLE Users (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            username NVARCHAR(100) NOT NULL UNIQUE,
-            password_hash NVARCHAR(500) NOT NULL,
+        """CREATE TABLE IF NOT EXISTS Users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(100) NOT NULL UNIQUE,
+            password_hash VARCHAR(500) NOT NULL,
             role VARCHAR(20) NOT NULL DEFAULT 'customer',
-            display_name NVARCHAR(200),
-            avatar_url NVARCHAR(500) NULL,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            display_name VARCHAR(200),
+            avatar_url VARCHAR(500) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Restaurants' AND xtype='U')
-        CREATE TABLE Restaurants (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            name NVARCHAR(200) NOT NULL,
-            description NVARCHAR(1000),
-            address NVARCHAR(500),
+        """CREATE TABLE IF NOT EXISTS Restaurants (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(200) NOT NULL,
+            description VARCHAR(1000),
+            address VARCHAR(500),
             latitude FLOAT DEFAULT 41.3874,
             longitude FLOAT DEFAULT 2.1686,
-            is_open BIT DEFAULT 1,
-            image_url NVARCHAR(500) NULL,
+            is_open BOOLEAN DEFAULT TRUE,
+            image_url VARCHAR(500) NULL,
             created_by INT NULL,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Items' AND xtype='U')
-        CREATE TABLE Items (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS Items (
+            id SERIAL PRIMARY KEY,
             restaurant_id INT NOT NULL,
-            name NVARCHAR(200) NOT NULL,
-            description NVARCHAR(500),
-            price DECIMAL(10,2) NOT NULL,
-            is_available BIT DEFAULT 1,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            name VARCHAR(200) NOT NULL,
+            description VARCHAR(500),
+            price NUMERIC(10,2) NOT NULL,
+            is_available BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Orders' AND xtype='U')
-        CREATE TABLE Orders (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            order_number NVARCHAR(50) UNIQUE,
+        """CREATE TABLE IF NOT EXISTS Orders (
+            id SERIAL PRIMARY KEY,
+            order_number VARCHAR(50) UNIQUE,
             customer_id INT NOT NULL,
             restaurant_id INT NOT NULL,
             courier_id INT NULL,
             status VARCHAR(50) DEFAULT 'pending',
-            subtotal DECIMAL(10,2) DEFAULT 0,
-            delivery_fee DECIMAL(10,2) DEFAULT 2.50,
-            total DECIMAL(10,2) DEFAULT 0,
-            delivery_address NVARCHAR(500),
+            subtotal NUMERIC(10,2) DEFAULT 0,
+            delivery_fee NUMERIC(10,2) DEFAULT 2.50,
+            total NUMERIC(10,2) DEFAULT 0,
+            delivery_address VARCHAR(500),
             delivery_lat FLOAT NULL,
             delivery_lng FLOAT NULL,
-            landmark NVARCHAR(500) NULL,
-            created_at DATETIME DEFAULT GETUTCDATE(),
-            updated_at DATETIME NULL,
-            courier_arrived_restaurant_at DATETIME NULL,
-            order_picked_up_at DATETIME NULL,
-            courier_arrived_customer_at DATETIME NULL,
-            delivered_at DATETIME NULL,
-            cancelled_at DATETIME NULL
+            landmark VARCHAR(500) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL,
+            courier_arrived_restaurant_at TIMESTAMP NULL,
+            order_picked_up_at TIMESTAMP NULL,
+            courier_arrived_customer_at TIMESTAMP NULL,
+            delivered_at TIMESTAMP NULL,
+            cancelled_at TIMESTAMP NULL
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='OrderItems' AND xtype='U')
-        CREATE TABLE OrderItems (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS OrderItems (
+            id SERIAL PRIMARY KEY,
             order_id INT NOT NULL,
             item_id INT NOT NULL,
-            item_name NVARCHAR(200),
-            item_price DECIMAL(10,2),
+            item_name VARCHAR(200),
+            item_price NUMERIC(10,2),
             quantity INT DEFAULT 1
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='OrderLog' AND xtype='U')
-        CREATE TABLE OrderLog (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS OrderLog (
+            id SERIAL PRIMARY KEY,
             order_id INT NOT NULL,
             status VARCHAR(50),
-            note NVARCHAR(500),
-            created_at DATETIME DEFAULT GETUTCDATE()
+            note VARCHAR(500),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CourierLocations' AND xtype='U')
-        CREATE TABLE CourierLocations (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS CourierLocations (
+            id SERIAL PRIMARY KEY,
             courier_id INT NOT NULL,
             latitude FLOAT DEFAULT 0,
             longitude FLOAT DEFAULT 0,
-            is_online BIT DEFAULT 0,
-            updated_at DATETIME DEFAULT GETUTCDATE()
+            is_online BOOLEAN DEFAULT FALSE,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Ratings' AND xtype='U')
-        CREATE TABLE Ratings (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS Ratings (
+            id SERIAL PRIMARY KEY,
             order_id INT NOT NULL,
             user_id INT NOT NULL,
             courier_rating INT DEFAULT 5,
             service_rating INT DEFAULT 5,
-            comment NVARCHAR(500),
-            created_at DATETIME DEFAULT GETUTCDATE()
+            comment VARCHAR(500),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Favorites' AND xtype='U')
-        CREATE TABLE Favorites (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS Favorites (
+            id SERIAL PRIMARY KEY,
             user_id INT NOT NULL,
             restaurant_id INT NOT NULL,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='PromoCodes' AND xtype='U')
-        CREATE TABLE PromoCodes (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            code NVARCHAR(50) NOT NULL UNIQUE,
-            description NVARCHAR(500),
+        """CREATE TABLE IF NOT EXISTS PromoCodes (
+            id SERIAL PRIMARY KEY,
+            code VARCHAR(50) NOT NULL UNIQUE,
+            description VARCHAR(500),
             discount_type VARCHAR(20) DEFAULT 'percentage',
-            discount_value DECIMAL(10,2) DEFAULT 0,
-            max_discount_amount DECIMAL(10,2) NULL,
-            min_order_amount DECIMAL(10,2) DEFAULT 0,
+            discount_value NUMERIC(10,2) DEFAULT 0,
+            max_discount_amount NUMERIC(10,2) NULL,
+            min_order_amount NUMERIC(10,2) DEFAULT 0,
             usage_limit INT NULL,
             used_count INT DEFAULT 0,
-            is_active BIT DEFAULT 1,
-            valid_from DATETIME DEFAULT GETUTCDATE(),
-            valid_until DATETIME DEFAULT DATEADD(YEAR, 1, GETUTCDATE()),
-            created_at DATETIME DEFAULT GETUTCDATE()
+            is_active BOOLEAN DEFAULT TRUE,
+            valid_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            valid_until TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 year'),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
     ]
 
@@ -450,7 +294,7 @@ def seed_data():
         ]
         for name, desc, addr, lat, lng in restaurants:
             try:
-                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open) VALUES (?,?,?,?,?,1)",
+                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open) VALUES (?,?,?,?,?,TRUE)",
                        (name, desc, addr, lat, lng))
             except Exception as e:
                 print(f"  Seed restaurant note: {e}")

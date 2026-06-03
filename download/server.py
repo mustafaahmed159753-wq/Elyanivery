@@ -903,6 +903,15 @@ def handle_courier_assigned_orders(payload):
             o['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (o['id'],), fetch=True)
             cust = query("SELECT display_name FROM Users WHERE id=?", (o['customer_id'],), fetch_one=True)
             o['customer_name'] = cust['display_name'] if cust else 'Customer'
+            # Add customer delivery address with reverse geocoding
+            if o.get('delivery_lat') and o.get('delivery_lng'):
+                try:
+                    addr = reverse_geocode(float(o['delivery_lat']), float(o['delivery_lng']))
+                    o['customer_address'] = addr
+                except:
+                    o['customer_address'] = f"{float(o['delivery_lat']):.4f}, {float(o['delivery_lng']):.4f}"
+            else:
+                o['customer_address'] = o.get('delivery_address', 'Delivery location')
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -987,6 +996,28 @@ def handle_courier_reject_order(payload, oid):
         if restaurant:
             auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
         return 200, {"success": True, "message": "Order rejected. It has been reassigned to another courier."}
+    except Exception as e:
+        traceback.print_exc()
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_courier_reassign_order(payload, oid):
+    """Courier reassigns an order to another courier. Similar to reject but with different messaging."""
+    try:
+        uid = payload['uid']
+        order = query("SELECT * FROM Orders WHERE id=? AND courier_id=?", (oid, uid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found or not assigned to you"}
+        if order['status'] not in ('courier_assigned', 'confirmed'):
+            return 400, {"success": False, "message": "Cannot reassign order in current status"}
+        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=GETUTCDATE() WHERE id=?", (oid,))
+        query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'reassigned','Courier reassigned order to another courier')", (oid,))
+        push_notification(order['customer_id'], 'Courier Update',
+                          'Your courier has changed. Finding a new courier...', 'order_status', oid)
+        restaurant = query("SELECT latitude, longitude FROM Restaurants WHERE id=?", (order['restaurant_id'],), fetch_one=True)
+        if restaurant:
+            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+        return 200, {"success": True, "message": "Order reassigned to another courier."}
     except Exception as e:
         traceback.print_exc()
         return 500, {"success": False, "message": str(e)}
@@ -1933,6 +1964,16 @@ class Handler(BaseHTTPRequestHandler):
                 except:
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_courier_reject_order(p, oid)
+                self._json(code, data)
+            elif path.startswith('/api/courier/order/') and path.endswith('/reassign'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ID"})
+                code, data = handle_courier_reassign_order(p, oid)
                 self._json(code, data)
 
             # ── Admin ──

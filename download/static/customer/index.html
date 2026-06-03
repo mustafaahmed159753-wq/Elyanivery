@@ -5,7 +5,53 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Elyanivery - Customer</title>
 <style>
-:root{--pri:#ff6b35;--pri2:#ff8c5a;--dark:#1a1a2e;--card:#fff;--bg:#f5f5f5;--text:#333;--muted:#999;--border:#e0e0e0;--green:#27ae60;--red:#e74c3c;--blue:#3498db;--shadow:0 2px 12px rgba(0,0,0,.08)}
+:root{--pri:#ff6b35;--pri2:#ff8c5a;--dark:#1a1a2e;--card:#fff;--bg:#f5f5f5;--text:#333;--muted:#999;--border:#e0e0e0;--green:#27ae60;--red:#e74c3c;--blue:#3498db;--shadow:0 2px 12px rgba(0,0,0,.08);--glass:0}
+/* ── THEME: Ocean Blue ── */
+html[data-theme="ocean_blue"]{--pri:#2980b9;--pri2:#3498db;--bg:#e8f4fd;--card:#fff;--text:#2c3e50;--muted:#7f8c8d;--border:#bdc3c7;--shadow:0 2px 12px rgba(41,128,185,.1)}
+/* ── THEME: Sunset ── */
+html[data-theme="sunset"]{--pri:#e74c3c;--pri2:#c0392b;--bg:#fdf2e9;--card:#fff;--text:#78281f;--muted:#a04000;--border:#f0b27a;--shadow:0 2px 12px rgba(231,76,60,.1)}
+/* ── THEME: Dark Mode ── */
+html[data-theme="dark"]{--pri:#ff6b35;--pri2:#ff8c5a;--bg:#1a1a2e;--card:#16213e;--text:#e0e0e0;--muted:#a0a0a0;--border:#2a2a4a;--shadow:0 2px 12px rgba(0,0,0,.3);--dark:#0f0f23;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2}
+/* ── THEME: Glassy Aurora ── */
+html[data-theme="glassy_aurora"]{--pri:#e74c3c;--pri2:#9b59b6;--bg:transparent;--card:rgba(255,255,255,.15);--text:#fff;--muted:rgba(255,255,255,.7);--border:rgba(255,255,255,.2);--shadow:0 8px 32px rgba(0,0,0,.2);--glass:1;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2}
+html[data-theme="glassy_aurora"] body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)!important;min-height:100vh}
+html[data-theme="glassy_aurora"] .rest-card,html[data-theme="glassy_aurora"] .item-card,html[data-theme="glassy_aurora"] .conv-card,html[data-theme="glassy_aurora"] .order-card{background:rgba(255,255,255,.12)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] #app{background:transparent!important}
+html[data-theme="glassy_aurora"] .bottom-nav{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important;border-top:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassy_aurora"] .nav-item{color:rgba(255,255,255,.5)!important}
+html[data-theme="glassy_aurora"] .nav-item.active{color:#e74c3c!important}
+html[data-theme="glassy_aurora"] .auth-screen{background:transparent!important}
+html[data-theme="glassy_aurora"] .auth-form input,html[data-theme="glassy_aurora"] .auth-form select{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .chat-input-bar{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .chat-header{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .chat-messages{background:rgba(0,0,0,.2)!important}
+html[data-theme="glassy_aurora"] .msg-bubble.received{background:rgba(255,255,255,.15)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .chat-input-bar input{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .menu-list button{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .loc-bar{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .cart-summary{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .courier-info-bar{background:rgba(255,255,255,.1)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .loyalty-card{background:linear-gradient(135deg,rgba(231,76,60,.7),rgba(155,89,182,.7))!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .search-bar{background:rgba(255,255,255,.1)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassy_aurora"] .checkout-bar{background:rgba(15,12,41,.85)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_aurora"] .modal-box{background:rgba(22,33,62,.95)!important;backdrop-filter:blur(16px)!important;color:#fff!important}
+/* ── THEME: Glassy Frost ── */
+html[data-theme="glassy_frost"]{--pri:#5dade2;--pri2:#85c1e9;--bg:transparent;--card:rgba(255,255,255,.18);--text:#2c3e50;--muted:rgba(44,62,80,.7);--border:rgba(255,255,255,.35);--shadow:0 8px 32px rgba(0,0,0,.15);--glass:1;--green:#27ae60;--red:#e74c3c;--blue:#3498db}
+html[data-theme="glassy_frost"] body{background:linear-gradient(135deg,#e0eafc,#cfdef3,#a1c4fd)!important;min-height:100vh}
+html[data-theme="glassy_frost"] .rest-card,html[data-theme="glassy_frost"] .item-card,html[data-theme="glassy_frost"] .conv-card,html[data-theme="glassy_frost"] .order-card{background:rgba(255,255,255,.35)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.5)!important}
+html[data-theme="glassy_frost"] #app{background:transparent!important}
+html[data-theme="glassy_frost"] .bottom-nav{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important;border-top:1px solid rgba(255,255,255,.4)!important}
+html[data-theme="glassy_frost"] .chat-input-bar{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_frost"] .chat-header{background:rgba(255,255,255,.6)!important;backdrop-filter:blur(12px)!important}
+html[data-theme="glassy_frost"] .menu-list button{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .modal-box{background:rgba(255,255,255,.7)!important;backdrop-filter:blur(16px)!important}
+html[data-theme="glassy_frost"] .cart-summary{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .courier-info-bar{background:rgba(255,255,255,.35)!important}
+html[data-theme="glassy_frost"] .search-bar{background:rgba(255,255,255,.4)!important;border:1px solid rgba(255,255,255,.5)!important}
+/* ── THEME: Midnight Gold ── */
+html[data-theme="midnight_gold"]{--pri:#f1c40f;--pri2:#f39c12;--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#8b949e;--border:#30363d;--shadow:0 2px 12px rgba(241,196,15,.08);--dark:#010409;--green:#2ecc71;--red:#e74c3c;--blue:#58a6ff}
+/* ── THEME: Lavender Dream ── */
+html[data-theme="lavender_dream"]{--pri:#9b59b6;--pri2:#c39bd3;--bg:#f5eef8;--card:#fff;--text:#4a235a;--muted:#7d3c98;--border:#d2b4de;--shadow:0 2px 12px rgba(155,89,182,.1)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
 button{cursor:pointer;border:none;font-family:inherit}
@@ -149,7 +195,7 @@ input,textarea{font-family:inherit}
 .msg-bubble.received{background:var(--card);border-bottom-left-radius:4px}
 .msg-bubble .msg-time{font-size:10px;opacity:.7;margin-top:4px}
 .msg-bubble .sender-name{font-size:11px;font-weight:600;opacity:.8;margin-bottom:2px}
-.chat-input-bar{display:flex;gap:8px;padding:12px 16px;background:var(--card);border-top:1px solid var(--border);position:sticky;bottom:0}
+.chat-input-bar{display:flex;gap:8px;padding:12px 16px;background:var(--card);border-top:1px solid var(--border);position:sticky;bottom:0;z-index:10}
 .chat-input-bar input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:20px;font-size:14px;outline:none}
 .chat-input-bar button{width:42px;height:42px;border-radius:50%;background:var(--pri);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
 
@@ -230,6 +276,19 @@ input,textarea{font-family:inherit}
 .empty-state .icon{font-size:48px;margin-bottom:12px}
 .empty-state p{font-size:14px}
 .loading{text-align:center;padding:20px;color:var(--muted)}
+
+/* ── THEME PICKER ── */
+.theme-picker-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.theme-picker-overlay.active{display:flex}
+.theme-picker-box{background:var(--card);border-radius:20px;padding:24px;width:100%;max-width:360px;max-height:80vh;overflow-y:auto}
+.theme-picker-box h3{font-size:18px;margin-bottom:16px;text-align:center}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.theme-swatch{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px;border-radius:12px;border:2px solid transparent;transition:all .2s}
+.theme-swatch:hover{transform:scale(1.05)}
+.theme-swatch.active{border-color:var(--pri);box-shadow:0 0 0 3px rgba(255,107,53,.2)}
+.theme-swatch .swatch-color{width:44px;height:44px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.theme-swatch .swatch-label{font-size:10px;text-align:center;color:var(--muted);line-height:1.2}
+.theme-picker-close{width:100%;margin-top:16px;padding:12px;background:var(--pri);color:#fff;border-radius:12px;font-size:14px;font-weight:600}
 </style>
 </head>
 <body>
@@ -388,6 +447,7 @@ input,textarea{font-family:inherit}
   <div class="menu-list">
     <button onclick="showScreen('notifScreen');loadNotifications()"><span class="icon">&#128276;</span> Notifications <span class="arrow">&#8250;</span></button>
     <button onclick="showScreen('ordersScreen');loadOrders()"><span class="icon">&#128230;</span> My Orders <span class="arrow">&#8250;</span></button>
+    <button onclick="openThemePicker()"><span class="icon">&#127912;</span> Change Theme <span class="arrow">&#8250;</span></button>
     <button onclick="logout()"><span class="icon">&#128682;</span> Logout <span class="arrow">&#8250;</span></button>
   </div>
 </div>
@@ -447,6 +507,15 @@ input,textarea{font-family:inherit}
   </div>
   <button class="icb-accept" onclick="acceptIncomingCall()">Accept</button>
   <button class="icb-reject" onclick="rejectIncomingCall()">Reject</button>
+</div>
+
+<!-- ════════ THEME PICKER MODAL ════════ -->
+<div class="theme-picker-overlay" id="themePickerOverlay" onclick="if(event.target===this)closeThemePicker()">
+  <div class="theme-picker-box">
+    <h3>Choose Theme</h3>
+    <div class="theme-grid" id="themeGrid"></div>
+    <button class="theme-picker-close" onclick="closeThemePicker()">Done</button>
+  </div>
 </div>
 
 </div><!-- end app -->
@@ -579,6 +648,13 @@ function enterApp() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  // Hide bottom nav when chat screen is active
+  const bn = document.getElementById('bottomNav');
+  if (id === 'chatScreen') {
+    if (bn) bn.style.display = 'none';
+  } else if (token && user) {
+    if (bn) bn.style.display = 'flex';
+  }
 }
 
 function navTo(screenId, el) {
@@ -1429,6 +1505,59 @@ function stopAllPolling() {
   stopCallPoll();
   if (window._icePollInterval) { clearInterval(window._icePollInterval); window._icePollInterval = null; }
 }
+
+// ════════════════════════════════════════
+//  THEME MANAGEMENT
+// ════════════════════════════════════════
+const CUSTOMER_THEMES = [
+  { id: 'default', name: 'Default Orange', color: '#ff6b35' },
+  { id: 'ocean_blue', name: 'Ocean Blue', color: '#2980b9' },
+  { id: 'sunset', name: 'Sunset', color: '#e74c3c' },
+  { id: 'dark', name: 'Dark Mode', color: '#1a1a2e' },
+  { id: 'glassy_aurora', name: 'Glassy Aurora', color: 'linear-gradient(135deg,#e74c3c,#9b59b6)' },
+  { id: 'glassy_frost', name: 'Glassy Frost', color: 'linear-gradient(135deg,#e0eafc,#a1c4fd)' },
+  { id: 'midnight_gold', name: 'Midnight Gold', color: '#0d1117' },
+  { id: 'lavender_dream', name: 'Lavender Dream', color: '#9b59b6' }
+];
+
+function applyTheme(themeId) {
+  if (themeId === 'default') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', themeId);
+  }
+  localStorage.setItem('customer_theme', themeId);
+  // Update active swatch
+  document.querySelectorAll('.theme-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.theme === themeId);
+  });
+}
+
+function openThemePicker() {
+  const grid = document.getElementById('themeGrid');
+  const currentTheme = localStorage.getItem('customer_theme') || 'default';
+  grid.innerHTML = CUSTOMER_THEMES.map(t => {
+    const isGrad = t.color.includes('gradient');
+    const style = isGrad ? `background:${t.color}` : `background:${t.color}`;
+    return `<div class="theme-swatch ${t.id === currentTheme ? 'active' : ''}" data-theme="${t.id}" onclick="applyTheme('${t.id}')">
+      <div class="swatch-color" style="${style}"></div>
+      <div class="swatch-label">${t.name}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('themePickerOverlay').classList.add('active');
+}
+
+function closeThemePicker() {
+  document.getElementById('themePickerOverlay').classList.remove('active');
+}
+
+// Apply saved theme on load
+(function() {
+  const saved = localStorage.getItem('customer_theme');
+  if (saved && saved !== 'default') {
+    document.documentElement.setAttribute('data-theme', saved);
+  }
+})();
 
 // ════════════════════════════════════════
 //  AUTO-LOGIN ON PAGE LOAD

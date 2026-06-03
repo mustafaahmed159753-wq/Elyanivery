@@ -3,14 +3,17 @@
 
 FROM python:3.11-slim
 
-# Install ODBC Driver 18 for SQL Server
+# Install dependencies, then Microsoft ODBC Driver 18
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg2 \
     unixodbc-dev \
     apt-transport-https \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc \
-    && curl https://packages.microsoft.com/config/debian/12/prod.list | tee /etc/apt/sources.list.d/mssql-release.list \
+    && curl -sSL https://packages.microsoft.com/keys/microsoft.asc \
+       | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && curl -sSL https://packages.microsoft.com/config/debian/12/prod.list \
+       -o /etc/apt/sources.list.d/mssql-release.list \
+    && sed -i 's|signed-by=/usr/share/keyrings/microsoft-prod.gpg|signed-by=/usr/share/keyrings/microsoft-prod.gpg|g' /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 \
     && apt-get clean \

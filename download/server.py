@@ -1,6 +1,6 @@
 """
-Elyanivery — Pure Python HTTP Server + SQL Server
-  v2.0 — Added: In-App Chat, Voice Calling (WebRTC Signaling),
+Elyanivery — Pure Python HTTP Server + PostgreSQL
+  v3.0 — PostgreSQL migration, In-App Chat, Voice Calling (WebRTC Signaling),
          Notifications, Address Book, Loyalty Points
 """
 
@@ -39,7 +39,7 @@ def ensure_default_users():
                          (username, pw_hash, role, display_name))
             if role == 'courier':
                 try:
-                    insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,0)", (uid,))
+                    insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,FALSE)", (uid,))
                 except:
                     pass
             # Init loyalty
@@ -61,77 +61,70 @@ def ensure_default_users():
 def init_extra_tables():
     """Create new tables for v2.0 features. Uses IF NOT EXISTS for safety."""
     tables = [
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='ChatMessages' AND xtype='U')
-        CREATE TABLE ChatMessages (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS ChatMessages (
+            id SERIAL PRIMARY KEY,
             order_id INT NOT NULL,
             sender_id INT NOT NULL,
             receiver_id INT NOT NULL,
-            message NVARCHAR(2000),
+            message VARCHAR(2000),
             message_type VARCHAR(20) DEFAULT 'text',
-            is_read BIT DEFAULT 0,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CallSessions' AND xtype='U')
-        CREATE TABLE CallSessions (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS CallSessions (
+            id SERIAL PRIMARY KEY,
             order_id INT NOT NULL,
             caller_id INT NOT NULL,
             callee_id INT NOT NULL,
             status VARCHAR(20) DEFAULT 'ringing',
-            offer_sdp NVARCHAR(MAX),
-            answer_sdp NVARCHAR(MAX),
-            started_at DATETIME DEFAULT GETUTCDATE(),
-            answered_at DATETIME NULL,
-            ended_at DATETIME NULL
+            offer_sdp TEXT,
+            answer_sdp TEXT,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            answered_at TIMESTAMP NULL,
+            ended_at TIMESTAMP NULL
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='IceCandidates' AND xtype='U')
-        CREATE TABLE IceCandidates (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS IceCandidates (
+            id SERIAL PRIMARY KEY,
             call_id INT NOT NULL,
             user_id INT NOT NULL,
-            candidate NVARCHAR(MAX),
-            created_at DATETIME DEFAULT GETUTCDATE()
+            candidate TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Notifications' AND xtype='U')
-        CREATE TABLE Notifications (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS Notifications (
+            id SERIAL PRIMARY KEY,
             user_id INT NOT NULL,
-            title NVARCHAR(200),
-            body NVARCHAR(1000),
+            title VARCHAR(200),
+            body VARCHAR(1000),
             type VARCHAR(50),
             reference_id INT NULL,
-            is_read BIT DEFAULT 0,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Addresses' AND xtype='U')
-        CREATE TABLE Addresses (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS Addresses (
+            id SERIAL PRIMARY KEY,
             user_id INT NOT NULL,
-            label NVARCHAR(100),
-            address NVARCHAR(500),
+            label VARCHAR(100),
+            address VARCHAR(500),
             latitude FLOAT,
             longitude FLOAT,
-            is_default BIT DEFAULT 0,
-            created_at DATETIME DEFAULT GETUTCDATE()
+            is_default BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='LoyaltyPoints' AND xtype='U')
-        CREATE TABLE LoyaltyPoints (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS LoyaltyPoints (
+            id SERIAL PRIMARY KEY,
             user_id INT NOT NULL,
             points INT DEFAULT 0,
             total_earned INT DEFAULT 0,
-            updated_at DATETIME DEFAULT GETUTCDATE()
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
-        """IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='PointTransactions' AND xtype='U')
-        CREATE TABLE PointTransactions (
-            id INT PRIMARY KEY IDENTITY(1,1),
+        """CREATE TABLE IF NOT EXISTS PointTransactions (
+            id SERIAL PRIMARY KEY,
             user_id INT NOT NULL,
             order_id INT NULL,
             points INT NOT NULL,
             transaction_type VARCHAR(20),
-            description NVARCHAR(200),
-            created_at DATETIME DEFAULT GETUTCDATE()
+            description VARCHAR(200),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
     ]
     for sql in tables:
@@ -158,7 +151,7 @@ def award_loyalty_points(user_id, order_id, order_total):
         pts = max(1, int(order_total))
         existing = query("SELECT id FROM LoyaltyPoints WHERE user_id=?", (user_id,), fetch_one=True)
         if existing:
-            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=GETUTCDATE() WHERE user_id=?",
+            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=CURRENT_TIMESTAMP WHERE user_id=?",
                   (pts, pts, user_id))
         else:
             insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,?,?)", (user_id, pts, pts))
@@ -196,7 +189,7 @@ def auto_assign_courier(order_id, restaurant_lat, restaurant_lng):
             SELECT cl.courier_id, cl.latitude, cl.longitude
             FROM CourierLocations cl
             JOIN Users u ON cl.courier_id = u.id
-            WHERE cl.is_online = 1 AND u.role = 'courier'
+            WHERE cl.is_online = TRUE AND u.role = 'courier'
               AND cl.courier_id NOT IN (
                   SELECT courier_id FROM Orders
                   WHERE courier_id IS NOT NULL
@@ -215,7 +208,7 @@ def auto_assign_courier(order_id, restaurant_lat, restaurant_lng):
                     c['dist_km'] = 9999
             couriers.sort(key=lambda x: x['dist_km'])
             c = couriers[0]
-            query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=GETUTCDATE() WHERE id=?",
+            query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=CURRENT_TIMESTAMP WHERE id=?",
                   (c['courier_id'], order_id))
             query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'courier_assigned', ?)",
                   (order_id, f"Courier {c['courier_id']} assigned ({c['dist_km']:.1f}km away)"))
@@ -281,7 +274,7 @@ def handle_register(body):
         uid = insert("INSERT INTO Users (username,password_hash,role,display_name) VALUES (?,?,?,?)",
                      (username, pw_hash, role, display_name))
         if role == 'courier':
-            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,0)", (uid,))
+            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,FALSE)", (uid,))
         # Init loyalty
         try:
             insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,0,0)", (uid,))
@@ -370,7 +363,7 @@ def handle_get_favorites(payload):
             sin(radians(s.latitude))),1) as distance_km
             FROM Favorites f
             JOIN Restaurants s ON f.restaurant_id=s.id
-            WHERE f.user_id=? AND s.is_open=1
+            WHERE f.user_id=? AND s.is_open=TRUE
             ORDER BY f.created_at DESC
         """, (payload['uid'],), fetch=True)
         return 200, {"success": True, "data": rows or []}
@@ -393,7 +386,7 @@ def handle_validate_promo(body):
         subtotal = float(body.get('subtotal', 0))
         if not code:
             return 400, {"success": False, "message": "Code required"}
-        promo = query("SELECT * FROM PromoCodes WHERE code=? AND is_active=1 AND valid_from<=GETUTCDATE() AND valid_until>=GETUTCDATE()", (code,), fetch_one=True)
+        promo = query("SELECT * FROM PromoCodes WHERE code=? AND is_active=TRUE AND valid_from<=CURRENT_TIMESTAMP AND valid_until>=CURRENT_TIMESTAMP", (code,), fetch_one=True)
         if not promo:
             return 404, {"success": False, "message": "Invalid or expired code"}
         if promo['usage_limit'] and promo['used_count'] >= promo['usage_limit']:
@@ -425,7 +418,7 @@ def handle_cancel_order(payload, oid):
             return 404, {"success": False, "message": "Order not found"}
         if order['status'] not in ('pending', 'confirmed', 'courier_assigned'):
             return 400, {"success": False, "message": "Cannot cancel order in current status"}
-        query("UPDATE Orders SET status='cancelled', cancelled_at=GETUTCDATE(), updated_at=GETUTCDATE() WHERE id=?", (oid,))
+        query("UPDATE Orders SET status='cancelled', cancelled_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'cancelled','Cancelled by customer')", (oid,))
         if order['courier_id']:
             push_notification(order['courier_id'], 'Order Cancelled',
@@ -446,7 +439,7 @@ def handle_reorder(payload, oid):
         rid = order['restaurant_id']
         cart = {"restaurant_id": rid, "items": []}
         for i in items:
-            item = query("SELECT id, name, price FROM Items WHERE id=? AND is_available=1", (i['item_id'],), fetch_one=True)
+            item = query("SELECT id, name, price FROM Items WHERE id=? AND is_available=TRUE", (i['item_id'],), fetch_one=True)
             if item:
                 cart['items'].append({"item_id": item['id'], "name": item['name'], "price": float(item['price']), "quantity": i['quantity']})
         if not cart['items']:
@@ -465,7 +458,7 @@ def handle_toggle_restaurant(payload, rid):
         r = query("SELECT is_open FROM Restaurants WHERE id=?", (rid,), fetch_one=True)
         if not r:
             return 404, {"success": False, "message": "Not found"}
-        new_val = 0 if r['is_open'] else 1
+        new_val = not r['is_open']
         query("UPDATE Restaurants SET is_open=? WHERE id=?", (new_val, rid))
         return 200, {"success": True, "data": {"is_open": bool(new_val)}}
     except Exception as e:
@@ -539,7 +532,7 @@ def handle_create_restaurant(body, payload):
             lng = float(body.get('longitude', 2.1686))
         except:
             lng = 2.1686
-        rid = insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,created_by) VALUES (?,?,?,?,?,1,?)",
+        rid = insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,created_by) VALUES (?,?,?,?,?,TRUE,?)",
                      (name, desc, addr, lat, lng, payload['uid']))
         return 201, {"success": True, "data": {"id": rid, "name": name}}
     except Exception as e:
@@ -566,7 +559,7 @@ def handle_update_restaurant(body, payload, rid):
             params.append(float(body['longitude']))
         if 'is_open' in body:
             fields.append("is_open=?")
-            params.append(1 if body['is_open'] else 0)
+            params.append(True if body['is_open'] else False)
         if not fields:
             return 400, {"success": False, "message": "No fields to update"}
         params.append(rid)
@@ -627,7 +620,7 @@ def handle_update_item(body, payload, item_id):
             params.append(float(body['price']))
         if 'is_available' in body:
             fields.append("is_available=?")
-            params.append(1 if body['is_available'] else 0)
+            params.append(True if body['is_available'] else False)
         if not fields:
             return 400, {"success": False, "message": "No fields to update"}
         params.append(item_id)
@@ -716,8 +709,8 @@ def handle_create_order(body, payload):
         promo_code_str = body.get('promo_code', '').strip().upper()
         if promo_code_str:
             promo = query(
-                "SELECT * FROM PromoCodes WHERE code=? AND is_active=1 "
-                "AND valid_from<=GETUTCDATE() AND valid_until>=GETUTCDATE()",
+                "SELECT * FROM PromoCodes WHERE code=? AND is_active=TRUE "
+                "AND valid_from<=CURRENT_TIMESTAMP AND valid_until>=CURRENT_TIMESTAMP",
                 (promo_code_str,), fetch_one=True
             )
             if promo:
@@ -776,7 +769,7 @@ def handle_create_order(body, payload):
 
         # Deduct redeemed loyalty points
         if points_to_redeem > 0:
-            query("UPDATE LoyaltyPoints SET points=points-?, updated_at=GETUTCDATE() WHERE user_id=?",
+            query("UPDATE LoyaltyPoints SET points=points-?, updated_at=CURRENT_TIMESTAMP WHERE user_id=?",
                   (points_to_redeem, uid))
             insert("INSERT INTO PointTransactions (user_id,order_id,points,transaction_type,description) VALUES (?,?,?,'redeem',?)",
                    (uid, oid, points_to_redeem, f'Redeemed {points_to_redeem} points for €{points_discount:.2f} discount'))
@@ -825,7 +818,7 @@ def handle_get_order(oid, payload):
             return 404, {"success": False, "message": "Order not found"}
         order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True)
         if order['courier_id']:
-            cloc = query("SELECT TOP 1 u.display_name, u.avatar_url, cl.latitude, cl.longitude FROM CourierLocations cl JOIN Users u ON cl.courier_id=u.id WHERE cl.courier_id=? ORDER BY cl.updated_at DESC", (order['courier_id'],), fetch_one=True)
+            cloc = query("SELECT u.display_name, u.avatar_url, cl.latitude, cl.longitude FROM CourierLocations cl JOIN Users u ON cl.courier_id=u.id WHERE cl.courier_id=? ORDER BY cl.updated_at DESC LIMIT 1", (order['courier_id'],), fetch_one=True)
             order['courier_location'] = cloc
             order['courier_name'] = cloc['display_name'] if cloc else 'Courier'
             order['courier_avatar'] = cloc.get('avatar_url') if cloc else None
@@ -859,7 +852,7 @@ def handle_rate_order(body, payload, oid):
         # Award bonus loyalty points for rating
         try:
             bonus_pts = 10
-            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=GETUTCDATE() WHERE user_id=?",
+            query("UPDATE LoyaltyPoints SET points=points+?, total_earned=total_earned+?, updated_at=CURRENT_TIMESTAMP WHERE user_id=?",
                   (bonus_pts, bonus_pts, payload['uid']))
             insert("INSERT INTO PointTransactions (user_id,order_id,points,transaction_type,description) VALUES (?,?,?,'earn',?)",
                    (payload['uid'], oid, bonus_pts, 'Bonus points for rating order'))
@@ -878,9 +871,9 @@ def handle_courier_update_location(body, payload):
             return 400, {"success": False, "message": "lat/lng required"}
         existing = query("SELECT id FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
         if existing:
-            query("UPDATE CourierLocations SET latitude=?,longitude=?,updated_at=GETUTCDATE() WHERE courier_id=?", (lat, lng, payload['uid']))
+            query("UPDATE CourierLocations SET latitude=?,longitude=?,updated_at=CURRENT_TIMESTAMP WHERE courier_id=?", (lat, lng, payload['uid']))
         else:
-            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,?,?,1)", (payload['uid'], lat, lng))
+            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,?,?,TRUE)", (payload['uid'], lat, lng))
         return 200, {"success": True}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -934,9 +927,9 @@ def handle_courier_update_status(body, payload, oid):
         allowed = valid.get(order['status'], [])
         if new_status not in allowed:
             return 400, {"success": False, "message": f"Cannot go from '{order['status']}' to '{new_status}'"}
-        update_fields, params = "status=?, updated_at=GETUTCDATE()", [new_status]
+        update_fields, params = "status=?, updated_at=CURRENT_TIMESTAMP", [new_status]
         if new_status == 'arrived_at_restaurant':
-            update_fields += ", courier_arrived_restaurant_at=GETUTCDATE()"
+            update_fields += ", courier_arrived_restaurant_at=CURRENT_TIMESTAMP"
             if lat and lng:
                 try:
                     landmark = reverse_geocode(lat, lng)
@@ -945,11 +938,11 @@ def handle_courier_update_status(body, payload, oid):
                 update_fields += ", landmark=?"
                 params.append(landmark)
         elif new_status == 'order_picked_up':
-            update_fields += ", order_picked_up_at=GETUTCDATE()"
+            update_fields += ", order_picked_up_at=CURRENT_TIMESTAMP"
         elif new_status == 'arrived_at_customer':
-            update_fields += ", courier_arrived_customer_at=GETUTCDATE()"
+            update_fields += ", courier_arrived_customer_at=CURRENT_TIMESTAMP"
         elif new_status == 'delivered':
-            update_fields += ", delivered_at=GETUTCDATE()"
+            update_fields += ", delivered_at=CURRENT_TIMESTAMP"
             # Award loyalty points on delivery
             try:
                 award_loyalty_points(order['customer_id'], oid, float(order['total']))
@@ -986,7 +979,7 @@ def handle_courier_reject_order(payload, oid):
         if order['status'] not in ('courier_assigned', 'confirmed'):
             return 400, {"success": False, "message": "Cannot reject order in current status"}
         # Unassign courier and try to reassign to another
-        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=GETUTCDATE() WHERE id=?", (oid,))
+        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'courier_rejected','Courier rejected order')", (oid,))
         # Notify customer
         push_notification(order['customer_id'], 'Courier Update',
@@ -1010,7 +1003,7 @@ def handle_courier_reassign_order(payload, oid):
             return 404, {"success": False, "message": "Order not found or not assigned to you"}
         if order['status'] not in ('courier_assigned', 'confirmed'):
             return 400, {"success": False, "message": "Cannot reassign order in current status"}
-        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=GETUTCDATE() WHERE id=?", (oid,))
+        query("UPDATE Orders SET courier_id=NULL, status='confirmed', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'reassigned','Courier reassigned order to another courier')", (oid,))
         push_notification(order['customer_id'], 'Courier Update',
                           'Your courier has changed. Finding a new courier...', 'order_status', oid)
@@ -1051,7 +1044,7 @@ def handle_admin_assign_order(body, payload):
         oid, cid = body.get('order_id'), body.get('courier_id')
         if not oid or not cid:
             return 400, {"success": False, "message": "order_id and courier_id required"}
-        query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=GETUTCDATE() WHERE id=?", (cid, oid))
+        query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=CURRENT_TIMESTAMP WHERE id=?", (cid, oid))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'courier_assigned','Manually assigned')", (oid,))
         push_notification(cid, 'Order Assigned', f'Admin assigned you to order #{oid}', 'order_assigned', oid)
         return 200, {"success": True, "message": "Courier assigned"}
@@ -1119,7 +1112,7 @@ def handle_chat_messages(payload, order_id, after_id=0):
             (order_id, after_id), fetch=True
         )
         # Mark messages sent TO this user as read
-        query("UPDATE ChatMessages SET is_read=1 WHERE order_id=? AND receiver_id=? AND is_read=0",
+        query("UPDATE ChatMessages SET is_read=TRUE WHERE order_id=? AND receiver_id=? AND is_read=FALSE",
               (order_id, uid))
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
@@ -1136,10 +1129,10 @@ def handle_chat_conversations(payload):
                    cm.message_type as last_message_type,
                    u.display_name as other_name, u.avatar_url as other_avatar,
                    (SELECT COUNT(*) FROM ChatMessages WHERE order_id=o.id
-                    AND receiver_id=? AND is_read=0) as unread_count
+                    AND receiver_id=? AND is_read=FALSE) as unread_count
             FROM Orders o
             JOIN ChatMessages cm ON cm.id = (
-                SELECT TOP 1 id FROM ChatMessages WHERE order_id=o.id ORDER BY id DESC
+                SELECT id FROM ChatMessages WHERE order_id=o.id ORDER BY id DESC LIMIT 1
             )
             JOIN Users u ON u.id = CASE WHEN o.customer_id=? THEN o.courier_id ELSE o.customer_id END
             WHERE (o.customer_id=? OR o.courier_id=?)
@@ -1153,7 +1146,7 @@ def handle_chat_conversations(payload):
 def handle_chat_unread(payload):
     """Get total unread message count for the current user."""
     try:
-        row = query("SELECT COUNT(*) as cnt FROM ChatMessages WHERE receiver_id=? AND is_read=0",
+        row = query("SELECT COUNT(*) as cnt FROM ChatMessages WHERE receiver_id=? AND is_read=FALSE",
                     (payload['uid'],), fetch_one=True)
         return 200, {"success": True, "data": {"unread_count": row['cnt'] if row else 0}}
     except Exception as e:
@@ -1246,7 +1239,7 @@ def handle_call_answer(body, payload):
         if call['status'] != 'ringing':
             return 400, {"success": False, "message": f"Call is not ringing (status: {call['status']})"}
 
-        query("UPDATE CallSessions SET status='answered', answer_sdp=?, answered_at=GETUTCDATE() WHERE id=?",
+        query("UPDATE CallSessions SET status='answered', answer_sdp=?, answered_at=CURRENT_TIMESTAMP WHERE id=?",
               (answer_sdp, call_id))
 
         # Notify caller that call was answered
@@ -1332,7 +1325,7 @@ def handle_call_end(body, payload):
         if uid != call['caller_id'] and uid != call['callee_id']:
             return 403, {"success": False, "message": "Not part of this call"}
 
-        query("UPDATE CallSessions SET status='ended', ended_at=GETUTCDATE() WHERE id=?", (call_id,))
+        query("UPDATE CallSessions SET status='ended', ended_at=CURRENT_TIMESTAMP WHERE id=?", (call_id,))
 
         # Notify the other party
         other_id = call['callee_id'] if uid == call['caller_id'] else call['caller_id']
@@ -1356,7 +1349,7 @@ def handle_call_reject(body, payload):
         if call['callee_id'] != payload['uid']:
             return 403, {"success": False, "message": "Not the callee"}
 
-        query("UPDATE CallSessions SET status='rejected', ended_at=GETUTCDATE() WHERE id=?", (call_id,))
+        query("UPDATE CallSessions SET status='rejected', ended_at=CURRENT_TIMESTAMP WHERE id=?", (call_id,))
 
         push_notification(call['caller_id'], 'Call Rejected', 'The other party rejected the call', 'call_rejected', call_id)
 
@@ -1371,7 +1364,7 @@ def handle_call_reject(body, payload):
 def handle_get_notifications(payload):
     try:
         rows = query(
-            "SELECT TOP 50 * FROM Notifications WHERE user_id=? ORDER BY created_at DESC",
+            "SELECT * FROM Notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 50",
             (payload['uid'],), fetch=True
         )
         return 200, {"success": True, "data": rows or []}
@@ -1381,7 +1374,7 @@ def handle_get_notifications(payload):
 
 def handle_mark_notification_read(payload, nid):
     try:
-        query("UPDATE Notifications SET is_read=1 WHERE id=? AND user_id=?", (nid, payload['uid']))
+        query("UPDATE Notifications SET is_read=TRUE WHERE id=? AND user_id=?", (nid, payload['uid']))
         return 200, {"success": True, "message": "Marked as read"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1389,7 +1382,7 @@ def handle_mark_notification_read(payload, nid):
 
 def handle_mark_all_notifications_read(payload):
     try:
-        query("UPDATE Notifications SET is_read=1 WHERE user_id=? AND is_read=0", (payload['uid'],))
+        query("UPDATE Notifications SET is_read=TRUE WHERE user_id=? AND is_read=FALSE", (payload['uid'],))
         return 200, {"success": True, "message": "All marked as read"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1397,7 +1390,7 @@ def handle_mark_all_notifications_read(payload):
 
 def handle_unread_notification_count(payload):
     try:
-        row = query("SELECT COUNT(*) as cnt FROM Notifications WHERE user_id=? AND is_read=0",
+        row = query("SELECT COUNT(*) as cnt FROM Notifications WHERE user_id=? AND is_read=FALSE",
                     (payload['uid'],), fetch_one=True)
         return 200, {"success": True, "data": {"unread_count": row['cnt'] if row else 0}}
     except Exception as e:
@@ -1424,9 +1417,9 @@ def handle_add_address(body, payload):
             return 400, {"success": False, "message": "Address required"}
         lat = body.get('latitude')
         lng = body.get('longitude')
-        is_default = 1 if body.get('is_default') else 0
+        is_default = True if body.get('is_default') else False
         if is_default:
-            query("UPDATE Addresses SET is_default=0 WHERE user_id=?", (payload['uid'],))
+            query("UPDATE Addresses SET is_default=FALSE WHERE user_id=?", (payload['uid'],))
         aid = insert(
             "INSERT INTO Addresses (user_id,label,address,latitude,longitude,is_default) VALUES (?,?,?,?,?,?)",
             (payload['uid'], label, address, lat, lng, is_default)
@@ -1453,8 +1446,8 @@ def handle_update_address(body, payload, aid):
             fields.append("longitude=?")
             params.append(body['longitude'])
         if 'is_default' in body and body['is_default']:
-            query("UPDATE Addresses SET is_default=0 WHERE user_id=?", (payload['uid'],))
-            fields.append("is_default=1")
+            query("UPDATE Addresses SET is_default=FALSE WHERE user_id=?", (payload['uid'],))
+            fields.append("is_default=TRUE")
         if not fields:
             return 400, {"success": False, "message": "No fields to update"}
         params.append(aid)
@@ -2157,25 +2150,23 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY v2.2 - Delivery Platform")
+    print("  ELYANIVERY v3.0 - Delivery Platform (PostgreSQL)")
     print("  + Chat, Voice Calls, Notifications,")
     print("    Address Book, Loyalty Points")
     print("=" * 50)
 
-    # init_db() now handles auto-detection of SQL Server instance
-    # and will try multiple configurations (localhost, SQLEXPRESS, etc.)
-    # with Windows Authentication or SQL Authentication
+    # init_db() connects to PostgreSQL using DATABASE_URL or individual params
     db_ok = False
     try:
         init_db()
         db_ok = True
     except Exception as e:
-        print(f"\n  ERROR: Could not connect to SQL Server!")
+        print(f"\n  ERROR: Could not connect to PostgreSQL!")
         print(f"  Details: {e}")
         print(f"\n  Please check:")
-        print(f"    1. SQL Server is running (check Services or SSMS)")
-        print(f"    2. Set DB_SERVER, DB_UID, DB_PWD environment variables")
-        print(f"    3. For Railway: Add a SQL Server database service")
+        print(f"    1. PostgreSQL is running (locally or on Railway)")
+        print(f"    2. Set DATABASE_URL or DB_HOST/DB_USER/DB_PASSWORD env vars")
+        print(f"    3. On Railway: Add a PostgreSQL database service")
 
     if db_ok:
         print("  DB connection OK")

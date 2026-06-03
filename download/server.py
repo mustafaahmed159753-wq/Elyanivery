@@ -1214,11 +1214,11 @@ def handle_call_get_ice_candidates(payload, call_id, after_id=0):
 def handle_call_get_answer(payload, call_id):
     """Caller polls to check if the call has been answered (to get answer SDP)."""
     try:
-        call = query("SELECT id,status,answer_sdp FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
+        call = query("SELECT id,caller_id,callee_id,status,answer_sdp FROM CallSessions WHERE id=?", (call_id,), fetch_one=True)
         if not call:
             return 404, {"success": False, "message": "Call not found"}
-        if call['caller_id'] != payload['uid']:
-            return 403, {"success": False, "message": "Not the caller"}
+        if call['caller_id'] != payload['uid'] and call['callee_id'] != payload['uid']:
+            return 403, {"success": False, "message": "Not part of this call"}
         return 200, {"success": True, "data": {"status": call['status'], "answer_sdp": call.get('answer_sdp')}}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1410,8 +1410,17 @@ def handle_get_loyalty_history(payload):
 # HTTP SERVER
 # ────────────────────────────────────────────
 class Handler(BaseHTTPRequestHandler):
+    # Suppress noisy polling logs (heartbeat endpoints)
+    _SUPPRESS_LOGS = ('/api/courier/orders', '/api/call/incoming', '/api/chat/unread',
+                      '/api/notifications/unread-count', '/api/chat/messages/')
+
     def log_message(self, fmt, *args):
-        print(f"  [{self.log_date_time_string()}] {args[0]}")
+        msg = args[0] if args else ''
+        # Skip logging for frequent polling requests to reduce console noise
+        for prefix in self._SUPPRESS_LOGS:
+            if prefix in msg:
+                return
+        print(f"  [{self.log_date_time_string()}] {msg}")
 
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -1482,12 +1491,13 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_call_incoming(p)
                 self._json(code, data)
-            elif path.startswith('/api/call/answer/') and path.endswith('/status'):
+            elif path.startswith('/api/call/') and path.endswith('/status'):
+                # Route: GET /api/call/{call_id}/status  (caller polls for answer)
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 try:
-                    call_id = int(path.split('/')[4])
+                    call_id = int(path.split('/')[3])
                 except:
                     return self._json(400, {"success": False, "message": "Invalid call ID"})
                 code, data = handle_call_get_answer(p, call_id)

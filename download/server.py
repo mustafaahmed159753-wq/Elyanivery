@@ -57,6 +57,364 @@ def ensure_default_users():
             except:
                 pass
 
+    # Ensure restaurant partner accounts exist
+    ensure_restaurant_users()
+
+
+def ensure_restaurant_users():
+    """Create partner accounts for each existing restaurant. Username = lowercase restaurant name (no spaces), password = '1234'."""
+    restaurants = query("SELECT id, name FROM Restaurants", fetch=True)
+    if not restaurants:
+        return
+    for r in restaurants:
+        # Generate username from restaurant name: lowercase, remove spaces and special chars
+        raw_name = r['name'].lower().replace(' ', '').replace('-', '')
+        # Remove any non-alphanumeric chars
+        username = ''.join(c for c in raw_name if c.isalnum())
+        if not username:
+            username = f"restaurant{r['id']}"
+
+        existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
+        if not existing:
+            pw_hash = AuthService.hash_pw('1234')
+            try:
+                uid = insert("INSERT INTO Users (username,password_hash,role,display_name) VALUES (?,?,?,?)",
+                             (username, pw_hash, 'partner', r['name']))
+                # Link this user to the restaurant
+                query("UPDATE Restaurants SET created_by=? WHERE id=?", (uid, r['id']))
+                print(f"  Created partner user: {username} / 1234 (for {r['name']})")
+            except Exception as e:
+                print(f"  Partner user creation note ({username}): {e}")
+        else:
+            # Ensure password stays as '1234' and link to restaurant
+            pw_hash = AuthService.hash_pw('1234')
+            try:
+                query("UPDATE Users SET password_hash=?, display_name=? WHERE username=?",
+                      (pw_hash, r['name'], username))
+                query("UPDATE Restaurants SET created_by=? WHERE id=?", (existing['id'], r['id']))
+            except:
+                pass
+
+
+def get_partner_restaurant_id(user_id):
+    """Get the restaurant ID associated with a partner user. Returns None if not found."""
+    r = query("SELECT id FROM Restaurants WHERE created_by=?", (user_id,), fetch_one=True)
+    return r['id'] if r else None
+
+
+# ── PARTNER API HANDLERS ──
+def handle_partner_orders(payload):
+    """Get all orders for the partner's restaurant, grouped by status."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        rows = query("""
+            SELECT o.*, r.name as restaurant_name, r.address as restaurant_address,
+                   u.display_name as customer_name, u.username as customer_username
+            FROM Orders o
+            JOIN Restaurants r ON o.restaurant_id=r.id
+            JOIN Users u ON o.customer_id=u.id
+            WHERE o.restaurant_id=?
+            ORDER BY
+                CASE o.status
+                    WHEN 'pending' THEN 1
+                    WHEN 'accepted' THEN 2
+                    WHEN 'ready_for_pickup' THEN 3
+                    WHEN 'courier_assigned' THEN 4
+                    WHEN 'heading_to_restaurant' THEN 5
+                    WHEN 'arrived_at_restaurant' THEN 6
+                    WHEN 'order_picked_up' THEN 7
+                    WHEN 'heading_to_customer' THEN 8
+                    WHEN 'arrived_at_customer' THEN 9
+                    WHEN 'delivered' THEN 10
+                    WHEN 'cancelled' THEN 11
+                    WHEN 'rejected' THEN 12
+                    ELSE 13
+                END,
+                o.created_at DESC
+        """, (rid,), fetch=True)
+        # Attach order items to each order
+        if rows:
+            for o in rows:
+                o['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (o['id'],), fetch=True) or []
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_order_detail(payload, oid):
+    """Get full details of a specific order for the partner."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        order = query("""
+            SELECT o.*, r.name as restaurant_name, r.address as restaurant_address,
+                   u.display_name as customer_name, u.username as customer_username
+            FROM Orders o
+            JOIN Restaurants r ON o.restaurant_id=r.id
+            JOIN Users u ON o.customer_id=u.id
+            WHERE o.id=? AND o.restaurant_id=?
+        """, (oid, rid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True) or []
+        # Get courier info if assigned
+        if order.get('courier_id'):
+            c = query("SELECT u.display_name, u.avatar_url, cl.latitude, cl.longitude FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.id=?", (order['courier_id'],), fetch_one=True)
+            order['courier_info'] = c
+        # Get order log
+        order['log'] = query("SELECT * FROM OrderLog WHERE order_id=? ORDER BY created_at", (oid,), fetch=True) or []
+        return 200, {"success": True, "data": order}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_accept_order(payload, oid):
+    """Partner accepts a pending order. Status changes: pending → accepted."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        order = query("SELECT * FROM Orders WHERE id=? AND restaurant_id=?", (oid, rid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        if order['status'] != 'pending':
+            return 400, {"success": False, "message": f"Order is {order['status']}, cannot accept"}
+        est_minutes = 30  # default estimate
+        query("UPDATE Orders SET status='accepted', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'accepted', ?)",
+              (oid, f'Order accepted by restaurant. Estimated prep time: {est_minutes} min'))
+        # Notify customer
+        push_notification(order['customer_id'], 'Order Accepted',
+                          f'Your order #{oid} has been accepted by the restaurant!', 'order_accepted', oid)
+        return 200, {"success": True, "message": "Order accepted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_reject_order(payload, oid):
+    """Partner rejects a pending order. Status changes: pending → rejected."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        order = query("SELECT * FROM Orders WHERE id=? AND restaurant_id=?", (oid, rid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        if order['status'] not in ('pending', 'accepted'):
+            return 400, {"success": False, "message": f"Order is {order['status']}, cannot reject"}
+        reason = 'Rejected by restaurant'
+        query("UPDATE Orders SET status='rejected', cancelled_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'rejected', ?)", (oid, reason))
+        # Notify customer
+        push_notification(order['customer_id'], 'Order Rejected',
+                          f'Your order #{oid} has been rejected by the restaurant.', 'order_rejected', oid)
+        return 200, {"success": True, "message": "Order rejected"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_ready_order(payload, oid):
+    """Partner marks order as ready for pickup. Status: accepted → ready_for_pickup, then auto-assigns courier."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        order = query("SELECT * FROM Orders WHERE id=? AND restaurant_id=?", (oid, rid), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        if order['status'] not in ('accepted',):
+            return 400, {"success": False, "message": f"Order is {order['status']}, must be 'accepted' first"}
+        restaurant = query("SELECT * FROM Restaurants WHERE id=?", (rid,), fetch_one=True)
+        query("UPDATE Orders SET status='ready_for_pickup', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'ready_for_pickup', 'Order is ready for pickup')", (oid,))
+        # Auto-assign courier now that the order is ready
+        courier_id = auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+        # Notify customer
+        push_notification(order['customer_id'], 'Order Ready',
+                          f'Your order #{oid} is ready for pickup! A courier is being assigned.', 'order_ready', oid)
+        result = {"success": True, "message": "Order marked as ready for pickup"}
+        if courier_id:
+            result['courier_assigned'] = True
+        else:
+            result['courier_assigned'] = False
+            result['message'] += ' No courier available yet.'
+        return 200, result
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_stats(payload):
+    """Get restaurant dashboard statistics for the partner."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+
+        today = datetime.date.today().isoformat()
+        week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+
+        # Today's stats
+        today_stats = query("""
+            SELECT COUNT(*) as order_count,
+                   COALESCE(SUM(CASE WHEN status IN ('delivered') THEN total ELSE 0 END), 0) as revenue,
+                   COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_count,
+                   COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted_count,
+                   COUNT(CASE WHEN status = 'ready_for_pickup' THEN 1 END) as ready_count,
+                   COUNT(CASE WHEN status IN ('courier_assigned','heading_to_restaurant','arrived_at_restaurant','order_picked_up','heading_to_customer','arrived_at_customer') THEN 1 END) as in_delivery_count,
+                   COUNT(CASE WHEN status = 'delivered' THEN 1 END) as delivered_count,
+                   COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled_count,
+                   COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected_count
+            FROM Orders WHERE restaurant_id=? AND DATE(created_at) >= ?
+        """, (rid, today), fetch_one=True)
+
+        # Weekly stats
+        weekly_stats = query("""
+            SELECT COUNT(*) as order_count,
+                   COALESCE(SUM(CASE WHEN status = 'delivered' THEN total ELSE 0 END), 0) as revenue,
+                   COUNT(CASE WHEN status = 'delivered' THEN 1 END) as delivered_count
+            FROM Orders WHERE restaurant_id=? AND DATE(created_at) >= ?
+        """, (rid, week_ago), fetch_one=True)
+
+        # Average rating
+        avg_rating = query("""
+            SELECT COALESCE(AVG(service_rating), 0) as avg_rating,
+                   COUNT(*) as total_ratings
+            FROM Ratings WHERE order_id IN (SELECT id FROM Orders WHERE restaurant_id=?)
+        """, (rid,), fetch_one=True)
+
+        # Popular items (top 5)
+        popular_items = query("""
+            SELECT oi.item_name, SUM(oi.quantity) as total_qty, SUM(oi.item_price * oi.quantity) as total_revenue
+            FROM OrderItems oi
+            JOIN Orders o ON oi.order_id = o.id
+            WHERE o.restaurant_id=? AND o.status = 'delivered'
+            GROUP BY oi.item_name
+            ORDER BY total_qty DESC LIMIT 5
+        """, (rid,), fetch=True)
+
+        return 200, {"success": True, "data": {
+            "today": today_stats or {},
+            "weekly": weekly_stats or {},
+            "rating": avg_rating or {},
+            "popular_items": popular_items or []
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_menu(payload):
+    """Get menu items for the partner's restaurant."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        items = query("SELECT * FROM Items WHERE restaurant_id=? ORDER BY name", (rid,), fetch=True)
+        return 200, {"success": True, "data": items or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_add_item(body, payload):
+    """Partner adds a new menu item to their restaurant."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        name = body.get('name', '').strip()
+        price = body.get('price', 0)
+        if not name:
+            return 400, {"success": False, "message": "Item name required"}
+        try:
+            price = float(price)
+        except:
+            return 400, {"success": False, "message": "Invalid price"}
+        if price <= 0:
+            return 400, {"success": False, "message": "Price must be > 0"}
+        desc = body.get('description', '') or ''
+        iid = insert("INSERT INTO Items (restaurant_id,name,description,price) VALUES (?,?,?,?)", (rid, name, desc, price))
+        return 201, {"success": True, "data": {"id": iid, "name": name, "price": price}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_update_item(body, payload, item_id):
+    """Partner updates a menu item."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        item = query("SELECT id FROM Items WHERE id=? AND restaurant_id=?", (item_id, rid), fetch_one=True)
+        if not item:
+            return 404, {"success": False, "message": "Item not found in your restaurant"}
+        fields, params = [], []
+        for key in ['name', 'description']:
+            if key in body:
+                fields.append(f"{key}=?")
+                params.append(body[key])
+        if 'price' in body:
+            fields.append("price=?")
+            params.append(float(body['price']))
+        if 'is_available' in body:
+            fields.append("is_available=?")
+            params.append(True if body['is_available'] else False)
+        if not fields:
+            return 400, {"success": False, "message": "No fields to update"}
+        params.append(item_id)
+        query(f"UPDATE Items SET {', '.join(fields)} WHERE id=?", tuple(params))
+        return 200, {"success": True, "message": "Item updated"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_delete_item(payload, item_id):
+    """Partner deletes a menu item."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        item = query("SELECT id FROM Items WHERE id=? AND restaurant_id=?", (item_id, rid), fetch_one=True)
+        if not item:
+            return 404, {"success": False, "message": "Item not found in your restaurant"}
+        query("DELETE FROM Items WHERE id=?", (item_id,))
+        return 200, {"success": True, "message": "Item deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_toggle_open(payload):
+    """Partner toggles their restaurant open/closed."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        r = query("SELECT is_open FROM Restaurants WHERE id=?", (rid,), fetch_one=True)
+        if not r:
+            return 404, {"success": False, "message": "Not found"}
+        new_val = not r['is_open']
+        query("UPDATE Restaurants SET is_open=? WHERE id=?", (new_val, rid))
+        return 200, {"success": True, "data": {"is_open": bool(new_val)}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_partner_restaurant(payload):
+    """Get partner's restaurant info."""
+    try:
+        rid = get_partner_restaurant_id(payload['uid'])
+        if not rid:
+            return 404, {"success": False, "message": "No restaurant linked to your account"}
+        r = query("SELECT * FROM Restaurants WHERE id=?", (rid,), fetch_one=True)
+        if not r:
+            return 404, {"success": False, "message": "Restaurant not found"}
+        items_count = query("SELECT COUNT(*) as cnt FROM Items WHERE restaurant_id=?", (rid,), fetch_one=True)
+        r['items_count'] = items_count['cnt'] if items_count else 0
+        return 200, {"success": True, "data": r}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
 
 def init_extra_tables():
     """Create new tables for v2.0 features. Uses IF NOT EXISTS for safety."""
@@ -416,7 +774,7 @@ def handle_cancel_order(payload, oid):
         order = query("SELECT * FROM Orders WHERE id=? AND customer_id=?", (oid, payload['uid']), fetch_one=True)
         if not order:
             return 404, {"success": False, "message": "Order not found"}
-        if order['status'] not in ('pending', 'confirmed', 'courier_assigned'):
+        if order['status'] not in ('pending', 'accepted', 'courier_assigned'):
             return 400, {"success": False, "message": "Cannot cancel order in current status"}
         query("UPDATE Orders SET status='cancelled', cancelled_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'cancelled','Cancelled by customer')", (oid,))
@@ -748,11 +1106,11 @@ def handle_create_order(body, payload):
         delivery_lat = body.get('delivery_lat', 41.3900) or 41.3900
         delivery_lng = body.get('delivery_lng', 2.1700) or 2.1700
 
-        # Insert order
+        # Insert order — status starts as 'pending' waiting for restaurant acceptance
         oid = insert(
             "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
             "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng)"
-            " VALUES (?,?,?,'confirmed',?,?,?,?,?,?)",
+            " VALUES (?,?,?,'pending',?,?,?,?,?,?)",
             (order_number, uid, restaurant_id, subtotal, delivery_fee, total,
              'Customer Location', delivery_lat, delivery_lng)
         )
@@ -777,12 +1135,18 @@ def handle_create_order(body, payload):
         # Clear cart
         _carts.pop(uid, None)
 
-        # Auto-assign courier
-        courier_id = auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+        # Order starts as 'pending' — restaurant partner must accept before courier is assigned
+        query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'pending', 'Order placed, waiting for restaurant acceptance')", (oid,))
+
+        # Notify restaurant partner
+        partner = query("SELECT id FROM Users WHERE role='partner' AND id=(SELECT created_by FROM Restaurants WHERE id=?)", (restaurant_id,), fetch_one=True)
+        if partner:
+            push_notification(partner['id'], 'New Order!',
+                              f'New order #{oid} from customer! Total: €{total:.2f}', 'new_order', oid)
 
         # Notify customer
-        push_notification(uid, 'Order Confirmed',
-                          f'Your order {order_number} has been placed!', 'order_confirmed', oid)
+        push_notification(uid, 'Order Placed',
+                          f'Your order {order_number} has been placed! Waiting for restaurant confirmation.', 'order_placed', oid)
 
         # Build response
         order = query(
@@ -794,9 +1158,6 @@ def handle_create_order(body, payload):
             (oid,), fetch_one=True
         )
         order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True) or []
-        if courier_id:
-            c = query("SELECT id,display_name FROM Users WHERE id=?", (courier_id,), fetch_one=True)
-            order['courier_name'] = c['display_name'] if c else 'Courier'
         return 201, {"success": True, "data": order}
     except Exception as e:
         traceback.print_exc()
@@ -1550,6 +1911,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._serve('/static/customer/index.html')
             elif path == '/courier':
                 self._serve('/static/courier/index.html')
+            elif path == '/partner':
+                self._serve('/static/partner/index.html')
             elif path.startswith('/static/'):
                 self._serve(path)
 
@@ -1716,6 +2079,48 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_all_orders(p)
+                self._json(code, data)
+
+            # ── Partner ──
+            elif path == '/api/partner/orders':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_orders(p)
+                self._json(code, data)
+            elif path == '/api/partner/stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_stats(p)
+                self._json(code, data)
+            elif path == '/api/partner/menu':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_menu(p)
+                self._json(code, data)
+            elif path.startswith('/api/partner/order/') and path.endswith('/detail'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                code, data = handle_partner_order_detail(p, oid)
+                self._json(code, data)
+            elif path == '/api/partner/toggle-open':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_toggle_open(p)
+                self._json(code, data)
+            elif path == '/api/partner/restaurant':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_restaurant(p)
                 self._json(code, data)
 
             # ── Me / Favorites ──
@@ -1977,6 +2382,44 @@ class Handler(BaseHTTPRequestHandler):
                 code, data = handle_admin_assign_order(body, p)
                 self._json(code, data)
 
+            # ── Partner ──
+            elif path.startswith('/api/partner/order/') and path.endswith('/accept'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                code, data = handle_partner_accept_order(p, oid)
+                self._json(code, data)
+            elif path.startswith('/api/partner/order/') and path.endswith('/reject'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                code, data = handle_partner_reject_order(p, oid)
+                self._json(code, data)
+            elif path.startswith('/api/partner/order/') and path.endswith('/ready'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                code, data = handle_partner_ready_order(p, oid)
+                self._json(code, data)
+            elif path == '/api/partner/menu':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_partner_add_item(body, p)
+                self._json(code, data)
+
             # ── Favorites ──
             elif path == '/api/favorites':
                 p = self._auth()
@@ -2017,6 +2460,18 @@ class Handler(BaseHTTPRequestHandler):
         except:
             body = {}
         try:
+            # ── Partner menu item update ──
+            if path.startswith('/api/partner/menu/') and '/items/' in path:
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                parts = path.strip('/').split('/')
+                try:
+                    item_id = int(parts[3])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid item ID"})
+                code, data = handle_partner_update_item(body, p, item_id)
+                self._json(code, data)
             # ── Address Book ──
             if path.startswith('/api/addresses/'):
                 p = self._auth()
@@ -2060,6 +2515,17 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         path = self.path.split('?')[0]
         try:
+            # ── Partner menu item delete ──
+            if path.startswith('/api/partner/menu/items/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    item_id = int(path.split('/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid item ID"})
+                code, data = handle_partner_delete_item(p, item_id)
+                self._json(code, data)
             # ── Address Book ──
             if path.startswith('/api/addresses/'):
                 p = self._auth()

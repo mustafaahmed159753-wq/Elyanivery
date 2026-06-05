@@ -147,7 +147,16 @@ def init_db():
 
     # Test connection
     params = Config.get_dsn()
-    print(f"  Connecting to PostgreSQL...")
+    # Mask password for debug logging
+    safe_params = params
+    try:
+        if 'password=' in params:
+            import re
+            safe_params = re.sub(r'password=[^ ]+', 'password=****', params)
+    except:
+        pass
+    print(f"  DATABASE_URL set: {bool(Config.DATABASE_URL)}")
+    print(f"  Connecting to: {safe_params}")
     try:
         conn = _get_conn()
         print("  PostgreSQL connection OK")

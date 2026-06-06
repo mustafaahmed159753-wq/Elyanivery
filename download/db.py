@@ -185,6 +185,7 @@ def init_db():
             longitude FLOAT DEFAULT 2.1686,
             is_open BOOLEAN DEFAULT TRUE,
             image_url VARCHAR(500) NULL,
+            category VARCHAR(50) DEFAULT 'restaurant',
             created_by INT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
@@ -213,6 +214,9 @@ def init_db():
             delivery_lat FLOAT NULL,
             delivery_lng FLOAT NULL,
             landmark VARCHAR(500) NULL,
+            estimated_prep_minutes INT NULL,
+            courier_earnings NUMERIC(10,2) DEFAULT 0,
+            waiting_minutes INT DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL,
             courier_arrived_restaurant_at TIMESTAMP NULL,
@@ -245,6 +249,7 @@ def init_db():
             latitude FLOAT DEFAULT 0,
             longitude FLOAT DEFAULT 0,
             is_online BOOLEAN DEFAULT FALSE,
+            vehicle_type VARCHAR(20) DEFAULT 'bicycle',
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
@@ -280,6 +285,34 @@ def init_db():
             valid_until TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 year'),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
+
+        """CREATE TABLE IF NOT EXISTS CourierEarnings (
+            id SERIAL PRIMARY KEY,
+            courier_id INT NOT NULL,
+            order_id INT NULL,
+            amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+            earning_type VARCHAR(30) DEFAULT 'delivery_fee',
+            description VARCHAR(500),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
+
+        """CREATE TABLE IF NOT EXISTS SupportTickets (
+            id SERIAL PRIMARY KEY,
+            order_id INT NOT NULL,
+            user_id INT NOT NULL,
+            status VARCHAR(20) DEFAULT 'open',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL
+        )""",
+
+        """CREATE TABLE IF NOT EXISTS SupportMessages (
+            id SERIAL PRIMARY KEY,
+            ticket_id INT NOT NULL,
+            sender_id INT NOT NULL,
+            message VARCHAR(2000),
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
     ]
 
     for sql in tables:
@@ -288,6 +321,32 @@ def init_db():
         except Exception as e:
             print(f"  Table init note: {e}")
 
+    # ── Add new columns to existing tables if they don't exist ──
+    _migrate_columns()
+
+
+def _migrate_columns():
+    """Add new columns to existing tables if they don't exist yet.
+    Uses PostgreSQL ALTER TABLE ... ADD COLUMN IF NOT EXISTS (PG 9.6+)."""
+    migrations = [
+        ("CourierLocations", "vehicle_type", "VARCHAR(20) DEFAULT 'bicycle'"),
+        ("Orders", "estimated_prep_minutes", "INT NULL"),
+        ("Orders", "courier_earnings", "NUMERIC(10,2) DEFAULT 0"),
+        ("Orders", "waiting_minutes", "INT DEFAULT 0"),
+        ("Restaurants", "category", "VARCHAR(50) DEFAULT 'restaurant'"),
+    ]
+    for table, column, definition in migrations:
+        try:
+            query(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {definition}")
+        except Exception as e:
+            # Some PG versions don't support IF NOT EXISTS on ALTER TABLE
+            # Try without it and ignore "already exists" errors
+            try:
+                query(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+            except Exception as e2:
+                if 'already exists' not in str(e2).lower():
+                    print(f"  Migration note ({table}.{column}): {e2}")
+
 
 def seed_data():
     """Seed the database with sample restaurants, items, and promo codes if empty."""
@@ -295,19 +354,22 @@ def seed_data():
     rest_count = query("SELECT COUNT(*) as cnt FROM Restaurants", fetch_one=True)
     if rest_count and rest_count['cnt'] == 0:
         restaurants = [
-            ('Pizza Palace', 'Authentic Italian pizza and pasta', 'Carrer de Balmes 15, Barcelona', 41.3920, 2.1530),
-            ('Burger Barn', 'Gourmet burgers and craft beers', 'Carrer de Provenca 88, Barcelona', 41.3950, 2.1620),
-            ('Sushi World', 'Fresh Japanese cuisine', 'Rambla de Catalunya 42, Barcelona', 41.3880, 2.1680),
-            ('Taco Fiesta', 'Mexican street food', 'Carrer de Muntaner 200, Barcelona', 41.3935, 2.1570),
-            ('Green Bowl', 'Healthy salads and smoothies', 'Passeig de Gracia 55, Barcelona', 41.3905, 2.1650),
+            ('Pizza Palace', 'Authentic Italian pizza and pasta', 'Carrer de Balmes 15, Barcelona', 41.3920, 2.1530, 'restaurant'),
+            ('Burger Barn', 'Gourmet burgers and craft beers', 'Carrer de Provenca 88, Barcelona', 41.3950, 2.1620, 'restaurant'),
+            ('Sushi World', 'Fresh Japanese cuisine', 'Rambla de Catalunya 42, Barcelona', 41.3880, 2.1680, 'restaurant'),
+            ('Taco Fiesta', 'Mexican street food', 'Carrer de Muntaner 200, Barcelona', 41.3935, 2.1570, 'restaurant'),
+            ('Green Bowl', 'Healthy salads and smoothies', 'Passeig de Gracia 55, Barcelona', 41.3905, 2.1650, 'restaurant'),
+            ('Quick Pharmacy', 'Your neighborhood pharmacy delivered', 'Carrer de Arago 120, Barcelona', 41.3890, 2.1640, 'pharmacy'),
+            ('Fresh Market', 'Supermarket groceries at your door', 'Carrer de Valencia 200, Barcelona', 41.3870, 2.1700, 'supermarket'),
+            ('Speed Eats', 'Fast food favorites', 'Rambla del Raval 30, Barcelona', 41.3790, 2.1690, 'fast_food'),
         ]
-        for name, desc, addr, lat, lng in restaurants:
+        for name, desc, addr, lat, lng, cat in restaurants:
             try:
-                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open) VALUES (?,?,?,?,?,TRUE)",
-                       (name, desc, addr, lat, lng))
+                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category) VALUES (?,?,?,?,?,TRUE,?)",
+                       (name, desc, addr, lat, lng, cat))
             except Exception as e:
                 print(f"  Seed restaurant note: {e}")
-        print("  Seeded 5 sample restaurants")
+        print("  Seeded 8 sample restaurants (incl. pharmacy, supermarket, fast_food)")
 
         # Seed items for each restaurant
         items_data = {
@@ -345,6 +407,27 @@ def seed_data():
                 ('Acai Bowl', 'Acai, granola, banana, berries', 10.99),
                 ('Green Smoothie', 'Spinach, banana, mango, almond milk', 6.50),
                 ('Hummus Wrap', 'Hummus, veggies, whole wheat wrap', 8.99),
+            ],
+            6: [  # Quick Pharmacy
+                ('Paracetamol 500mg', 'Pain relief tablets (20 pcs)', 4.50),
+                ('Ibuprofen 400mg', 'Anti-inflammatory tablets (20 pcs)', 5.99),
+                ('Vitamin C 1000mg', 'Immune support effervescent (10 pcs)', 6.50),
+                ('Hand Sanitizer', 'Antibacterial gel 250ml', 3.99),
+                ('Face Masks (10 pcs)', 'Disposable protective masks', 7.50),
+            ],
+            7: [  # Fresh Market
+                ('Fresh Bread Loaf', 'Artisan sourdough bread', 3.50),
+                ('Organic Eggs (12)', 'Free-range organic eggs', 4.99),
+                ('Whole Milk 1L', 'Fresh whole milk', 1.49),
+                ('Avocados (3 pcs)', 'Ripe Hass avocados', 4.50),
+                ('Bananas (1kg)', 'Fresh bananas by weight', 1.99),
+            ],
+            8: [  # Speed Eats
+                ('Chicken Nuggets (10 pcs)', 'Crispy chicken nuggets with dipping sauce', 6.99),
+                ('Double Cheeseburger', 'Two beef patties with melted cheese', 8.99),
+                ('Large Fries', 'Crispy golden fries', 3.99),
+                ('Onion Rings', 'Battered and fried onion rings', 4.50),
+                ('Soda Large', 'Coca-Cola, Fanta, or Sprite', 2.99),
             ],
         }
         for rid, items in items_data.items():

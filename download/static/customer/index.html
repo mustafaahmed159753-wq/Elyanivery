@@ -521,6 +521,42 @@ a{text-decoration:none;color:var(--pri)}
 .cat-circle.deliver-special .cat-icon{width:78px;height:78px;font-size:34px;background:linear-gradient(135deg,var(--pri),var(--accent));border:2px solid var(--accent);animation:catPulse 2s infinite}
 .cat-circle.deliver-special .cat-label{color:var(--pri);font-weight:700;font-size:11px}
 @keyframes catPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,.3)}50%{box-shadow:0 0 0 8px rgba(255,107,0,0)}}
+
+/* ═══════════════════════════════════════════════════
+   DELIVER ANYTHING - NEW FORM
+   ═══════════════════════════════════════════════════ */
+.deliver-type-toggle{display:flex;gap:0;margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.deliver-type-toggle button{flex:1;padding:12px 8px;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2);transition:all .2s;border:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.deliver-type-toggle button.active{background:var(--pri);color:#fff}
+.deliver-type-toggle button:active{transform:scale(.97)}
+.deliver-type-toggle button:first-child{border-right:1px solid var(--border)}
+.deliver-section-label{font-size:12px;font-weight:700;color:var(--pri);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+.deliver-section-label .dot{width:6px;height:6px;border-radius:50%;background:var(--pri)}
+
+/* ═══════════════════════════════════════════════════
+   LANGUAGE SELECTOR
+   ═══════════════════════════════════════════════════ */
+.lang-selector{display:flex;align-items:center;gap:2px;background:var(--card2);border-radius:8px;padding:2px;border:1px solid var(--border)}
+.lang-selector button{padding:4px 8px;font-size:10px;font-weight:700;border-radius:6px;background:none;color:var(--muted);transition:all .2s;cursor:pointer;border:none}
+.lang-selector button.active{background:var(--pri);color:#fff}
+.lang-selector button:active{transform:scale(.95)}
+
+/* ═══════════════════════════════════════════════════
+   BROADCAST BANNER
+   ═══════════════════════════════════════════════════ */
+.broadcast-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:12px;margin-bottom:14px;animation:screenIn .3s ease;position:relative}
+.broadcast-banner .broadcast-icon{font-size:24px;flex-shrink:0;margin-top:1px}
+.broadcast-banner .broadcast-content{flex:1;min-width:0}
+.broadcast-banner .broadcast-content h5{font-size:14px;font-weight:700;margin-bottom:3px}
+.broadcast-banner .broadcast-content p{font-size:12px;opacity:.9;line-height:1.3}
+.broadcast-banner .broadcast-close{background:rgba(255,255,255,.2);color:#fff;width:24px;height:24px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:background .2s;border:none}
+.broadcast-banner .broadcast-close:active{background:rgba(255,255,255,.4)}
+html[data-theme="glassmorphism"] .deliver-type-toggle{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .deliver-type-toggle button{background:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.7)!important}
+html[data-theme="glassmorphism"] .deliver-type-toggle button.active{background:var(--pri)!important;color:#fff!important}
+html[data-theme="glassmorphism"] .lang-selector{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .lang-selector button{color:rgba(255,255,255,.6)!important}
+html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--pri)!important;color:#fff!important}
 </style>
 </head>
 <body>
@@ -560,16 +596,16 @@ a{text-decoration:none;color:var(--pri)}
   <h1>Elyanivery</h1>
   <p>Delivery at your doorstep</p>
   <div class="auth-form">
-    <input id="authUser" placeholder="Username" autocomplete="off">
-    <input id="authPass" type="password" placeholder="Password">
-    <input id="authName" placeholder="Display Name (optional)" style="display:none">
+    <input id="authUser" data-i18n-placeholder="username" placeholder="Username" autocomplete="off">
+    <input id="authPass" type="password" data-i18n-placeholder="password" placeholder="Password">
+    <input id="authName" data-i18n-placeholder="displayName" placeholder="Display Name (optional)" style="display:none">
     <div id="authRoleWrap" style="display:none;margin-bottom:12px">
       <select id="authRole" style="width:100%;padding:14px 16px;border:1px solid var(--input-border);border-radius:12px;font-size:15px;background:var(--input-bg);color:var(--text)">
         <option value="customer">Customer</option>
         <option value="courier">Courier</option>
       </select>
     </div>
-    <button class="btn-pri" id="authSubmit" onclick="doAuth()">Login</button>
+    <button class="btn-pri" id="authSubmit" onclick="doAuth()" data-i18n="login">Login</button>
     <div class="auth-toggle">
       <span id="authToggleText">Don't have an account?</span>
       <a href="#" id="authToggleLink" onclick="toggleAuthMode();return false">Register</a>
@@ -586,11 +622,19 @@ a{text-decoration:none;color:var(--pri)}
       <h2 id="homeGreeting">Hello!</h2>
       <p id="homeLocation" style="font-size:12px;color:var(--muted)">Detecting location...</p>
     </div>
-    <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen');loadProfile()">?</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="lang-selector" id="langSelector">
+        <button onclick="switchLang('en')" data-lang="en" class="active">EN</button>
+        <button onclick="switchLang('ru')" data-lang="ru">RU</button>
+        <button onclick="switchLang('ro')" data-lang="ro">RO</button>
+      </div>
+      <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen');loadProfile()">?</div>
+    </div>
   </div>
+  <div id="broadcastContainer"></div>
   <div class="loc-bar" onclick="detectLocation()">&#128205; <span id="locAddr">Loading address...</span></div>
-  <input class="search-bar" placeholder="Search restaurants & stores..." oninput="filterRestaurants(this.value)">
-  <div class="section-title">Categories</div>
+  <input class="search-bar" data-i18n-placeholder="searchPh" placeholder="Search restaurants & stores..." oninput="filterRestaurants(this.value)">
+  <div class="section-title" data-i18n="categories">Categories</div>
   <div class="categories-row" id="categoriesRow">
     <div class="cat-circle active" data-cat="all" onclick="selectCategory('all',this)">
       <div class="cat-icon">&#127869;</div>
@@ -644,11 +688,11 @@ a{text-decoration:none;color:var(--pri)}
      ═══════════════════════════════════════════════════ -->
 <div id="cartScreen" class="screen">
   <button class="back-btn" onclick="showScreen('menuScreen')">&#8592; Back</button>
-  <h3 style="margin-bottom:14px;font-weight:800">Your Cart</h3>
+  <h3 style="margin-bottom:14px;font-weight:800" data-i18n="yourCart">Your Cart</h3>
   <div id="cartItems"></div>
   <div class="promo-input">
-    <input id="promoInput" placeholder="Promo code">
-    <button onclick="applyPromo()">Apply</button>
+    <input id="promoInput" data-i18n-placeholder="promoCode" placeholder="Promo code">
+    <button onclick="applyPromo()" data-i18n="apply">Apply</button>
   </div>
   <div id="promoMsg" style="font-size:13px;margin-bottom:8px"></div>
   <div id="loyaltyRedeem" style="display:none;margin-bottom:12px">
@@ -659,7 +703,7 @@ a{text-decoration:none;color:var(--pri)}
   <div class="cart-summary" id="cartSummary"></div>
   <div class="checkout-bar">
     <div class="total" id="cartTotal">Total: &euro;0.00</div>
-    <button class="btn-pri" onclick="placeOrder()">Place Order</button>
+    <button class="btn-pri" onclick="placeOrder()" data-i18n="placeOrder">Place Order</button>
   </div>
 </div>
 
@@ -667,46 +711,62 @@ a{text-decoration:none;color:var(--pri)}
      DELIVER ANYTHING SCREEN
      ═══════════════════════════════════════════════════ -->
 <div id="deliverScreen" class="screen">
-  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
+  <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; <span data-i18n="back">Back</span></button>
   <div class="deliver-hero">
     <div class="hero-emoji">&#128640;</div>
-    <h3>Deliver Anything</h3>
-    <p>We'll pick it up and bring it to you</p>
+    <h3 data-i18n="deliverAnything">Deliver Anything</h3>
+    <p data-i18n="deliverSubtitle">We'll pick it up and bring it to you</p>
   </div>
   <div class="deliver-form">
+    <!-- Delivery Type Toggle -->
+    <div class="deliver-type-toggle" id="daTypeToggle">
+      <button class="active" onclick="setDeliverType('send')" id="daTypeSend">&#128228; <span data-i18n="sendSomething">Send Something</span></button>
+      <button onclick="setDeliverType('receive')" id="daTypeReceive">&#128229; <span data-i18n="receiveSomething">Receive Something</span></button>
+    </div>
+    <input type="hidden" id="daDeliveryType" value="send">
+
+    <!-- Pickup Section -->
+    <div class="deliver-section-label"><span class="dot"></span> <span data-i18n="pickupSection">PICKUP</span></div>
     <div class="field-group">
-      <label>&#128205; Pickup Location</label>
-      <input id="daPickupAddr" placeholder="Enter pickup address (e.g., Carrer de Balmes 22)">
+      <label data-i18n="pickupAddress">&#128205; Pickup Address</label>
+      <input id="daPickupAddr" data-i18n-placeholder="pickupAddressPh" placeholder="e.g., Str. Stefan cel Mare 67, Chisinau">
     </div>
     <div class="deliver-row">
       <div class="field-group">
-        <label>Latitude</label>
-        <input id="daPickupLat" type="number" step="any" placeholder="41.38">
+        <label data-i18n="pickupContactName">&#128100; Sender Name</label>
+        <input id="daPickupContactName" data-i18n-placeholder="namePh" placeholder="Name of sender">
       </div>
       <div class="field-group">
-        <label>Longitude</label>
-        <input id="daPickupLng" type="number" step="any" placeholder="2.17">
+        <label data-i18n="pickupContactPhone">&#128222; Sender Phone</label>
+        <input id="daPickupContactPhone" type="tel" placeholder="+373 600 00000">
       </div>
     </div>
+
+    <!-- Delivery Section -->
+    <div class="deliver-section-label"><span class="dot"></span> <span data-i18n="deliverySection">DELIVERY</span></div>
     <div class="field-group">
-      <label>&#128221; Pickup Description</label>
-      <textarea id="daPickupDesc" placeholder="What to pick up and from where? (e.g., 'Pick up documents from my friend's house')"></textarea>
-    </div>
-    <div class="field-group">
-      <label>&#127968; Delivery Location</label>
-      <input id="daDeliveryAddr" placeholder="Your delivery address">
+      <label data-i18n="deliveryAddress">&#127968; Delivery Address</label>
+      <input id="daDeliveryAddr" data-i18n-placeholder="deliveryAddressPh" placeholder="e.g., Bd. Negruzzi 10, Chisinau">
     </div>
     <div class="deliver-row">
       <div class="field-group">
-        <label>&#128100; Contact Name</label>
-        <input id="daContactName" placeholder="Name at pickup">
+        <label data-i18n="deliveryContactName">&#128100; Receiver Name</label>
+        <input id="daDeliveryContactName" data-i18n-placeholder="namePh" placeholder="Name of receiver">
       </div>
       <div class="field-group">
-        <label>&#128222; Contact Phone</label>
-        <input id="daContactPhone" type="tel" placeholder="+34 600 000 000">
+        <label data-i18n="deliveryContactPhone">&#128222; Receiver Phone</label>
+        <input id="daDeliveryContactPhone" type="tel" placeholder="+373 600 00000">
       </div>
     </div>
-    <button class="btn-pri" style="margin-top:8px" onclick="submitDeliverAnything()">&#128640; Request Delivery</button>
+
+    <!-- Item Description -->
+    <div class="deliver-section-label"><span class="dot"></span> <span data-i18n="itemSection">ITEM</span></div>
+    <div class="field-group">
+      <label data-i18n="itemDescription">&#128230; What needs to be delivered?</label>
+      <textarea id="daItemDescription" data-i18n-placeholder="itemDescriptionPh" placeholder="Describe the item(s) to be delivered..."></textarea>
+    </div>
+
+    <button class="btn-pri" style="margin-top:8px" onclick="submitDeliverAnything()">&#128640; <span data-i18n="placeOrder">Place Order</span></button>
   </div>
 </div>
 
@@ -714,7 +774,7 @@ a{text-decoration:none;color:var(--pri)}
      ORDERS SCREEN
      ═══════════════════════════════════════════════════ -->
 <div id="ordersScreen" class="screen">
-  <h3 style="margin-bottom:14px;font-weight:800">My Orders</h3>
+  <h3 style="margin-bottom:14px;font-weight:800" data-i18n="myOrders">My Orders</h3>
   <div id="ordersList"></div>
 </div>
 
@@ -756,7 +816,7 @@ a{text-decoration:none;color:var(--pri)}
      ═══════════════════════════════════════════════════ -->
 <div id="convScreen" class="screen">
   <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
-  <h3 style="margin-bottom:14px;font-weight:800">Messages</h3>
+  <h3 style="margin-bottom:14px;font-weight:800" data-i18n="messages">Messages</h3>
   <div id="convList"></div>
 </div>
 
@@ -765,7 +825,7 @@ a{text-decoration:none;color:var(--pri)}
      ═══════════════════════════════════════════════════ -->
 <div id="notifScreen" class="screen">
   <button class="back-btn" onclick="showScreen('homeScreen')">&#8592; Back</button>
-  <h3 style="margin-bottom:14px;font-weight:800">Notifications</h3>
+  <h3 style="margin-bottom:14px;font-weight:800" data-i18n="notifications">Notifications</h3>
   <div id="notifList"></div>
 </div>
 
@@ -787,11 +847,11 @@ a{text-decoration:none;color:var(--pri)}
     </div>
   </div>
   <div class="menu-list">
-    <button onclick="showScreen('ordersScreen');loadOrders()"><span class="icon">&#128230;</span> My Orders <span class="arrow">&#8250;</span></button>
-    <button onclick="showScreen('notifScreen');loadNotifications()"><span class="icon">&#128276;</span> Notifications <span class="arrow">&#8250;</span></button>
-    <button onclick="openThemePicker()"><span class="icon">&#127912;</span> Change Theme <span class="arrow">&#8250;</span></button>
-    <button onclick="showScreen('deliverScreen')"><span class="icon">&#128640;</span> Deliver Anything <span class="arrow">&#8250;</span></button>
-    <button onclick="logout()"><span class="icon">&#128682;</span> Logout <span class="arrow">&#8250;</span></button>
+    <button onclick="showScreen('ordersScreen');loadOrders()"><span class="icon">&#128230;</span> <span data-i18n="myOrders">My Orders</span> <span class="arrow">&#8250;</span></button>
+    <button onclick="showScreen('notifScreen');loadNotifications()"><span class="icon">&#128276;</span> <span data-i18n="notifications">Notifications</span> <span class="arrow">&#8250;</span></button>
+    <button onclick="openThemePicker()"><span class="icon">&#127912;</span> <span data-i18n="changeTheme">Change Theme</span> <span class="arrow">&#8250;</span></button>
+    <button onclick="openDeliverAnything()"><span class="icon">&#128640;</span> <span data-i18n="deliverAnything">Deliver Anything</span> <span class="arrow">&#8250;</span></button>
+    <button onclick="logout()"><span class="icon">&#128682;</span> <span data-i18n="logout">Logout</span> <span class="arrow">&#8250;</span></button>
   </div>
 </div>
 
@@ -801,20 +861,20 @@ a{text-decoration:none;color:var(--pri)}
 <div class="bottom-nav" id="bottomNav" style="display:none">
   <button class="nav-item active" onclick="navTo('homeScreen',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
-    Home
+    <span data-i18n="home">Home</span>
   </button>
   <button class="nav-item" onclick="navTo('ordersScreen',this);loadOrders()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-    Orders
+    <span data-i18n="myOrders">Orders</span>
   </button>
   <button class="nav-item" onclick="navTo('convScreen',this);loadConversations()" id="navChat">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-    Chat
+    <span data-i18n="messages">Chat</span>
     <span class="nav-badge" id="chatBadge" style="display:none">0</span>
   </button>
   <button class="nav-item" onclick="navTo('profileScreen',this);loadProfile()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-    Profile
+    <span data-i18n="settings">Profile</span>
   </button>
 </div>
 
@@ -973,6 +1033,218 @@ const NOTIF_EMOJIS = {
 const CATEGORY_EMOJIS = { restaurant: '🍕', fast_food: '🍔', pharmacy: '💊', supermarket: '🛒' };
 
 // ═══════════════════════════════════════════════════════
+//  MULTI-LANGUAGE SUPPORT
+// ═══════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    deliverAnything: 'Deliver Anything', sendSomething: 'Send Something', receiveSomething: 'Receive Something',
+    pickupAddress: '📍 Pickup Address', deliveryAddress: '🏠 Delivery Address',
+    pickupContactName: '👤 Sender Name', pickupContactPhone: '📞 Sender Phone',
+    deliveryContactName: '👤 Receiver Name', deliveryContactPhone: '📞 Receiver Phone',
+    itemDescription: '📦 What needs to be delivered?', placeOrder: 'Place Order',
+    restaurants: 'Restaurants', fastFood: 'Fast Food', pharmacies: 'Pharmacies',
+    supermarket: 'Supermarket', myOrders: 'My Orders', settings: 'Settings',
+    logout: 'Logout', login: 'Login', register: 'Register',
+    username: 'Username', password: 'Password', displayName: 'Display Name',
+    phone: 'Phone', cart: 'Cart', checkout: 'Checkout', total: 'Total',
+    deliveryFee: 'Delivery Fee', subtotal: 'Subtotal', promoCode: 'Promo Code',
+    apply: 'Apply', orderPlaced: 'Order Placed!', trackingOrder: 'Track Order',
+    pending: 'Pending', accepted: 'Accepted', preparing: 'Preparing',
+    onTheWay: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled',
+    back: 'Back', categories: 'Categories', searchPh: 'Search restaurants & stores...',
+    pickupSection: 'PICKUP', deliverySection: 'DELIVERY', itemSection: 'ITEM',
+    pickupAddressPh: 'e.g., Str. Stefan cel Mare 67, Chisinau',
+    deliveryAddressPh: 'e.g., Bd. Negruzzi 10, Chisinau',
+    namePh: 'Name', phonePh: '+373 600 00000',
+    itemDescriptionPh: 'Describe the item(s) to be delivered...',
+    deliverSubtitle: "We'll pick it up and bring it to you",
+    hello: 'Hello', nearYou: 'Near You', all: 'All',
+    noAccount: "Don't have an account?", haveAccount: 'Already have an account?',
+    enterCredentials: 'Enter username and password', missingInfo: 'Please fill in all required fields',
+    requestSent: 'Your delivery request has been submitted',
+    orderFailed: 'Could not place order', emptyCart: 'Add items to your cart first',
+    addToCart: 'Add', viewCart: 'View Cart', yourCart: 'Your Cart',
+    promoDiscount: 'Promo Discount', pointsDiscount: 'Points Discount',
+    promoApplied: 'Discount applied!', orderConfirmed: 'Order Confirmed',
+    courierAssigned: 'Courier Assigned', headingToRestaurant: 'Heading to Restaurant',
+    atRestaurant: 'At Restaurant', orderPickedUp: 'Order Picked Up',
+    headingToYou: 'Heading to You', courierArrived: 'Courier Arrived',
+    orderCancelled: 'Order Cancelled', currentStatus: 'Current status', completed: 'Completed',
+    cancelOrder: 'Cancel Order', rateOrder: 'Rate Order', backToHome: 'Back to Home',
+    cancelConfirm: 'Are you sure you want to cancel this order?',
+    notifications: 'Notifications', noNotifications: 'No notifications',
+    messages: 'Messages', noConversations: 'No conversations yet',
+    loyaltyPoints: 'Loyalty Points', pointsEarned: 'points earned',
+    changeTheme: 'Change Theme', ratePlease: 'Select both ratings',
+    thankYou: 'Your rating has been submitted',
+    open: 'Open', closed: 'Closed', km: 'km', home: 'Home'
+  },
+  ru: {
+    deliverAnything: 'Доставить Всё', sendSomething: 'Отправить', receiveSomething: 'Получить',
+    pickupAddress: '📍 Адрес Забора', deliveryAddress: '🏠 Адрес Доставки',
+    pickupContactName: '👤 Имя Отправителя', pickupContactPhone: '📞 Телефон Отправителя',
+    deliveryContactName: '👤 Имя Получателя', deliveryContactPhone: '📞 Телефон Получателя',
+    itemDescription: '📦 Что нужно доставить?', placeOrder: 'Оформить Заказ',
+    restaurants: 'Рестораны', fastFood: 'Фастфуд', pharmacies: 'Аптеки',
+    supermarket: 'Супермаркет', myOrders: 'Мои Заказы', settings: 'Настройки',
+    logout: 'Выйти', login: 'Вход', register: 'Регистрация',
+    username: 'Имя пользователя', password: 'Пароль', displayName: 'Отображаемое имя',
+    phone: 'Телефон', cart: 'Корзина', checkout: 'Оформить', total: 'Итого',
+    deliveryFee: 'Доставка', subtotal: 'Подитог', promoCode: 'Промокод',
+    apply: 'Применить', orderPlaced: 'Заказ Оформлен!', trackingOrder: 'Отследить Заказ',
+    pending: 'Ожидает', accepted: 'Принят', preparing: 'Готовится',
+    onTheWay: 'В Пути', delivered: 'Доставлен', cancelled: 'Отменён',
+    back: 'Назад', categories: 'Категории', searchPh: 'Поиск ресторанов и магазинов...',
+    pickupSection: 'ЗАБОР', deliverySection: 'ДОСТАВКА', itemSection: 'ТОВАР',
+    pickupAddressPh: 'напр., ул. Штефан чел Маре 67, Кишинёв',
+    deliveryAddressPh: 'напр., бул. Негруцци 10, Кишинёв',
+    namePh: 'Имя', phonePh: '+373 600 00000',
+    itemDescriptionPh: 'Опишите товар(ы) для доставки...',
+    deliverSubtitle: 'Мы заберём и доставим вам',
+    hello: 'Привет', nearYou: 'Рядом с вами', all: 'Все',
+    noAccount: 'Нет аккаунта?', haveAccount: 'Уже есть аккаунт?',
+    enterCredentials: 'Введите имя пользователя и пароль', missingInfo: 'Пожалуйста, заполните все обязательные поля',
+    requestSent: 'Ваша заявка на доставку отправлена',
+    orderFailed: 'Не удалось оформить заказ', emptyCart: 'Сначала добавьте товары в корзину',
+    addToCart: 'Добавить', viewCart: 'Корзина', yourCart: 'Ваша Корзина',
+    promoDiscount: 'Скидка по промокоду', pointsDiscount: 'Скидка по баллам',
+    promoApplied: 'Скидка применена!', orderConfirmed: 'Заказ Подтверждён',
+    courierAssigned: 'Курьер Назначен', headingToRestaurant: 'К Ресторану',
+    atRestaurant: 'В Ресторане', orderPickedUp: 'Заказ Забран',
+    headingToYou: 'К Вам', courierArrived: 'Курьер Прибыл',
+    orderCancelled: 'Заказ Отменён', currentStatus: 'Текущий статус', completed: 'Выполнено',
+    cancelOrder: 'Отменить Заказ', rateOrder: 'Оценить Заказ', backToHome: 'На Главную',
+    cancelConfirm: 'Вы уверены, что хотите отменить заказ?',
+    notifications: 'Уведомления', noNotifications: 'Нет уведомлений',
+    messages: 'Сообщения', noConversations: 'Пока нет сообщений',
+    loyaltyPoints: 'Баллы Лояльности', pointsEarned: 'баллов заработано',
+    changeTheme: 'Сменить Тему', ratePlease: 'Выберите обе оценки',
+    thankYou: 'Ваша оценка отправлена',
+    open: 'Открыто', closed: 'Закрыто', km: 'км', home: 'Главная'
+  },
+  ro: {
+    deliverAnything: 'Livreaza Orice', sendSomething: 'Trimite', receiveSomething: 'Primeste',
+    pickupAddress: '📍 Adresa Ridicare', deliveryAddress: '🏠 Adresa Livrare',
+    pickupContactName: '👤 Nume Expeditor', pickupContactPhone: '📞 Telefon Expeditor',
+    deliveryContactName: '👤 Nume Destinatar', deliveryContactPhone: '📞 Telefon Destinatar',
+    itemDescription: '📦 Ce trebuie livrat?', placeOrder: 'Plaseaza Comanda',
+    restaurants: 'Restaurante', fastFood: 'Fast Food', pharmacies: 'Farmacii',
+    supermarket: 'Supermarket', myOrders: 'Comenzile Mele', settings: 'Setari',
+    logout: 'Deconectare', login: 'Autentificare', register: 'Inregistrare',
+    username: 'Nume utilizator', password: 'Parola', displayName: 'Nume afisat',
+    phone: 'Telefon', cart: 'Cos', checkout: 'Finalizeaza', total: 'Total',
+    deliveryFee: 'Taxa Livrare', subtotal: 'Subtotal', promoCode: 'Cod Promo',
+    apply: 'Aplica', orderPlaced: 'Comanda Plasata!', trackingOrder: 'Urmareste Comanda',
+    pending: 'In asteptare', accepted: 'Acceptat', preparing: 'Se pregateste',
+    onTheWay: 'In drum', delivered: 'Livrat', cancelled: 'Anulat',
+    back: 'Inapoi', categories: 'Categorii', searchPh: 'Cauta restaurante si magazine...',
+    pickupSection: 'RIDICARE', deliverySection: 'LIVRARE', itemSection: 'ARTICOL',
+    pickupAddressPh: 'ex., Str. Stefan cel Mare 67, Chisinau',
+    deliveryAddressPh: 'ex., Bd. Negruzzi 10, Chisinau',
+    namePh: 'Nume', phonePh: '+373 600 00000',
+    itemDescriptionPh: 'Descrieti articol(e)le de livrat...',
+    deliverSubtitle: 'Ridicam si livram la dumneavoastra',
+    hello: 'Buna', nearYou: 'Langa tine', all: 'Toate',
+    noAccount: 'Nu ai cont?', haveAccount: 'Ai deja cont?',
+    enterCredentials: 'Introduceti numele si parola', missingInfo: 'Completati toate campurile obligatorii',
+    requestSent: 'Cererea de livrare a fost trimisa',
+    orderFailed: 'Nu s-a putut plasa comanda', emptyCart: 'Adaugati produse in cos mai intai',
+    addToCart: 'Adauga', viewCart: 'Cos', yourCart: 'Cosul Tau',
+    promoDiscount: 'Reducere Promo', pointsDiscount: 'Reducere Puncte',
+    promoApplied: 'Reducere aplicata!', orderConfirmed: 'Comanda Confirmata',
+    courierAssigned: 'Curier Asignat', headingToRestaurant: 'Spre Restaurant',
+    atRestaurant: 'La Restaurant', orderPickedUp: 'Comanda Ridicata',
+    headingToYou: 'Spre Tine', courierArrived: 'Curierul a Sosit',
+    orderCancelled: 'Comanda Anulata', currentStatus: 'Status curent', completed: 'Finalizat',
+    cancelOrder: 'Anuleaza Comanda', rateOrder: 'Evalueaza Comanda', backToHome: 'Acasa',
+    cancelConfirm: 'Sigur doriti sa anulati comanda?',
+    notifications: 'Notificari', noNotifications: 'Nicio notificare',
+    messages: 'Mesaje', noConversations: 'Nicio conversatie inca',
+    loyaltyPoints: 'Puncte Loialitate', pointsEarned: 'puncte acumulate',
+    changeTheme: 'Schimba Tema', ratePlease: 'Selectati ambele evaluari',
+    thankYou: 'Evaluarea a fost trimisa',
+    open: 'Deschis', closed: 'Inchis', km: 'km', home: 'Acasa'
+  }
+};
+
+let currentLang = localStorage.getItem('customer_lang') || 'en';
+
+function t(key) {
+  return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.en[key]) || key;
+}
+
+function switchLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('customer_lang', lang);
+  // Update selector buttons
+  document.querySelectorAll('#langSelector button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+  applyLang();
+}
+
+function applyLang() {
+  // Update all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  // Update all data-i18n-placeholder elements
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
+  // Update category labels
+  updateCategoryLabels();
+  // Update dynamic content
+  if (document.getElementById('homeGreeting') && user) {
+    document.getElementById('homeGreeting').textContent = t('hello') + ', ' + (user.display_name || user.username) + '!';
+  }
+  // Re-apply STATUS_LABELS with current language
+  updateStatusLabels();
+  // Update auth form
+  const authUser = document.getElementById('authUser');
+  if (authUser) authUser.placeholder = t('username');
+  const authPass = document.getElementById('authPass');
+  if (authPass) authPass.placeholder = t('password');
+  const authName = document.getElementById('authName');
+  if (authName) authName.placeholder = t('displayName');
+}
+
+function updateCategoryLabels() {
+  const catLabels = document.querySelectorAll('.cat-label');
+  const labelMap = {
+    all: t('all'),
+    restaurant: t('restaurants'),
+    fast_food: t('fastFood'),
+    pharmacy: t('pharmacies'),
+    supermarket: t('supermarket'),
+    deliver_anything: t('deliverAnything')
+  };
+  catLabels.forEach(lbl => {
+    const circle = lbl.closest('.cat-circle');
+    if (circle) {
+      const cat = circle.dataset.cat;
+      if (labelMap[cat]) lbl.textContent = labelMap[cat];
+    }
+  });
+}
+
+function updateStatusLabels() {
+  window.STATUS_LABELS_I18N = {
+    confirmed: t('orderConfirmed'), courier_assigned: t('courierAssigned'), heading_to_restaurant: t('headingToRestaurant'),
+    arrived_at_restaurant: t('atRestaurant'), order_picked_up: t('orderPickedUp'), heading_to_customer: t('headingToYou'),
+    arrived_at_customer: t('courierArrived'), delivered: t('delivered'), cancelled: t('cancelled')
+  };
+}
+
+// Initialize language on load
+(function() {
+  const saved = localStorage.getItem('customer_lang');
+  if (saved && LANG[saved]) currentLang = saved;
+})();
+
+// ═══════════════════════════════════════════════════════
 //  HTTP HELPERS
 // ═══════════════════════════════════════════════════════
 async function api(method, path, body) {
@@ -1082,9 +1354,9 @@ function showConfirmPopup(title, message, emoji, onYes) {
 // ═══════════════════════════════════════════════════════
 function toggleAuthMode() {
   isRegister = !isRegister;
-  document.getElementById('authSubmit').textContent = isRegister ? 'Register' : 'Login';
-  document.getElementById('authToggleText').textContent = isRegister ? 'Already have an account?' : "Don't have an account?";
-  document.getElementById('authToggleLink').textContent = isRegister ? 'Login' : 'Register';
+  document.getElementById('authSubmit').textContent = isRegister ? t('register') : t('login');
+  document.getElementById('authToggleText').textContent = isRegister ? t('haveAccount') : t('noAccount');
+  document.getElementById('authToggleLink').textContent = isRegister ? t('login') : t('register');
   document.getElementById('authName').style.display = isRegister ? '' : 'none';
   document.getElementById('authRoleWrap').style.display = isRegister ? '' : 'none';
 }
@@ -1092,7 +1364,7 @@ function toggleAuthMode() {
 async function doAuth() {
   const username = document.getElementById('authUser').value.trim();
   const password = document.getElementById('authPass').value;
-  if (!username || !password) return showInAppNotif('Error', 'Enter username and password', '⚠️');
+  if (!username || !password) return showInAppNotif('Error', t('enterCredentials'), '⚠️');
   let res;
   if (isRegister) {
     const display_name = document.getElementById('authName').value.trim() || username;
@@ -1122,10 +1394,58 @@ function logout() {
 
 function enterApp() {
   document.getElementById('bottomNav').style.display = 'flex';
+  // Set initial language selector state
+  document.querySelectorAll('#langSelector button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+  });
+  applyLang();
   showScreen('homeScreen');
   loadHome();
   startUnreadPolling();
   startIncomingCallPolling();
+  loadBroadcasts();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BROADCASTS
+// ═══════════════════════════════════════════════════════
+async function loadBroadcasts() {
+  const res = await api('GET', '/api/broadcasts');
+  if (res.success && res.data && res.data.length) {
+    displayBroadcasts(res.data);
+  }
+}
+
+function displayBroadcasts(broadcasts) {
+  const container = document.getElementById('broadcastContainer');
+  if (!container) return;
+  // Only show broadcasts we haven't dismissed
+  const dismissed = JSON.parse(localStorage.getItem('dismissed_broadcasts') || '[]');
+  const newBroadcasts = broadcasts.filter(b => !dismissed.includes(b.id));
+  if (!newBroadcasts.length) { container.innerHTML = ''; return; }
+  container.innerHTML = newBroadcasts.map(b => `
+    <div class="broadcast-banner" data-broadcast-id="${b.id}">
+      <div class="broadcast-icon">${b.emoji || '📢'}</div>
+      <div class="broadcast-content">
+        <h5>${esc(b.title || '')}</h5>
+        <p>${esc(b.body || b.message || '')}</p>
+      </div>
+      <button class="broadcast-close" onclick="dismissBroadcast(${b.id},this)">&#10005;</button>
+    </div>
+  `).join('');
+}
+
+function dismissBroadcast(id, btn) {
+  const dismissed = JSON.parse(localStorage.getItem('dismissed_broadcasts') || '[]');
+  dismissed.push(id);
+  localStorage.setItem('dismissed_broadcasts', JSON.stringify(dismissed));
+  const banner = btn.closest('.broadcast-banner');
+  if (banner) {
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-10px)';
+    banner.style.transition = 'all .3s ease';
+    setTimeout(() => banner.remove(), 300);
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1153,7 +1473,7 @@ function navTo(screenId, el) {
 // ═══════════════════════════════════════════════════════
 async function loadHome() {
   if (user) {
-    document.getElementById('homeGreeting').textContent = 'Hello, ' + (user.display_name || user.username) + '!';
+    document.getElementById('homeGreeting').textContent = t('hello') + ', ' + (user.display_name || user.username) + '!';
     const av = document.getElementById('homeAvatar');
     if (user.avatar_url) {
       av.innerHTML = '<img src="'+user.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
@@ -1233,9 +1553,9 @@ function applyCategoryFilter() {
   renderRestaurants(filtered);
   const title = document.getElementById('restSectionTitle');
   if (activeCategory === 'all') {
-    title.textContent = 'Near You';
+    title.textContent = t('nearYou');
   } else {
-    const catLabel = { restaurant: 'Restaurants', fast_food: 'Fast Food', pharmacy: 'Pharmacies', supermarket: 'Supermarkets' }[activeCategory] || activeCategory;
+    const catLabel = { restaurant: t('restaurants'), fast_food: t('fastFood'), pharmacy: t('pharmacies'), supermarket: t('supermarket') }[activeCategory] || activeCategory;
     title.textContent = catLabel;
   }
 }
@@ -1248,15 +1568,15 @@ function renderRestaurants(list) {
   }
   el.innerHTML = list.map(r => {
     const catEmoji = CATEGORY_EMOJIS[r.category] || '🍽️';
-    const catLabel = { restaurant: 'Restaurant', fast_food: 'Fast Food', pharmacy: 'Pharmacy', supermarket: 'Supermarket' }[r.category] || r.category;
+    const catLabel = { restaurant: t('restaurants'), fast_food: t('fastFood'), pharmacy: t('pharmacies'), supermarket: t('supermarket') }[r.category] || r.category;
     return `
     <div class="rest-card" onclick="openRestaurant(${r.id})">
       <div class="rest-card-img">${catEmoji}</div>
       <div class="rest-card-body">
         <h3>${esc(r.name)}</h3>
         <div class="meta">
-          <span>&#128205; ${r.distance_km||'?'} km</span>
-          <span>${r.is_open ? '&#128994; Open' : '&#128308; Closed'}</span>
+          <span>&#128205; ${r.distance_km||'?'} ${t('km')}</span>
+          <span>${r.is_open ? '&#128994; '+t('open') : '&#128308; '+t('closed')}</span>
           ${r.rating ? '<span>&#11088; ' + parseFloat(r.rating).toFixed(1) + '</span>' : ''}
         </div>
         ${r.category ? '<div class="cat-tag">' + esc(catLabel) + '</div>' : ''}
@@ -1298,7 +1618,7 @@ function renderMenuItems() {
         <p>${esc(i.description||'')}</p>
       </div>
       <div class="item-price">&euro;${parseFloat(i.price).toFixed(2)}</div>
-      <button class="add-btn" onclick="addToCart(${i.id})">Add</button>
+      <button class="add-btn" onclick="addToCart(${i.id})">${t('addToCart')}</button>
     </div>
   `).join('') : '<div class="empty-state"><p>No items available</p></div>';
 }
@@ -1408,13 +1728,13 @@ function updateCartSummary() {
   const ptsDiscount = document.getElementById('redeemPtsCheck')?.checked ? (parseInt(document.getElementById('availPts')?.textContent||'0')/100) : 0;
   const total = Math.max(0, subtotal + delivery - discount - ptsDiscount);
   document.getElementById('cartSummary').innerHTML = `
-    <div class="row"><span>Subtotal</span><span>&euro;${subtotal.toFixed(2)}</span></div>
-    <div class="row"><span>Delivery Fee</span><span>&euro;${delivery.toFixed(2)}</span></div>
-    ${discount > 0 ? `<div class="row" style="color:var(--green)"><span>Promo Discount</span><span>-&euro;${discount.toFixed(2)}</span></div>` : ''}
-    ${ptsDiscount > 0 ? `<div class="row" style="color:var(--green)"><span>Points Discount</span><span>-&euro;${ptsDiscount.toFixed(2)}</span></div>` : ''}
-    <div class="row total"><span>Total</span><span>&euro;${total.toFixed(2)}</span></div>
+    <div class="row"><span>${t('subtotal')}</span><span>&euro;${subtotal.toFixed(2)}</span></div>
+    <div class="row"><span>${t('deliveryFee')}</span><span>&euro;${delivery.toFixed(2)}</span></div>
+    ${discount > 0 ? `<div class="row" style="color:var(--green)"><span>${t('promoDiscount')}</span><span>-&euro;${discount.toFixed(2)}</span></div>` : ''}
+    ${ptsDiscount > 0 ? `<div class="row" style="color:var(--green)"><span>${t('pointsDiscount')}</span><span>-&euro;${ptsDiscount.toFixed(2)}</span></div>` : ''}
+    <div class="row total"><span>${t('total')}</span><span>&euro;${total.toFixed(2)}</span></div>
   `;
-  document.getElementById('cartTotal').textContent = `Total: \u20AC${total.toFixed(2)}`;
+  document.getElementById('cartTotal').textContent = `${t('total')}: \u20AC${total.toFixed(2)}`;
   loadLoyaltyForCart();
 }
 
@@ -1436,8 +1756,8 @@ async function applyPromo() {
   const res = await api('POST', '/api/promo/validate', { code, subtotal });
   if (res.success) {
     promoData = res.data;
-    document.getElementById('promoMsg').innerHTML = `<span style="color:var(--green)">&#10003; ${res.data.description || 'Discount applied!'} -\u20AC${res.data.discount.toFixed(2)}</span>`;
-    showInAppNotif('Promo Applied!', res.data.description || 'Discount applied', '🎉');
+    document.getElementById('promoMsg').innerHTML = `<span style="color:var(--green)">&#10003; ${res.data.description || t('promoApplied')} -\u20AC${res.data.discount.toFixed(2)}</span>`;
+    showInAppNotif(t('orderPlaced'), res.data.description || t('promoApplied'), '🎉');
   } else {
     promoData = null;
     document.getElementById('promoMsg').innerHTML = `<span style="color:var(--red)">${res.message}</span>`;
@@ -1446,51 +1766,91 @@ async function applyPromo() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  DELIVER ANYTHING
+//  DELIVER ANYTHING - REDESIGNED
 // ═══════════════════════════════════════════════════════
+let daType = 'send';
+
 function openDeliverAnything() {
-  // Pre-fill delivery address
-  document.getElementById('daDeliveryAddr').value = document.getElementById('locAddr')?.textContent || '';
+  daType = 'send';
+  document.getElementById('daDeliveryType').value = 'send';
+  document.getElementById('daTypeSend').classList.add('active');
+  document.getElementById('daTypeReceive').classList.remove('active');
+  // Clear all fields
+  ['daPickupAddr','daPickupContactName','daPickupContactPhone','daDeliveryAddr','daDeliveryContactName','daDeliveryContactPhone','daItemDescription'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Pre-fill based on type
+  prefillDeliverAnything();
   showScreen('deliverScreen');
+  applyLang();
+}
+
+function setDeliverType(type) {
+  daType = type;
+  document.getElementById('daDeliveryType').value = type;
+  document.getElementById('daTypeSend').classList.toggle('active', type === 'send');
+  document.getElementById('daTypeReceive').classList.toggle('active', type === 'receive');
+  prefillDeliverAnything();
+}
+
+function prefillDeliverAnything() {
+  if (!user) return;
+  const displayName = user.display_name || user.username || '';
+  const phone = user.phone || '';
+  if (daType === 'send') {
+    // Client is sender: prefill pickup contact
+    document.getElementById('daPickupContactName').value = displayName;
+    document.getElementById('daPickupContactPhone').value = phone;
+    document.getElementById('daDeliveryContactName').value = '';
+    document.getElementById('daDeliveryContactPhone').value = '';
+  } else {
+    // Client is receiver: prefill delivery contact
+    document.getElementById('daDeliveryContactName').value = displayName;
+    document.getElementById('daDeliveryContactPhone').value = phone;
+    document.getElementById('daPickupContactName').value = '';
+    document.getElementById('daPickupContactPhone').value = '';
+  }
 }
 
 async function submitDeliverAnything() {
+  const delivery_type = document.getElementById('daDeliveryType').value;
   const pickup_address = document.getElementById('daPickupAddr').value.trim();
-  const pickup_description = document.getElementById('daPickupDesc').value.trim();
+  const pickup_contact_name = document.getElementById('daPickupContactName').value.trim();
+  const pickup_contact_phone = document.getElementById('daPickupContactPhone').value.trim();
   const delivery_address = document.getElementById('daDeliveryAddr').value.trim();
-  const contact_name = document.getElementById('daContactName').value.trim();
-  const contact_phone = document.getElementById('daContactPhone').value.trim();
-  const pickup_lat = parseFloat(document.getElementById('daPickupLat').value) || null;
-  const pickup_lng = parseFloat(document.getElementById('daPickupLng').value) || null;
+  const delivery_contact_name = document.getElementById('daDeliveryContactName').value.trim();
+  const delivery_contact_phone = document.getElementById('daDeliveryContactPhone').value.trim();
+  const item_description = document.getElementById('daItemDescription').value.trim();
 
-  if (!pickup_address || !pickup_description || !delivery_address) {
-    return showInAppNotif('Missing Info', 'Please fill in pickup location, description, and delivery address', '⚠️');
+  if (!pickup_address || !delivery_address || !item_description) {
+    return showInAppNotif('Missing Info', t('missingInfo'), '⚠️');
   }
 
   const res = await api('POST', '/api/deliver-anything', {
+    delivery_type,
     pickup_address,
-    pickup_description,
-    pickup_lat,
-    pickup_lng,
+    pickup_contact_name,
+    pickup_contact_phone,
     delivery_address,
-    delivery_lat: userLat,
-    delivery_lng: userLng,
-    contact_name,
-    contact_phone
+    delivery_contact_name,
+    delivery_contact_phone,
+    item_description
   });
 
   if (res.success) {
-    showInAppNotif('Request Sent!', 'Your delivery request has been submitted', '🚀');
+    showInAppNotif(t('orderPlaced'), t('requestSent'), '🚀');
     // Clear form
-    ['daPickupAddr','daPickupDesc','daDeliveryAddr','daContactName','daContactPhone','daPickupLat','daPickupLng'].forEach(id => {
-      document.getElementById(id).value = '';
+    ['daPickupAddr','daPickupContactName','daPickupContactPhone','daDeliveryAddr','daDeliveryContactName','daDeliveryContactPhone','daItemDescription'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
     });
     // Navigate to order tracking
     currentOrder = res.data;
     showScreen('trackScreen');
     openTracker(res.data.id);
   } else {
-    showInAppNotif('Error', res.message || 'Failed to submit request', '❌');
+    showInAppNotif('Error', res.message || t('orderFailed'), '❌');
   }
 }
 
@@ -1498,7 +1858,7 @@ async function submitDeliverAnything() {
 //  ORDERS
 // ═══════════════════════════════════════════════════════
 async function placeOrder() {
-  if (!cart || !cart.items?.length) return showInAppNotif('Empty Cart', 'Add items to your cart first', '⚠️');
+  if (!cart || !cart.items?.length) return showInAppNotif(t('cart'), t('emptyCart'), '⚠️');
   const pts = document.getElementById('redeemPtsCheck')?.checked ? parseInt(document.getElementById('availPts')?.textContent||'0') : 0;
   const res = await api('POST', '/api/orders', {
     promo_code: promoData?.code || '',
@@ -1509,11 +1869,11 @@ async function placeOrder() {
   if (res.success) {
     cart = null; promoData = null;
     currentOrder = res.data;
-    showInAppNotif('Order Placed!', `Order ${res.data.order_number || '#'+res.data.id} confirmed`, '🎉');
+    showInAppNotif(t('orderPlaced'), `Order ${res.data.order_number || '#'+res.data.id} confirmed`, '🎉');
     showScreen('trackScreen');
     openTracker(res.data.id);
   } else {
-    showInAppNotif('Order Failed', res.message || 'Could not place order', '❌');
+    showInAppNotif('Error', res.message || t('orderFailed'), '❌');
   }
 }
 
@@ -1522,17 +1882,20 @@ async function loadOrders() {
   if (res.success) {
     const el = document.getElementById('ordersList');
     const orders = res.data;
-    if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128230;</div><p>No orders yet</p></div>'; return; }
-    el.innerHTML = orders.map(o => `
+    if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128230;</div><p>'+t('myOrders')+'</p></div>'; return; }
+    el.innerHTML = orders.map(o => {
+      const statusLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[o.status]) || STATUS_LABELS[o.status] || o.status;
+      return `
       <div class="order-card" onclick="openTracker(${o.id})">
         <div class="order-num-badge">${o.order_number || '#Ely-'+String(o.id).padStart(5,'0')}</div>
-        <h4>${esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 Deliver Anything' : 'Order #'+o.id))}</h4>
+        <h4>${esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order #'+o.id))}</h4>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-          <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status]||o.status}</span>
+          <span class="status-badge status-${o.status}">${statusLabel}</span>
           <span style="font-size:13px;font-weight:600">&euro;${parseFloat(o.total).toFixed(2)}</span>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
 }
 
@@ -1564,7 +1927,8 @@ async function pollOrder(oid) {
     // Show notification on status change
     if (prevStatus && prevStatus !== currentOrder.status) {
       const emoji = NOTIF_EMOJIS[currentOrder.status] || NOTIF_EMOJIS.default;
-      showInAppNotif('Order Update', STATUS_LABELS[currentOrder.status] || currentOrder.status, emoji);
+      const statusText = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[currentOrder.status]) || STATUS_LABELS[currentOrder.status] || currentOrder.status;
+      showInAppNotif('Order Update', statusText, emoji);
     }
     if (currentOrder.status === 'delivered' && !currentOrder.is_rated) {
       stopOrderTrackPolling();
@@ -1584,7 +1948,7 @@ function stopOrderTrackPolling() {
 function renderTracker() {
   const o = currentOrder;
   if (!o) return;
-  document.getElementById('trackRestName').textContent = o.restaurant_name || (o.is_deliver_anything ? '🚀 Deliver Anything' : 'Order');
+  document.getElementById('trackRestName').textContent = o.restaurant_name || (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order');
   document.getElementById('trackOrderNum').textContent = o.order_number || '#Ely-' + String(o.id).padStart(5,'0');
 
   // Progress bar
@@ -1644,13 +2008,14 @@ function renderTracker() {
       const done = i <= currentIdx && currentIdx >= 0;
       const current = i === currentIdx;
       const nextLine = i < STATUS_FLOW.length - 1;
+      const sLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[s]) || STATUS_LABELS[s] || s;
       return `
         <div class="timeline-step">
           <div class="dot ${done?'done':''} ${current?'current':''}">${done?'&#10003;':i+1}</div>
           ${nextLine ? `<div class="line ${done && i < currentIdx ? 'done' : ''}"></div>` : ''}
           <div class="step-info">
-            <h5>${STATUS_LABELS[s]||s}</h5>
-            <p>${current ? 'Current status' : (done ? 'Completed' : '')}</p>
+            <h5>${sLabel}</h5>
+            <p>${current ? t('currentStatus') : (done ? t('completed') : '')}</p>
           </div>
         </div>`;
     }).join('');
@@ -1665,11 +2030,11 @@ function renderTracker() {
   // Actions
   const actions = document.getElementById('trackActions');
   if (o.status === 'delivered' && !o.is_rated) {
-    actions.innerHTML = `<button class="btn-pri" onclick="ratingOrderId=${o.id};showRatingModal()">Rate Order</button>`;
+    actions.innerHTML = `<button class="btn-pri" onclick="ratingOrderId=${o.id};showRatingModal()">${t('rateOrder')}</button>`;
   } else if (['pending','confirmed','courier_assigned'].includes(o.status)) {
-    actions.innerHTML = `<button style="padding:12px 24px;background:var(--red);color:#fff;border-radius:12px;font-size:14px;font-weight:600" onclick="cancelOrder(${o.id})">Cancel Order</button>`;
+    actions.innerHTML = `<button style="padding:12px 24px;background:var(--red);color:#fff;border-radius:12px;font-size:14px;font-weight:600" onclick="cancelOrder(${o.id})">${t('cancelOrder')}</button>`;
   } else if (o.status === 'delivered' && o.is_rated) {
-    actions.innerHTML = `<button class="btn-pri" onclick="goHome()">Back to Home</button>`;
+    actions.innerHTML = `<button class="btn-pri" onclick="goHome()">${t('backToHome')}</button>`;
   } else {
     actions.innerHTML = '';
   }
@@ -1683,10 +2048,10 @@ function goHome() {
 }
 
 async function cancelOrder(oid) {
-  showConfirmPopup('Cancel Order?', 'Are you sure you want to cancel this order?', '😞😔', async function() {
+  showConfirmPopup(t('cancelOrder')+'?', t('cancelConfirm'), '😞😔', async function() {
     const res = await api('POST', '/api/orders/' + oid + '/cancel');
     if (res.success) {
-      showInAppNotif('Order Cancelled', 'Your order has been cancelled', '❌');
+      showInAppNotif(t('orderCancelled'), t('orderCancelled'), '❌');
       goHome();
     } else {
       showInAppNotif('Error', res.message, '⚠️');
@@ -1727,14 +2092,14 @@ function setRating(type, val) {
 }
 
 async function submitRating() {
-  if (!courierRatingVal || !serviceRatingVal) return showInAppNotif('Rate Please', 'Select both ratings', '⭐');
+  if (!courierRatingVal || !serviceRatingVal) return showInAppNotif(t('ratePlease'), t('ratePlease'), '⭐');
   const comment = document.getElementById('ratingComment').value.trim();
   const res = await api('POST', '/api/orders/' + ratingOrderId + '/rate', {
     courier_rating: courierRatingVal, service_rating: serviceRatingVal, comment
   });
   document.getElementById('ratingModal').classList.remove('active');
   if (res.success) {
-    showInAppNotif('Thank You!', 'Your rating has been submitted', '😊');
+    showInAppNotif(t('thankYou'), t('thankYou'), '😊');
     goHome();
   } else {
     showInAppNotif('Error', res.message, '⚠️');

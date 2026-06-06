@@ -2,6 +2,7 @@
 Elyanivery — Database Module (PostgreSQL)
 Uses psycopg2 with thread-local connections.
 All SQL Server-specific syntax has been converted to PostgreSQL.
+v5.0 — Admin approval, broadcasts, phone numbers, Moldova seed data, Deliver Anything addresses
 """
 
 import psycopg2
@@ -173,6 +174,8 @@ def init_db():
             role VARCHAR(20) NOT NULL DEFAULT 'customer',
             display_name VARCHAR(200),
             avatar_url VARCHAR(500) NULL,
+            phone VARCHAR(30) NULL,
+            approval_status VARCHAR(20) DEFAULT 'approved',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
@@ -181,11 +184,12 @@ def init_db():
             name VARCHAR(200) NOT NULL,
             description VARCHAR(1000),
             address VARCHAR(500),
-            latitude FLOAT DEFAULT 41.3874,
-            longitude FLOAT DEFAULT 2.1686,
+            latitude FLOAT DEFAULT 47.0105,
+            longitude FLOAT DEFAULT 28.8638,
             is_open BOOLEAN DEFAULT TRUE,
             image_url VARCHAR(500) NULL,
             category VARCHAR(50) DEFAULT 'restaurant',
+            phone VARCHAR(30) NULL,
             created_by INT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
@@ -217,6 +221,16 @@ def init_db():
             estimated_prep_minutes INT NULL,
             courier_earnings NUMERIC(10,2) DEFAULT 0,
             waiting_minutes INT DEFAULT 0,
+            is_deliver_anything BOOLEAN DEFAULT FALSE,
+            delivery_type VARCHAR(20) NULL,
+            pickup_address VARCHAR(500) NULL,
+            pickup_lat FLOAT NULL,
+            pickup_lng FLOAT NULL,
+            pickup_contact_name VARCHAR(200) NULL,
+            pickup_contact_phone VARCHAR(30) NULL,
+            delivery_contact_name VARCHAR(200) NULL,
+            delivery_contact_phone VARCHAR(30) NULL,
+            item_description VARCHAR(500) NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL,
             courier_arrived_restaurant_at TIMESTAMP NULL,
@@ -313,6 +327,17 @@ def init_db():
             is_read BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
+
+        """CREATE TABLE IF NOT EXISTS Broadcasts (
+            id SERIAL PRIMARY KEY,
+            admin_id INT NOT NULL,
+            title VARCHAR(200) NOT NULL,
+            message VARCHAR(2000) NOT NULL,
+            target_roles VARCHAR(200) DEFAULT 'all',
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at TIMESTAMP NULL
+        )""",
     ]
 
     for sql in tables:
@@ -334,6 +359,19 @@ def _migrate_columns():
         ("Orders", "courier_earnings", "NUMERIC(10,2) DEFAULT 0"),
         ("Orders", "waiting_minutes", "INT DEFAULT 0"),
         ("Restaurants", "category", "VARCHAR(50) DEFAULT 'restaurant'"),
+        ("Restaurants", "phone", "VARCHAR(30) NULL"),
+        ("Users", "phone", "VARCHAR(30) NULL"),
+        ("Users", "approval_status", "VARCHAR(20) DEFAULT 'approved'"),
+        ("Orders", "is_deliver_anything", "BOOLEAN DEFAULT FALSE"),
+        ("Orders", "delivery_type", "VARCHAR(20) NULL"),
+        ("Orders", "pickup_address", "VARCHAR(500) NULL"),
+        ("Orders", "pickup_lat", "FLOAT NULL"),
+        ("Orders", "pickup_lng", "FLOAT NULL"),
+        ("Orders", "pickup_contact_name", "VARCHAR(200) NULL"),
+        ("Orders", "pickup_contact_phone", "VARCHAR(30) NULL"),
+        ("Orders", "delivery_contact_name", "VARCHAR(200) NULL"),
+        ("Orders", "delivery_contact_phone", "VARCHAR(30) NULL"),
+        ("Orders", "item_description", "VARCHAR(500) NULL"),
     ]
     for table, column, definition in migrations:
         try:
@@ -349,85 +387,141 @@ def _migrate_columns():
 
 
 def seed_data():
-    """Seed the database with sample restaurants, items, and promo codes if empty."""
+    """Seed the database with sample restaurants, items, and promo codes if empty.
+    v5.0 — All addresses in Chisinau, Moldova. Categories: restaurant, fast_food, pharmacy, supermarket."""
     # Seed restaurants if none exist
     rest_count = query("SELECT COUNT(*) as cnt FROM Restaurants", fetch_one=True)
     if rest_count and rest_count['cnt'] == 0:
+        # All coordinates centered on Chisinau, Moldova (47.0105, 28.8638)
         restaurants = [
-            ('Pizza Palace', 'Authentic Italian pizza and pasta', 'Carrer de Balmes 15, Barcelona', 41.3920, 2.1530, 'restaurant'),
-            ('Burger Barn', 'Gourmet burgers and craft beers', 'Carrer de Provenca 88, Barcelona', 41.3950, 2.1620, 'restaurant'),
-            ('Sushi World', 'Fresh Japanese cuisine', 'Rambla de Catalunya 42, Barcelona', 41.3880, 2.1680, 'restaurant'),
-            ('Taco Fiesta', 'Mexican street food', 'Carrer de Muntaner 200, Barcelona', 41.3935, 2.1570, 'restaurant'),
-            ('Green Bowl', 'Healthy salads and smoothies', 'Passeig de Gracia 55, Barcelona', 41.3905, 2.1650, 'restaurant'),
-            ('Quick Pharmacy', 'Your neighborhood pharmacy delivered', 'Carrer de Arago 120, Barcelona', 41.3890, 2.1640, 'pharmacy'),
-            ('Fresh Market', 'Supermarket groceries at your door', 'Carrer de Valencia 200, Barcelona', 41.3870, 2.1700, 'supermarket'),
-            ('Speed Eats', 'Fast food favorites', 'Rambla del Raval 30, Barcelona', 41.3790, 2.1690, 'fast_food'),
+            # ── RESTAURANTS ──
+            ('La Placinte', 'Traditional Moldovan cuisine with modern twist', 'Str. Stefan cel Mare 67, Chisinau', 47.0258, 28.8328, 'restaurant', '+373 22 123 456'),
+            ('Carpe Diem', 'Fine dining & wine bar in the heart of Chisinau', 'Str. V. Pircalab 52, Chisinau', 47.0189, 28.8451, 'restaurant', '+373 22 234 567'),
+            ('Andys Pizza', 'Popular Italian-style pizza restaurant', 'Bulevardul Stefan cel Mare 32, Chisinau', 47.0312, 28.8407, 'restaurant', '+373 22 345 678'),
+            ('Propaganda', 'Modern European cuisine with local ingredients', 'Str. M. Eminescu 24, Chisinau', 47.0156, 28.8503, 'restaurant', '+373 22 456 789'),
+            ('Beef by Victor', 'Premium steakhouse and grill', 'Str. A. Mateevici 15, Chisinau', 47.0273, 28.8516, 'restaurant', '+373 22 567 890'),
+            # ── FAST FOOD ──
+            ('McDonalds Chisinau', 'Classic fast food burgers and fries', 'Bulevardul Dacia 39, Chisinau', 47.0356, 28.8297, 'fast_food', '+373 22 678 901'),
+            ('KFC Mall Dova', 'Fried chicken and sides', 'Str. Arborilor 21, Chisinau', 47.0125, 28.8612, 'fast_food', '+373 22 789 012'),
+            ('Shawarma King', 'Best shawarma and falafel in town', 'Str. Ismail 49, Chisinau', 47.0198, 28.8379, 'fast_food', '+373 22 890 123'),
+            # ── PHARMACIES ──
+            ('Farmacia Familia', 'Full-service pharmacy delivery', 'Str. Alexandru cel Bun 80, Chisinau', 47.0241, 28.8562, 'pharmacy', '+373 22 901 234'),
+            ('Farmacie Noapte', '24/7 pharmacy open all night', 'Bulevardul Decebal 23, Chisinau', 47.0089, 28.8445, 'pharmacy', '+373 22 012 345'),
+            ('Sensiblu Chisinau', 'Health and wellness pharmacy', 'Str. Tighina 34, Chisinau', 47.0172, 28.8689, 'pharmacy', '+373 22 123 457'),
+            # ── SUPERMARKETS ──
+            ('Nr1 Supermarket', 'Everything you need, delivered fast', 'Str. Moscovei 5, Chisinau', 47.0301, 28.8234, 'supermarket', '+373 22 234 568'),
+            ('Fidesco Market', 'Premium grocery and household items', 'Str. Calea Orheiului 16, Chisinau', 47.0412, 28.8578, 'supermarket', '+373 22 345 679'),
+            ('Linella Supermarket', 'Affordable groceries for every family', 'Bulevardul Mircea cel Batran 8, Chisinau', 47.0067, 28.8534, 'supermarket', '+373 22 456 780'),
+            # ── DELIVERY SERVICE (virtual) ──
+            ('Elyanivery Delivery Service', 'Virtual restaurant for Deliver Anything orders', '', 47.0105, 28.8638, 'delivery_service', ''),
         ]
-        for name, desc, addr, lat, lng, cat in restaurants:
+        for name, desc, addr, lat, lng, cat, phone in restaurants:
             try:
-                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category) VALUES (?,?,?,?,?,TRUE,?)",
-                       (name, desc, addr, lat, lng, cat))
+                insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category,phone) VALUES (?,?,?,?,?,TRUE,?,?)",
+                       (name, desc, addr, lat, lng, cat, phone))
             except Exception as e:
                 print(f"  Seed restaurant note: {e}")
-        print("  Seeded 8 sample restaurants (incl. pharmacy, supermarket, fast_food)")
+        print("  Seeded 15 Moldova-based restaurants (restaurants, fast_food, pharmacies, supermarkets)")
 
         # Seed items for each restaurant
         items_data = {
-            1: [  # Pizza Palace
-                ('Margherita Pizza', 'Classic tomato, mozzarella, basil', 9.99),
-                ('Pepperoni Pizza', 'Pepperoni, mozzarella, tomato sauce', 11.99),
-                ('Carbonara Pasta', 'Spaghetti with creamy carbonara sauce', 12.50),
-                ('Caesar Salad', 'Romaine, croutons, parmesan, caesar dressing', 8.50),
-                ('Tiramisu', 'Classic Italian dessert', 6.50),
+            1: [  # La Placinte - Moldovan
+                ('Placinta cu Branza', 'Traditional cheese-filled pastry', 4.50),
+                ('Placinta cu Varza', 'Cabbage-filled pastry', 3.99),
+                ('Mamaliga cu Branza', 'Polenta with cheese and sour cream', 6.99),
+                ('Zeama de Pui', 'Traditional chicken soup', 5.50),
+                ('Sarmale', 'Stuffed cabbage rolls', 7.99),
             ],
-            2: [  # Burger Barn
-                ('Classic Burger', 'Beef patty, lettuce, tomato, cheese', 10.99),
-                ('BBQ Burger', 'Beef patty, BBQ sauce, bacon, onion rings', 13.50),
-                ('Chicken Wings', 'Spicy buffalo wings (8 pcs)', 9.99),
-                ('Loaded Fries', 'Cheese, bacon, jalapenos', 7.50),
-                ('Milkshake', 'Vanilla, chocolate, or strawberry', 5.50),
+            2: [  # Carpe Diem - Fine dining
+                ('Duck Confit', 'Slow-cooked duck leg with cherry sauce', 18.50),
+                ('Risotto ai Funghi', 'Wild mushroom risotto', 14.99),
+                ('Beef Carpaccio', 'Thin sliced raw beef with arugula', 12.50),
+                ('Wine Selection', 'Local Moldovan wine pairing', 9.99),
+                ('Creme Brulee', 'Classic vanilla custard dessert', 7.50),
             ],
-            3: [  # Sushi World
-                ('Salmon Nigiri (4 pcs)', 'Fresh Atlantic salmon', 8.99),
-                ('California Roll (8 pcs)', 'Crab, avocado, cucumber', 10.50),
-                ('Dragon Roll (8 pcs)', 'Eel, avocado, tobiko', 14.99),
-                ('Miso Soup', 'Traditional Japanese miso soup', 4.50),
-                ('Edamame', 'Steamed soybeans with sea salt', 5.00),
+            3: [  # Andys Pizza
+                ('Margherita Pizza', 'Tomato, mozzarella, basil', 8.99),
+                ('Pepperoni Pizza', 'Pepperoni, mozzarella, tomato sauce', 10.99),
+                ('Quattro Formaggi', 'Four cheese pizza', 12.50),
+                ('Caesar Salad', 'Romaine, croutons, parmesan', 7.50),
+                ('Tiramisu', 'Classic Italian dessert', 5.99),
             ],
-            4: [  # Taco Fiesta
-                ('Beef Tacos (3 pcs)', 'Seasoned beef, salsa, guacamole', 9.50),
-                ('Chicken Burrito', 'Grilled chicken, rice, beans, cheese', 11.99),
-                ('Nachos Supreme', 'Loaded nachos with all toppings', 8.99),
-                ('Churros', 'Cinnamon sugar churros with chocolate dip', 5.50),
-                ('Horchata', 'Traditional rice drink', 3.50),
+            4: [  # Propaganda
+                ('Salmon Steak', 'Grilled salmon with dill sauce', 16.99),
+                ('Pasta Carbonara', 'Creamy spaghetti with bacon', 11.50),
+                ('Burrata Salad', 'Fresh burrata with tomatoes and pesto', 13.50),
+                ('Aperol Spritz', 'Refreshing cocktail', 6.50),
+                ('Chocolate Fondant', 'Warm chocolate cake with ice cream', 8.99),
             ],
-            5: [  # Green Bowl
-                ('Power Bowl', 'Quinoa, avocado, chickpeas, tahini', 12.99),
-                ('Greek Salad', 'Feta, olives, cucumber, tomato', 9.50),
-                ('Acai Bowl', 'Acai, granola, banana, berries', 10.99),
-                ('Green Smoothie', 'Spinach, banana, mango, almond milk', 6.50),
-                ('Hummus Wrap', 'Hummus, veggies, whole wheat wrap', 8.99),
+            5: [  # Beef by Victor
+                ('Ribeye Steak 300g', 'Premium aged ribeye', 24.99),
+                ('Burger Classic', 'House-ground beef patty with toppings', 12.50),
+                ('Tomahawk Steak', 'Show-stopping bone-in steak', 34.99),
+                ('Loaded Baked Potato', 'Sour cream, bacon, chives', 5.99),
+                ('Craft Beer', 'Local brewery selection', 4.50),
             ],
-            6: [  # Quick Pharmacy
-                ('Paracetamol 500mg', 'Pain relief tablets (20 pcs)', 4.50),
-                ('Ibuprofen 400mg', 'Anti-inflammatory tablets (20 pcs)', 5.99),
-                ('Vitamin C 1000mg', 'Immune support effervescent (10 pcs)', 6.50),
-                ('Hand Sanitizer', 'Antibacterial gel 250ml', 3.99),
-                ('Face Masks (10 pcs)', 'Disposable protective masks', 7.50),
+            6: [  # McDonalds
+                ('Big Mac', 'Double patty with special sauce', 5.99),
+                ('McChicken', 'Crispy chicken sandwich', 4.99),
+                ('Large Fries', 'Golden crispy fries', 2.99),
+                ('McFlurry', 'Ice cream with toppings', 3.50),
+                ('Happy Meal', 'Kids meal with toy', 4.50),
             ],
-            7: [  # Fresh Market
-                ('Fresh Bread Loaf', 'Artisan sourdough bread', 3.50),
-                ('Organic Eggs (12)', 'Free-range organic eggs', 4.99),
-                ('Whole Milk 1L', 'Fresh whole milk', 1.49),
-                ('Avocados (3 pcs)', 'Ripe Hass avocados', 4.50),
-                ('Bananas (1kg)', 'Fresh bananas by weight', 1.99),
+            7: [  # KFC
+                ('Bucket 8pc', 'Original recipe chicken', 12.99),
+                ('Zinger Burger', 'Spicy crispy chicken sandwich', 5.99),
+                ('Coleslaw', 'Creamy coleslaw side', 2.50),
+                ('Popcorn Chicken', 'Bite-sized chicken pieces', 4.99),
+                ('Corn on the Cob', 'Buttered sweet corn', 2.99),
             ],
-            8: [  # Speed Eats
-                ('Chicken Nuggets (10 pcs)', 'Crispy chicken nuggets with dipping sauce', 6.99),
-                ('Double Cheeseburger', 'Two beef patties with melted cheese', 8.99),
-                ('Large Fries', 'Crispy golden fries', 3.99),
-                ('Onion Rings', 'Battered and fried onion rings', 4.50),
-                ('Soda Large', 'Coca-Cola, Fanta, or Sprite', 2.99),
+            8: [  # Shawarma King
+                ('Chicken Shawarma', 'Large chicken shawarma wrap', 4.99),
+                ('Beef Shawarma', 'Juicy beef shawarma wrap', 5.99),
+                ('Falafel Wrap', 'Crispy falafel with hummus', 4.50),
+                ('Hummus Plate', 'Creamy hummus with pita bread', 3.99),
+                ('Ayran Drink', 'Refreshing yogurt drink', 1.99),
+            ],
+            9: [  # Farmacia Familia
+                ('Paracetamol 500mg', 'Pain relief tablets (20 pcs)', 3.50),
+                ('Ibuprofen 400mg', 'Anti-inflammatory tablets (20 pcs)', 4.99),
+                ('Vitamin D3', 'Immune support (30 capsules)', 6.50),
+                ('Nasal Spray', 'Decongestant spray 15ml', 4.20),
+                ('Thermometer Digital', 'Fast-read digital thermometer', 12.99),
+            ],
+            10: [  # Farmacie Noapte
+                ('Cold & Flu Pack', 'Complete cold remedy kit', 8.99),
+                ('Cough Syrup', 'Honey-based cough syrup 200ml', 5.50),
+                ('Allergy Tablets', 'Antihistamine (10 pcs)', 4.80),
+                ('Hand Sanitizer', 'Antibacterial gel 250ml', 2.99),
+                ('First Aid Kit', 'Basic first aid supplies', 15.99),
+            ],
+            11: [  # Sensiblu
+                ('Probiotics', 'Digestive health (30 capsules)', 9.50),
+                ('Omega 3 Fish Oil', 'Heart health supplement', 7.99),
+                ('Eye Drops', 'Moisturizing eye drops 10ml', 3.99),
+                ('Bandages Assorted', 'Self-adhesive bandages (20 pcs)', 2.50),
+                ('Sunscreen SPF50', 'Sun protection 200ml', 8.99),
+            ],
+            12: [  # Nr1 Supermarket
+                ('Bread Loaf', 'Fresh white bread', 1.20),
+                ('Milk 1L', 'Fresh whole milk', 1.49),
+                ('Eggs (10)', 'Farm fresh eggs', 2.99),
+                ('Potatoes (1kg)', 'Fresh potatoes', 0.99),
+                ('Chicken Breast (1kg)', 'Fresh chicken breast', 5.99),
+            ],
+            13: [  # Fidesco Market
+                ('Imported Cheese 200g', 'Premium Dutch cheese', 4.50),
+                ('Olive Oil 500ml', 'Extra virgin olive oil', 6.99),
+                ('Pasta Barilla 500g', 'Italian spaghetti', 2.50),
+                ('Orange Juice 1L', 'Fresh squeezed juice', 3.20),
+                ('Coffee Beans 250g', 'Arabica coffee beans', 5.99),
+            ],
+            14: [  # Linella Supermarket
+                ('Rice 1kg', 'Long grain white rice', 1.80),
+                ('Tomatoes (1kg)', 'Fresh tomatoes', 2.20),
+                ('Bananas (1kg)', 'Ripe bananas', 1.50),
+                ('Sour Cream 400g', 'Traditional sour cream', 1.29),
+                ('Minced Meat 500g', 'Pork and beef mix', 3.99),
             ],
         }
         for rid, items in items_data.items():
@@ -437,7 +531,7 @@ def seed_data():
                            (rid, name, desc, price))
                 except Exception as e:
                     print(f"  Seed item note: {e}")
-        print("  Seeded menu items for all restaurants")
+        print("  Seeded menu items for all Moldova restaurants")
 
     # Seed promo codes if none exist
     promo_count = query("SELECT COUNT(*) as cnt FROM PromoCodes", fetch_one=True)

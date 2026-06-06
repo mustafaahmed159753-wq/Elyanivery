@@ -438,6 +438,13 @@ input,textarea,select{font-family:inherit}
 </head>
 <body>
 
+<!-- ═══ MAINTENANCE OVERLAY ═══ -->
+<div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+  <div style="font-size:64px;margin-bottom:20px">&#128274;</div>
+  <h2 style="font-size:24px;margin-bottom:10px">Service Temporarily Unavailable</h2>
+  <p style="font-size:14px;color:#aaa;max-width:300px">We are currently performing maintenance. Please check back soon.</p>
+</div>
+
 <!-- ════════ SPLASH ════════ -->
 <div class="splash-screen" id="splashScreen">
   <div class="splash-bg"></div>
@@ -852,6 +859,20 @@ function applyTheme(id){
 //  CONSTANTS & STATE
 // ════════════════════════════════════════════════════════
 const API='';
+const API_PORT='8080';
+
+async function checkMaintenanceMode(){
+  try{
+    const r=await fetch(API+'/api/admin/app-status?XTransformPort='+API_PORT);
+    const d=await r.json();
+    if(d.success && d.data && d.data.maintenance_mode){
+      document.getElementById('maintenanceOverlay').style.display='flex';
+    }else{
+      document.getElementById('maintenanceOverlay').style.display='none';
+    }
+  }catch(e){}
+}
+
 const STATUS_LABELS={
   pending:'New Order',accepted:'In Progress',ready_for_pickup:'Ready for Pickup',
   courier_assigned:'Courier Assigned',heading_to_restaurant:'Courier Heading to You',
@@ -1133,6 +1154,8 @@ function enterApp(){
   loadBroadcasts();
   startPolling();
   startCountdownTimer();
+  checkMaintenanceMode();
+  setInterval(checkMaintenanceMode, 30000);
   applyLang();
 }
 

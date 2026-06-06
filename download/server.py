@@ -1513,18 +1513,55 @@ def handle_courier_earnings(payload):
 
 
 def handle_courier_set_vehicle(body, payload):
-    """Update courier's vehicle type."""
+    """Update courier's vehicle type. First-time set is instant; changes require admin approval."""
     try:
         vehicle_type = body.get('vehicle_type', 'bicycle')
         if vehicle_type not in ('walking', 'bicycle', 'scooter', 'car'):
             return 400, {"success": False, "message": "Invalid vehicle type. Must be: walking, bicycle, scooter, car"}
-        existing = query("SELECT id FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+        existing = query("SELECT id, vehicle_type FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
         if existing:
-            query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?", (vehicle_type, payload['uid']))
+            current_vehicle = existing.get('vehicle_type', 'bicycle')
+            if current_vehicle and current_vehicle != 'bicycle' and current_vehicle != vehicle_type:
+                # This is a CHANGE, not first-time set — require admin approval
+                # Create a vehicle change request
+                rid = insert("INSERT INTO VehicleChangeRequests (courier_id,current_vehicle,requested_vehicle,status) VALUES (?,?,?,'pending')",
+                             (payload['uid'], current_vehicle, vehicle_type))
+                # Notify admin
+                admins = query("SELECT id FROM Users WHERE role='admin'", fetch=True)
+                for a in (admins or []):
+                    push_notification(a['id'], 'Vehicle Change Request',
+                                      f'Courier requested to change vehicle from {current_vehicle} to {vehicle_type}',
+                                      'vehicle_change_request', rid)
+                return 200, {"success": True, "data": {"vehicle_type": current_vehicle,
+                          "message": "Vehicle change request sent to admin for approval",
+                          "pending_approval": True}}
+            else:
+                # First-time set or no existing vehicle — allow directly
+                query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?", (vehicle_type, payload['uid']))
         else:
             insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online,vehicle_type) VALUES (?,0,0,FALSE,?)",
                    (payload['uid'], vehicle_type))
-        return 200, {"success": True, "data": {"vehicle_type": vehicle_type}}
+        return 200, {"success": True, "data": {"vehicle_type": vehicle_type, "pending_approval": False}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_courier_vehicle_status(payload):
+    """Get courier's current vehicle type and any pending vehicle change request."""
+    try:
+        row = query("SELECT vehicle_type FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+        vehicle_type = row['vehicle_type'] if row else None
+        pending = query("SELECT * FROM VehicleChangeRequests WHERE courier_id=? AND status='pending' ORDER BY created_at DESC LIMIT 1",
+                        (payload['uid'],), fetch_one=True)
+        result = {"vehicle_type": vehicle_type}
+        if pending:
+            result["pending_change"] = {
+                "requested_vehicle": pending['requested_vehicle'],
+                "current_vehicle": pending['current_vehicle'],
+                "status": pending['status'],
+                "created_at": pending['created_at']
+            }
+        return 200, {"success": True, "data": result}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -1893,6 +1930,118 @@ def handle_admin_block_user(body, payload):
         if user['role'] == 'courier':
             query("UPDATE CourierLocations SET is_online=FALSE WHERE courier_id=?", (uid,))
         return 200, {"success": True, "message": f"User {uid} blocked"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_change_password(body, payload):
+    """Admin changes a user's password (including their own)."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        uid = body.get('user_id')
+        new_password = body.get('new_password', '')
+        if not uid or not new_password:
+            return 400, {"success": False, "message": "user_id and new_password required"}
+        if len(new_password) < 3:
+            return 400, {"success": False, "message": "Password must be at least 3 characters"}
+        user = query("SELECT id FROM Users WHERE id=?", (uid,), fetch_one=True)
+        if not user:
+            return 404, {"success": False, "message": "User not found"}
+        pw_hash = AuthService.hash_pw(new_password)
+        query("UPDATE Users SET password_hash=? WHERE id=?", (pw_hash, uid))
+        return 200, {"success": True, "message": "Password changed successfully"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_toggle_app_status(body, payload):
+    """Admin toggles the entire app between open and maintenance mode."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        # Use AppSettings table to store the status
+        current = query("SELECT value FROM AppSettings WHERE key='maintenance_mode'", fetch_one=True)
+        is_maintenance = False
+        if current and current['value'] == 'true':
+            is_maintenance = True
+        new_val = 'false' if is_maintenance else 'true'
+        if current:
+            query("UPDATE AppSettings SET value=? WHERE key='maintenance_mode'", (new_val,))
+        else:
+            insert("INSERT INTO AppSettings (key, value) VALUES ('maintenance_mode', ?)", (new_val,))
+        return 200, {"success": True, "data": {"maintenance_mode": new_val == 'true',
+                  "message": "App is now in maintenance mode" if new_val == 'true' else "App is now live"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_get_app_status():
+    """Get current app status (maintenance mode or live)."""
+    try:
+        current = query("SELECT value FROM AppSettings WHERE key='maintenance_mode'", fetch_one=True)
+        is_maintenance = current and current['value'] == 'true'
+        return 200, {"success": True, "data": {"maintenance_mode": is_maintenance}}
+    except Exception as e:
+        return 200, {"success": True, "data": {"maintenance_mode": False}}
+
+
+def handle_admin_vehicle_change_requests(payload):
+    """Get all pending vehicle change requests from couriers."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("""
+            SELECT vcr.*, u.display_name, u.username, cl.vehicle_type as current_vehicle
+            FROM VehicleChangeRequests vcr
+            JOIN Users u ON vcr.courier_id=u.id
+            LEFT JOIN CourierLocations cl ON vcr.courier_id=cl.courier_id
+            WHERE vcr.status='pending'
+            ORDER BY vcr.created_at DESC
+        """, fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_approve_vehicle_change(body, payload):
+    """Admin approves a courier's vehicle change request."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        request_id = body.get('request_id')
+        if not request_id:
+            return 400, {"success": False, "message": "request_id required"}
+        req = query("SELECT * FROM VehicleChangeRequests WHERE id=? AND status='pending'", (request_id,), fetch_one=True)
+        if not req:
+            return 404, {"success": False, "message": "Pending request not found"}
+        # Apply the vehicle change
+        query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?",
+              (req['requested_vehicle'], req['courier_id']))
+        query("UPDATE VehicleChangeRequests SET status='approved' WHERE id=?", (request_id,))
+        # Notify courier
+        push_notification(req['courier_id'], 'Vehicle Change Approved',
+                          f'Your vehicle has been changed to {req["requested_vehicle"]}', 'vehicle_approved', None)
+        return 200, {"success": True, "message": "Vehicle change approved and applied"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_reject_vehicle_change(body, payload):
+    """Admin rejects a courier's vehicle change request."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        request_id = body.get('request_id')
+        if not request_id:
+            return 400, {"success": False, "message": "request_id required"}
+        req = query("SELECT * FROM VehicleChangeRequests WHERE id=? AND status='pending'", (request_id,), fetch_one=True)
+        if not req:
+            return 404, {"success": False, "message": "Pending request not found"}
+        query("UPDATE VehicleChangeRequests SET status='rejected' WHERE id=?", (request_id,))
+        push_notification(req['courier_id'], 'Vehicle Change Rejected',
+                          'Your vehicle change request was not approved', 'vehicle_rejected', None)
+        return 200, {"success": True, "message": "Vehicle change request rejected"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -2738,6 +2887,12 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_courier_earnings(p)
                 self._json(code, data)
+            elif path == '/api/courier/vehicle-status':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_vehicle_status(p)
+                self._json(code, data)
 
             # ── Support ──
             elif path == '/api/support/tickets':
@@ -2786,41 +2941,20 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_users(p)
                 self._json(code, data)
-            elif path == '/api/admin/users/create':
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                code, data = handle_admin_create_user(body, p)
-                self._json(code, data)
-            elif path == '/api/admin/users/approve':
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                code, data = handle_admin_approve_user(body, p)
-                self._json(code, data)
-            elif path == '/api/admin/users/suspend':
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                code, data = handle_admin_suspend_user(body, p)
-                self._json(code, data)
-            elif path == '/api/admin/users/block':
-                p = self._auth()
-                if not p:
-                    return self._json(401, {"success": False, "message": "Auth required"})
-                code, data = handle_admin_block_user(body, p)
-                self._json(code, data)
             elif path == '/api/admin/broadcasts':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_broadcasts(p)
                 self._json(code, data)
-            elif path == '/api/admin/broadcasts/create':
+            elif path == '/api/admin/vehicle-change-requests':
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
-                code, data = handle_admin_create_broadcast(body, p)
+                code, data = handle_admin_vehicle_change_requests(p)
+                self._json(code, data)
+            elif path == '/api/admin/app-status':
+                code, data = handle_get_app_status()
                 self._json(code, data)
             elif path == '/api/broadcasts':
                 p = self._auth()
@@ -3145,6 +3279,12 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_courier_set_vehicle(body, p)
                 self._json(code, data)
+            elif path == '/api/courier/vehicle-status':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_vehicle_status(p)
+                self._json(code, data)
 
             # ── Support ──
             elif path == '/api/support/tickets':
@@ -3174,6 +3314,60 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_assign_order(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/create':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_create_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/approve':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_approve_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/suspend':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_suspend_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/block':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_block_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/change-password':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_change_password(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/broadcasts/create':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_create_broadcast(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/app-status/toggle':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_toggle_app_status(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/vehicle-change-requests/approve':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_approve_vehicle_change(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/vehicle-change-requests/reject':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_reject_vehicle_change(body, p)
                 self._json(code, data)
 
             # ── Partner ──
@@ -3259,9 +3453,8 @@ class Handler(BaseHTTPRequestHandler):
                 p = self._auth()
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
-                parts = path.strip('/').split('/')
                 try:
-                    item_id = int(parts[3])
+                    item_id = int(path.split('/')[-1])
                 except:
                     return self._json(400, {"success": False, "message": "Invalid item ID"})
                 code, data = handle_partner_update_item(body, p, item_id)

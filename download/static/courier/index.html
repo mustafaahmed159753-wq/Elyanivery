@@ -433,6 +433,13 @@ input,textarea,select{font-family:inherit}
 </head>
 <body>
 
+<!-- ═══ MAINTENANCE OVERLAY ═══ -->
+<div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+  <div style="font-size:64px;margin-bottom:20px">&#128274;</div>
+  <h2 style="font-size:24px;margin-bottom:10px">Service Temporarily Unavailable</h2>
+  <p style="font-size:14px;color:#aaa;max-width:300px">We are currently performing maintenance. Please check back soon.</p>
+</div>
+
 <!-- ════════ ANIMATED SPLASH SCREEN ════════ -->
 <div class="splash-screen" id="splashScreen">
   <div class="splash-bg"></div>
@@ -586,6 +593,11 @@ input,textarea,select{font-family:inherit}
   <div class="vehicle-box">
     <h3>🚗 Select Your Vehicle</h3>
     <div class="vehicle-subtitle">This affects which orders you can receive</div>
+    <div id="vehiclePendingBanner" style="display:none;padding:12px 14px;margin-bottom:14px;background:rgba(243,156,18,.12);border:1px solid rgba(243,156,18,.35);border-radius:12px;text-align:center">
+      <div style="font-size:24px;margin-bottom:4px">⏳</div>
+      <div style="font-size:13px;font-weight:700;color:var(--orange)" id="vehiclePendingText">Pending vehicle change request</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="vehiclePendingDetail"></div>
+    </div>
     <div class="vehicle-grid" id="vehicleGrid">
       <div class="vehicle-option" data-vehicle="walking" onclick="selectVehicle(this)">
         <div class="v-emoji">🚶</div>
@@ -796,6 +808,8 @@ let isRegister = false;
 let isOnline = false;
 let vehicleType = localStorage.getItem('courier_vehicle') || '';
 let selectedVehicleTemp = '';
+let pendingVehicleChange = null; // { requested_vehicle, current_vehicle } when a vehicle change is pending admin approval
+let vehicleNotifPollTimer = null;
 let chatOrderId = null;
 let chatLastId = 0;
 let chatPollTimer = null;
@@ -820,6 +834,20 @@ let currentLat = null;
 let currentLng = null;
 
 const API = '';
+const API_PORT = '8080';
+
+async function checkMaintenanceMode(){
+  try{
+    const r=await fetch(API+'/api/admin/app-status?XTransformPort='+API_PORT);
+    const d=await r.json();
+    if(d.success && d.data && d.data.maintenance_mode){
+      document.getElementById('maintenanceOverlay').style.display='flex';
+    }else{
+      document.getElementById('maintenanceOverlay').style.display='none';
+    }
+  }catch(e){}
+}
+
 const VEHICLE_EMOJIS = { walking: '🚶', bicycle: '🚲', scooter: '🛵', car: '🚗' };
 const VEHICLE_LABELS = { walking: 'Walking', bicycle: 'Bicycle', scooter: 'Scooter', car: 'Car' };
 
@@ -900,7 +928,15 @@ const LANG = {
     deliveryLocation: 'Delivery location', deliveryCompleteNotif: 'Delivery Complete!',
     greatJobEarnings: 'Great job! Earnings updated.', dontHaveAccount: "Don't have an account?",
     alreadyHaveAccount: 'Already have an account?', displayOptional: 'Display Name (optional)',
-    selectVehicleEmoji: '🚗 Select Your Vehicle'
+    selectVehicleEmoji: '🚗 Select Your Vehicle',
+    vehicleChangePending: 'Vehicle Change Pending',
+    vehicleChangePendingMsg: "Your vehicle change request has been sent to admin for approval. You'll be notified when it's approved.",
+    pendingVehicleChangeMsg: 'You have a pending vehicle change request. Please wait for admin approval.',
+    vehicleChangeApproved: 'Vehicle Change Approved!',
+    vehicleChangeApprovedMsg: 'Your vehicle has been updated.',
+    vehicleChangeRejected: 'Vehicle Change Rejected',
+    vehicleChangeRejectedMsg: 'Your vehicle change request was not approved.',
+    requestedVehicle: 'Requested'
   },
   ru: {
     courierApp: 'Приложение Курьера', goOnline: 'Онлайн', goOffline: 'Оффлайн',
@@ -975,7 +1011,15 @@ const LANG = {
     deliveryLocation: 'Адрес доставки', deliveryCompleteNotif: 'Доставка Завершена!',
     greatJobEarnings: 'Отличная работа! Заработок обновлён.', dontHaveAccount: 'Нет аккаунта?',
     alreadyHaveAccount: 'Уже есть аккаунт?', displayOptional: 'Имя (необязательно)',
-    selectVehicleEmoji: '🚗 Выберите Транспорт'
+    selectVehicleEmoji: '🚗 Выберите Транспорт',
+    vehicleChangePending: 'Ожидание Смены Транспорта',
+    vehicleChangePendingMsg: 'Запрос на смену транспорта отправлен администратору на одобрение. Вы будете уведомлены после одобрения.',
+    pendingVehicleChangeMsg: 'У вас есть ожидающий запрос на смену транспорта. Пожалуйста, дождитесь одобрения администратора.',
+    vehicleChangeApproved: 'Смена Транспорта Одобрена!',
+    vehicleChangeApprovedMsg: 'Ваш транспорт был обновлён.',
+    vehicleChangeRejected: 'Смена Транспорта Отклонена',
+    vehicleChangeRejectedMsg: 'Ваш запрос на смену транспорта не был одобрен.',
+    requestedVehicle: 'Запрошено'
   },
   ro: {
     courierApp: 'Aplicatie Curier', goOnline: 'Online', goOffline: 'Offline',
@@ -1050,7 +1094,15 @@ const LANG = {
     deliveryLocation: 'Locatie livrare', deliveryCompleteNotif: 'Livrare Completa!',
     greatJobEarnings: 'Buna treaba! Câstiguri actualizate.', dontHaveAccount: 'Nu aveti cont?',
     alreadyHaveAccount: 'Aveti deja cont?', displayOptional: 'Nume (optional)',
-    selectVehicleEmoji: '🚗 Selectati Vehicul'
+    selectVehicleEmoji: '🚗 Selectati Vehicul',
+    vehicleChangePending: 'Schimbare Vehicul In Asteptare',
+    vehicleChangePendingMsg: 'Cererea de schimbare a vehiculului a fost trimisa administratorului pentru aprobare. Veti fi notificat cand va fi aprobata.',
+    pendingVehicleChangeMsg: 'Aveti o cerere de schimbare a vehiculului in asteptare. Va rugam asteptati aprobarea administratorului.',
+    vehicleChangeApproved: 'Schimbare Vehicul Aprobata!',
+    vehicleChangeApprovedMsg: 'Vehiculul dumneavoastra a fost actualizat.',
+    vehicleChangeRejected: 'Schimbare Vehicul Respinsa',
+    vehicleChangeRejectedMsg: 'Cererea de schimbare a vehiculului nu a fost aprobata.',
+    requestedVehicle: 'Solicitat'
   }
 };
 
@@ -1348,6 +1400,16 @@ function enterApp() {
   startUnreadPolling();
   startIncomingCallPolling();
   startOrdersPolling();
+  startVehicleNotifPolling();
+  checkMaintenanceMode();
+  setInterval(checkMaintenanceMode, 30000);
+  // Restore pending vehicle change from localStorage
+  try {
+    const saved = localStorage.getItem('courier_pending_vehicle');
+    if (saved) pendingVehicleChange = JSON.parse(saved);
+  } catch(e) {}
+  // Check vehicle status from server to sync pending changes
+  refreshVehicleFromServer();
   // Check if vehicle is set, if not show selector
   if (!vehicleType) {
     setTimeout(() => openVehicleSelector(), 800);
@@ -1359,10 +1421,18 @@ function enterApp() {
 //  VEHICLE SELECTION
 // ═══════════════════════════════════════════════════════
 function openVehicleSelector() {
+  // If there's a pending vehicle change, show message instead of allowing selection
+  if (pendingVehicleChange) {
+    showMessagePopup(t('vehicleChangePending'), t('pendingVehicleChangeMsg'), '⏳', 'warning');
+    return;
+  }
   selectedVehicleTemp = vehicleType;
   document.querySelectorAll('.vehicle-option').forEach(el => {
     el.classList.toggle('selected', el.dataset.vehicle === vehicleType);
   });
+  // Hide pending banner when opening selector normally
+  const pendingBanner = document.getElementById('vehiclePendingBanner');
+  if (pendingBanner) pendingBanner.style.display = 'none';
   document.getElementById('vehicleOverlay').classList.add('active');
 }
 
@@ -1378,10 +1448,23 @@ function selectVehicle(el) {
 
 async function confirmVehicle() {
   if (!selectedVehicleTemp) return showMessagePopup(t('selectVehicleTitle'), t('pleaseSelectVehicle'), '⚠️🤔', 'warning');
-  vehicleType = selectedVehicleTemp;
-  localStorage.setItem('courier_vehicle', vehicleType);
+  const requestedVehicle = selectedVehicleTemp;
   // Save to server
-  await api('POST', '/api/courier/set-vehicle', { vehicle_type: vehicleType });
+  const res = await api('POST', '/api/courier/set-vehicle', { vehicle_type: requestedVehicle });
+  if (res.success && res.data && res.data.pending_approval) {
+    // Vehicle change requires admin approval — do NOT update local vehicleType
+    pendingVehicleChange = { requested_vehicle: requestedVehicle, current_vehicle: vehicleType };
+    localStorage.setItem('courier_pending_vehicle', JSON.stringify(pendingVehicleChange));
+    closeVehicleSelector();
+    showNotif('⏳', t('vehicleChangePending'), t('vehicleChangePendingMsg'), 5000);
+    updateVehicleBadge();
+    return;
+  }
+  // First-time set or direct approval — update local vehicle immediately
+  vehicleType = res.success && res.data && res.data.vehicle_type ? res.data.vehicle_type : requestedVehicle;
+  localStorage.setItem('courier_vehicle', vehicleType);
+  pendingVehicleChange = null;
+  localStorage.removeItem('courier_pending_vehicle');
   // If online, also update online status with vehicle
   if (isOnline) {
     await api('POST', '/api/courier/online', { is_online: true, vehicle_type: vehicleType });
@@ -1400,8 +1483,72 @@ function updateVehicleBadge() {
       const b = document.createElement('span');
       b.className = 'vehicle-badge';
       b.id = 'vehicleBadge';
-      b.textContent = VEHICLE_EMOJIS[vehicleType] + ' ' + VEHICLE_LABELS[vehicleType];
+      let badgeText = VEHICLE_EMOJIS[vehicleType] + ' ' + VEHICLE_LABELS[vehicleType];
+      if (pendingVehicleChange) {
+        badgeText += ' ⏳';
+      }
+      b.textContent = badgeText;
       h2.appendChild(b);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  VEHICLE NOTIFICATION POLLING & REFRESH
+// ═══════════════════════════════════════════════════════
+function startVehicleNotifPolling() {
+  stopVehicleNotifPolling();
+  vehicleNotifPollTimer = setInterval(checkVehicleNotifications, 15000);
+  // Also check immediately
+  checkVehicleNotifications();
+}
+
+function stopVehicleNotifPolling() {
+  if (vehicleNotifPollTimer) { clearInterval(vehicleNotifPollTimer); vehicleNotifPollTimer = null; }
+}
+
+async function checkVehicleNotifications() {
+  if (!token) return;
+  const res = await api('GET', '/api/notifications');
+  if (!res.success || !res.data) return;
+  const vehicleNotifs = res.data.filter(n =>
+    (n.type === 'vehicle_approved' || n.type === 'vehicle_rejected') && !n.is_read
+  );
+  if (vehicleNotifs.length > 0) {
+    for (const n of vehicleNotifs) {
+      if (n.type === 'vehicle_approved') {
+        showNotif('✅', t('vehicleChangeApproved'), t('vehicleChangeApprovedMsg'), 5000);
+      } else if (n.type === 'vehicle_rejected') {
+        showNotif('❌', t('vehicleChangeRejected'), t('vehicleChangeRejectedMsg'), 5000);
+      }
+      // Mark as read
+      await api('POST', '/api/notifications/' + n.id + '/read');
+    }
+    // Refresh vehicle type from server
+    await refreshVehicleFromServer();
+  }
+}
+
+async function refreshVehicleFromServer() {
+  if (!token) return;
+  const res = await api('GET', '/api/courier/vehicle-status');
+  if (res.success && res.data) {
+    if (res.data.vehicle_type) {
+      vehicleType = res.data.vehicle_type;
+      localStorage.setItem('courier_vehicle', vehicleType);
+    }
+    if (res.data.pending_change) {
+      pendingVehicleChange = res.data.pending_change;
+      localStorage.setItem('courier_pending_vehicle', JSON.stringify(pendingVehicleChange));
+    } else {
+      pendingVehicleChange = null;
+      localStorage.removeItem('courier_pending_vehicle');
+    }
+    updateVehicleBadge();
+    // Update profile display if visible
+    const profileVehicle = document.getElementById('profileVehicle');
+    if (profileVehicle) {
+      profileVehicle.textContent = vehicleType ? VEHICLE_EMOJIS[vehicleType] + ' ' + t(vehicleType) : t('noVehicleSet');
     }
   }
 }
@@ -2425,6 +2572,9 @@ function loadProfile() {
     document.getElementById('profileName').textContent = user.display_name || user.username;
     document.getElementById('profileRole').textContent = 'Courier Partner';
     document.getElementById('profileVehicle').textContent = vehicleType ? VEHICLE_EMOJIS[vehicleType] + ' ' + t(vehicleType) : t('noVehicleSet');
+    if (pendingVehicleChange) {
+      document.getElementById('profileVehicle').textContent += ' ⏳ ' + t('requestedVehicle') + ': ' + VEHICLE_EMOJIS[pendingVehicleChange.requested_vehicle] + ' ' + t(pendingVehicleChange.requested_vehicle);
+    }
   }
 }
 
@@ -2540,6 +2690,7 @@ function stopAllPolling() {
   stopChatPolling();
   stopUnreadPolling();
   stopIncomingCallPolling();
+  stopVehicleNotifPolling();
   if (locationSendTimer) { clearInterval(locationSendTimer); locationSendTimer = null; }
   if (waitingTimerInterval) { clearInterval(waitingTimerInterval); waitingTimerInterval = null; }
   if (distanceCheckInterval) { clearInterval(distanceCheckInterval); distanceCheckInterval = null; }

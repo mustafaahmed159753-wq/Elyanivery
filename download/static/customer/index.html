@@ -238,15 +238,17 @@ a{text-decoration:none;color:var(--pri)}
 /* ═══════════════════════════════════════════════════
    RESTAURANT CARDS
    ═══════════════════════════════════════════════════ */
-.rest-card{background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--border)}
+#restaurantList{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rest-card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--border)}
 .rest-card:active{transform:scale(.98)}
-.rest-card-img{height:130px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;position:relative;overflow:hidden}
+.rest-card-img{height:80px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;position:relative;overflow:hidden}
 .rest-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.2),transparent)}
-.rest-card-body{padding:14px}
-.rest-card-body h3{font-size:16px;margin-bottom:4px;font-weight:700}
-.rest-card-body .meta{font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:center}
-.rest-card-body .meta span{display:flex;align-items:center;gap:3px}
-.rest-card-body .cat-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;background:var(--badge-bg);color:var(--pri);margin-top:6px}
+.rest-card-body{padding:10px}
+.rest-card-body h3{font-size:13px;margin-bottom:3px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest-card-body .meta{font-size:10px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rest-card-body .meta span{display:flex;align-items:center;gap:2px}
+.rest-card-body .cat-tag{display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:600;background:var(--badge-bg);color:var(--pri);margin-top:4px}
+@media(max-width:480px){#restaurantList{grid-template-columns:repeat(2,1fr);gap:8px}.rest-card-img{height:65px;font-size:26px}.rest-card-body{padding:8px}.rest-card-body h3{font-size:12px}}
 .fav-btn{float:right;background:none;font-size:20px;color:var(--red);padding:0 4px;transition:transform .2s}
 .fav-btn:active{transform:scale(1.2)}
 
@@ -560,6 +562,13 @@ html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--p
 </style>
 </head>
 <body>
+
+<!-- ═══ MAINTENANCE OVERLAY ═══ -->
+<div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+  <div style="font-size:64px;margin-bottom:20px">&#128274;</div>
+  <h2 style="font-size:24px;margin-bottom:10px">Service Temporarily Unavailable</h2>
+  <p style="font-size:14px;color:#aaa;max-width:300px">We are currently performing maintenance. Please check back soon.</p>
+</div>
 
 <!-- ═══════════════════════════════════════════════════
      SPLASH SCREEN
@@ -1018,6 +1027,20 @@ let activeOrderTrackTimer = null;
 let unreadChatPollTimer = null;
 
 const API = '';
+const API_PORT = '8080';
+
+async function checkMaintenanceMode(){
+  try{
+    const r=await fetch(API+'/api/admin/app-status?XTransformPort='+API_PORT);
+    const d=await r.json();
+    if(d.success && d.data && d.data.maintenance_mode){
+      document.getElementById('maintenanceOverlay').style.display='flex';
+    }else{
+      document.getElementById('maintenanceOverlay').style.display='none';
+    }
+  }catch(e){}
+}
+
 const STATUS_FLOW = ['confirmed','courier_assigned','heading_to_restaurant','arrived_at_restaurant','order_picked_up','heading_to_customer','arrived_at_customer','delivered'];
 const STATUS_LABELS = {
   confirmed:'Order Confirmed', courier_assigned:'Courier Assigned', heading_to_restaurant:'Heading to Restaurant',
@@ -1404,6 +1427,8 @@ function enterApp() {
   startUnreadPolling();
   startIncomingCallPolling();
   loadBroadcasts();
+  checkMaintenanceMode();
+  setInterval(checkMaintenanceMode, 30000);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1814,6 +1839,15 @@ function prefillDeliverAnything() {
 }
 
 async function submitDeliverAnything() {
+  // Check maintenance mode before placing order
+  try{
+    const mr=await fetch(API+'/api/admin/app-status?XTransformPort='+API_PORT);
+    const md=await mr.json();
+    if(md.success && md.data && md.data.maintenance_mode){
+      document.getElementById('maintenanceOverlay').style.display='flex';
+      return showInAppNotif('Service Unavailable','We are currently under maintenance. Please try again later.','🔒');
+    }
+  }catch(e){}
   const delivery_type = document.getElementById('daDeliveryType').value;
   const pickup_address = document.getElementById('daPickupAddr').value.trim();
   const pickup_contact_name = document.getElementById('daPickupContactName').value.trim();
@@ -1859,6 +1893,15 @@ async function submitDeliverAnything() {
 // ═══════════════════════════════════════════════════════
 async function placeOrder() {
   if (!cart || !cart.items?.length) return showInAppNotif(t('cart'), t('emptyCart'), '⚠️');
+  // Check maintenance mode before placing order
+  try{
+    const mr=await fetch(API+'/api/admin/app-status?XTransformPort='+API_PORT);
+    const md=await mr.json();
+    if(md.success && md.data && md.data.maintenance_mode){
+      document.getElementById('maintenanceOverlay').style.display='flex';
+      return showInAppNotif('Service Unavailable','We are currently under maintenance. Please try again later.','🔒');
+    }
+  }catch(e){}
   const pts = document.getElementById('redeemPtsCheck')?.checked ? parseInt(document.getElementById('availPts')?.textContent||'0') : 0;
   const res = await api('POST', '/api/orders', {
     promo_code: promoData?.code || '',

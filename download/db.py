@@ -338,6 +338,23 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             expires_at TIMESTAMP NULL
         )""",
+
+        """CREATE TABLE IF NOT EXISTS AppSettings (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(100) NOT NULL UNIQUE,
+            value VARCHAR(500) NOT NULL DEFAULT '',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
+
+        """CREATE TABLE IF NOT EXISTS VehicleChangeRequests (
+            id SERIAL PRIMARY KEY,
+            courier_id INT NOT NULL,
+            current_vehicle VARCHAR(20) DEFAULT 'bicycle',
+            requested_vehicle VARCHAR(20) NOT NULL,
+            status VARCHAR(20) DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            resolved_at TIMESTAMP NULL
+        )""",
     ]
 
     for sql in tables:

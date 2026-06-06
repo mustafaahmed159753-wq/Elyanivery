@@ -38,6 +38,7 @@ html[data-theme="glassmorphism"] .modal-box{background:rgba(20,15,45,.95)!import
 html[data-theme="glassmorphism"] .tab-nav-bar,html[data-theme="glassmorphism"] .section-card,html[data-theme="glassmorphism"] .broadcast-card{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.12)!important}
 html[data-theme="glassmorphism"] .filter-bar select,html[data-theme="glassmorphism"] .filter-bar input{background:rgba(255,255,255,.1)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important}
 html[data-theme="glassmorphism"] .modal-field input,html[data-theme="glassmorphism"] .modal-field select,html[data-theme="glassmorphism"] .modal-field textarea{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassmorphism"] .vrequest-row{background:rgba(255,255,255,.05)!important;border-bottom:1px solid rgba(255,255,255,.08)!important}
 
 /* ══════════════════════════════════════════════════════════
    RESET & BASE
@@ -391,6 +392,40 @@ tr:hover{background:var(--card2);transition:background .15s}
 .role-admin{background:rgba(255,107,0,.15);color:var(--pri)}
 
 /* ══════════════════════════════════════════════════════════
+   MAINTENANCE MODE INDICATOR
+   ══════════════════════════════════════════════════════════ */
+.maintenance-indicator{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;transition:all .2s;border:2px solid;flex-shrink:0}
+.maintenance-indicator.live{background:rgba(46,204,113,.12);color:var(--green);border-color:var(--green)}
+.maintenance-indicator.maintenance{background:rgba(231,76,60,.15);color:var(--red);border-color:var(--red);animation:maintenancePulse 2s infinite}
+.maintenance-indicator .mi-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.maintenance-indicator.live .mi-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+.maintenance-indicator.maintenance .mi-dot{background:var(--red);box-shadow:0 0 8px var(--red)}
+@keyframes maintenancePulse{0%,100%{opacity:1}50%{opacity:.7}}
+.maintenance-indicator:hover{transform:scale(1.03)}
+
+/* Vehicle request row */
+.vrequest-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .15s}
+.vrequest-row:hover{background:var(--card2)}
+.vrequest-row .vr-info{flex:1;min-width:0}
+.vrequest-row .vr-info h4{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrequest-row .vr-info p{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vrequest-row .vr-vehicle{font-size:11px;padding:3px 8px;border-radius:8px;font-weight:700}
+.vr-current{background:rgba(142,68,173,.12);color:var(--purple)}
+.vr-requested{background:rgba(52,152,219,.12);color:var(--blue)}
+.vr-arrow{color:var(--muted);font-size:14px;flex-shrink:0}
+.vr-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* btn-change-password */
+.btn-changepw{background:rgba(52,152,219,.15);color:var(--blue);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-changepw:hover{background:rgba(52,152,219,.25)}
+.btn-changepw:active{transform:scale(.95)}
+
+/* btn-reject */
+.btn-reject{background:rgba(231,76,60,.15);color:var(--red);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-reject:hover{background:rgba(231,76,60,.25)}
+.btn-reject:active{transform:scale(.95)}
+
+/* ══════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════ */
 @media(max-width:1024px){
@@ -403,6 +438,7 @@ tr:hover{background:var(--card2);transition:background .15s}
   .top-bar .dashboard-title{font-size:14px}
   .theme-select{font-size:11px;padding:6px 8px}
   .lang-select{font-size:11px;padding:6px 8px}
+  .maintenance-indicator span.mi-text{display:none}
   .logout-btn span{display:none}
   .logout-btn{padding:8px 10px}
   .main-content{padding:16px}
@@ -490,6 +526,10 @@ tr:hover{background:var(--card2);transition:background .15s}
       <h2>Elyanivery</h2>
     </div>
     <div class="dashboard-title" data-lang="adminDashboard">Admin Dashboard</div>
+    <div class="maintenance-indicator live" id="maintenanceIndicator" onclick="toggleMaintenanceMode()" title="Click to toggle maintenance mode">
+      <div class="mi-dot"></div>
+      <span class="mi-text" data-lang="live">LIVE</span>
+    </div>
     <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
       <option value="en">EN English</option>
       <option value="ru">RU Русский</option>
@@ -562,6 +602,7 @@ tr:hover{background:var(--card2);transition:background .15s}
       <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="tab-icon">&#128202;</span><span data-lang="adminDashboard">Dashboard</span></button>
       <button class="tab-btn" data-tab="users" onclick="switchTab('users')"><span class="tab-icon">&#128101;</span><span data-lang="users">Users</span></button>
       <button class="tab-btn" data-tab="broadcasts" onclick="switchTab('broadcasts')"><span class="tab-icon">&#128227;</span><span data-lang="broadcasts">Broadcasts</span></button>
+      <button class="tab-btn" data-tab="vehicleRequests" onclick="switchTab('vehicleRequests')"><span class="tab-icon">&#128663;</span><span data-lang="vehicleRequests">Vehicle Requests</span></button>
     </div>
 
     <!-- ═══════════ TAB: DASHBOARD ═══════════ -->
@@ -725,6 +766,18 @@ tr:hover{background:var(--card2);transition:background .15s}
       </div>
     </div>
 
+    <!-- ═══════════ TAB: VEHICLE REQUESTS ═══════════ -->
+    <div class="tab-section" id="tab-vehicleRequests">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>&#128663; <span data-lang="vehicleRequests">Vehicle Requests</span> <span id="vrequestCountBadge" style="font-size:12px;color:var(--muted);font-weight:400"></span></h3>
+        </div>
+        <div class="section-card-body">
+          <div id="vehicleRequestList" style="max-height:600px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══════════ TAB: BROADCASTS ═══════════ -->
     <div class="tab-section" id="tab-broadcasts">
       <div class="section-card">
@@ -816,6 +869,23 @@ tr:hover{background:var(--card2);transition:background .15s}
   </div>
 </div>
 
+<!-- ═══════════════════ CHANGE PASSWORD MODAL ═══════════════════ -->
+<div class="modal-overlay" id="changePasswordModal" onclick="if(event.target===this)closeChangePasswordModal()">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+    <h3 data-lang="changePassword">Change Password</h3>
+    <input type="hidden" id="cpUserId">
+    <div class="modal-field">
+      <label data-lang="newPassword">New Password</label>
+      <input id="cpNewPassword" type="password" placeholder="Enter new password">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeChangePasswordModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-submit" onclick="doChangePassword()" data-lang="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════ REASON MODAL ═══════════════════ -->
 <div class="modal-overlay" id="reasonModal" onclick="if(event.target===this)closeReasonModal()">
   <div class="modal-box" style="position:relative">
@@ -850,7 +920,17 @@ const LANG = {
     openRestaurants: 'Open Restaurants', customers: 'Customers', openTickets: 'Open Tickets',
     recentOrders: 'Recent Orders', orderStatusBreakdown: 'Order Status Breakdown',
     confirm: 'Confirm', reason: 'Reason', noUsers: 'No users found',
-    noBroadcasts: 'No broadcasts yet', search: 'Search...'
+    noBroadcasts: 'No broadcasts yet', search: 'Search...',
+    changePassword: 'Change Password', newPassword: 'New Password',
+    live: 'LIVE', maintenance: 'MAINTENANCE',
+    vehicleRequests: 'Vehicle Requests', courier: 'Courier', currentVehicle: 'Current',
+    requestedVehicle: 'Requested', approveVRequest: 'Approve', rejectVRequest: 'Reject',
+    noVehicleRequests: 'No pending vehicle requests',
+    maintenanceModeOn: 'App is now in MAINTENANCE mode',
+    maintenanceModeOff: 'App is now LIVE',
+    passwordChanged: 'Password changed successfully',
+    vehicleApproved: 'Vehicle change approved',
+    vehicleRejected: 'Vehicle change rejected'
   },
   ru: {
     adminDashboard: 'Панель Администратора', users: 'Пользователи', broadcasts: 'Рассылка',
@@ -865,7 +945,17 @@ const LANG = {
     openRestaurants: 'Открытые Рестораны', customers: 'Клиенты', openTickets: 'Открытые Тикеты',
     recentOrders: 'Последние Заказы', orderStatusBreakdown: 'Статусы Заказов',
     confirm: 'Подтвердить', reason: 'Причина', noUsers: 'Пользователи не найдены',
-    noBroadcasts: 'Рассылок нет', search: 'Поиск...'
+    noBroadcasts: 'Рассылок нет', search: 'Поиск...',
+    changePassword: 'Сменить Пароль', newPassword: 'Новый Пароль',
+    live: 'РАБОТАЕТ', maintenance: 'ОБСЛУЖИВАНИЕ',
+    vehicleRequests: 'Запросы Транспорта', courier: 'Курьер', currentVehicle: 'Текущий',
+    requestedVehicle: 'Запрошенный', approveVRequest: 'Одобрить', rejectVRequest: 'Отклонить',
+    noVehicleRequests: 'Нет ожидающих запросов на смену транспорта',
+    maintenanceModeOn: 'Приложение переведено в режим ОБСЛУЖИВАНИЯ',
+    maintenanceModeOff: 'Приложение снова РАБОТАЕТ',
+    passwordChanged: 'Пароль успешно изменён',
+    vehicleApproved: 'Смена транспорта одобрена',
+    vehicleRejected: 'Смена транспорта отклонена'
   },
   ro: {
     adminDashboard: 'Panou Admin', users: 'Utilizatori', broadcasts: 'Difuzare',
@@ -880,7 +970,17 @@ const LANG = {
     openRestaurants: 'Restaurante Deschise', customers: 'Clienti', openTickets: 'Tichete Deschise',
     recentOrders: 'Comenzi Recente', orderStatusBreakdown: 'Status Comenzi',
     confirm: 'Confirma', reason: 'Motiv', noUsers: 'Niciun utilizator',
-    noBroadcasts: 'Nicio difuzare', search: 'Cautare...'
+    noBroadcasts: 'Nicio difuzare', search: 'Cautare...',
+    changePassword: 'Schimba Parola', newPassword: 'Parola Noua',
+    live: 'ACTIV', maintenance: 'INTRETINERE',
+    vehicleRequests: 'Cereri Vehicul', courier: 'Curier', currentVehicle: 'Curent',
+    requestedVehicle: 'Solicitat', approveVRequest: 'Aproba', rejectVRequest: 'Respinge',
+    noVehicleRequests: 'Nicio cerere de schimbare a vehiculului',
+    maintenanceModeOn: 'Aplicatia este in modul INTRETINERE',
+    maintenanceModeOff: 'Aplicatia este din nou ACTIVA',
+    passwordChanged: 'Parola a fost schimbata cu succes',
+    vehicleApproved: 'Schimbarea vehiculului aprobata',
+    vehicleRejected: 'Schimbarea vehiculului respinsa'
   }
 };
 
@@ -912,6 +1012,8 @@ function applyTranslations() {
   if (document.getElementById('app').classList.contains('active')) {
     renderUsers();
     renderBroadcasts();
+    renderVehicleRequests();
+    updateMaintenanceIndicator();
   }
 }
 
@@ -985,6 +1087,8 @@ let allRestaurants=[];
 let allTickets=[];
 let allUsers=[];
 let allBroadcasts=[];
+let allVehicleRequests=[];
+let maintenanceMode=false;
 let stats={};
 let pendingReasonAction=null; // {type, userId}
 
@@ -1069,6 +1173,11 @@ const MOCK_BROADCASTS=[
   {id:2,title:'New Delivery Zone',message:'We have expanded our delivery zone to include the northern district. Check the map for details.',target_roles:'courier,partner',created_at:'2026-06-06T09:00:00'},
   {id:3,title:'Weekend Promo',message:'Enjoy 20% off on all orders this weekend! Use code WEEKEND20.',target_roles:'customer',created_at:'2026-06-06T10:00:00'}
 ];
+const MOCK_VEHICLE_REQUESTS=[
+  {id:1,courier_name:'Marco Rossi',courier_id:1,current_vehicle:'bicycle',requested_vehicle:'scooter',created_at:'2026-06-07T10:30:00'},
+  {id:2,courier_name:'Liam Chen',courier_id:3,current_vehicle:'car',requested_vehicle:'scooter',created_at:'2026-06-07T14:15:00'},
+  {id:3,courier_name:'Sofia Garcia',courier_id:2,current_vehicle:'scooter',requested_vehicle:'car',created_at:'2026-06-08T09:00:00'}
+];
 let useMockData=false;
 
 function getMockResponse(path,method){
@@ -1091,6 +1200,15 @@ function getMockResponse(path,method){
   if(method==='DELETE'&&path.match(/^\/api\/admin\/users\/\d+$/))return{success:true,message:'User deleted'};
   if(method==='POST'&&path==='/api/admin/broadcasts/create')return{success:true,message:'Broadcast created',data:{id:Date.now()}};
   if(method==='DELETE'&&path.match(/^\/api\/admin\/broadcasts\/\d+$/))return{success:true,message:'Broadcast deleted'};
+  // Maintenance mode
+  if(path==='/api/admin/app-status')return{success:true,data:{maintenance_mode:maintenanceMode}};
+  if(method==='POST'&&path==='/api/admin/app-status/toggle'){maintenanceMode=!maintenanceMode;return{success:true,data:{maintenance_mode:maintenanceMode}}}
+  // Vehicle change requests
+  if(path==='/api/admin/vehicle-change-requests')return{success:true,data:MOCK_VEHICLE_REQUESTS};
+  if(method==='POST'&&path==='/api/admin/vehicle-change-requests/approve')return{success:true,message:'Approved'};
+  if(method==='POST'&&path==='/api/admin/vehicle-change-requests/reject')return{success:true,message:'Rejected'};
+  // Change password
+  if(method==='POST'&&path==='/api/admin/users/change-password')return{success:true,message:'Password changed'};
   return{success:false,message:'Mock not available'};
 }
 
@@ -1218,6 +1336,7 @@ function switchTab(tabName){
   // Load data for the tab if needed
   if(tabName==='users')loadUsers();
   if(tabName==='broadcasts')loadBroadcasts();
+  if(tabName==='vehicleRequests')loadVehicleRequests();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1244,7 +1363,7 @@ function enterApp(){
 }
 
 async function loadAll(){
-  await Promise.all([loadStats(),loadCouriers(),loadOrders(),loadRestaurants(),loadTickets(),loadUsers(),loadBroadcasts()]);
+  await Promise.all([loadStats(),loadCouriers(),loadOrders(),loadRestaurants(),loadTickets(),loadUsers(),loadBroadcasts(),loadAppStatus(),loadVehicleRequests()]);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1646,6 +1765,7 @@ function renderUsers(){
       actionBtns=`<button class="btn-approve" onclick="doApproveUser(${u.id})">${L('approve')}</button> `;
     }
     actionBtns+=`<button class="btn-delete" onclick="doDeleteUser(${u.id})">${L('delete')}</button>`;
+    actionBtns+=` <button class="btn-changepw" onclick="showChangePasswordModal(${u.id},'${esc(u.username||'')}')">${L('changePassword')}</button>`;
 
     return `<tr>
       <td>${u.id}</td>
@@ -1935,6 +2055,143 @@ function formatDate(d){
     const dt=new Date(d);
     return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   }catch(e){return d}
+}
+
+// ══════════════════════════════════════════════════════════
+//  MAINTENANCE MODE
+// ══════════════════════════════════════════════════════════
+async function loadAppStatus(){
+  const res=await api('GET','/api/admin/app-status');
+  if(res.success&&res.data){
+    maintenanceMode=!!res.data.maintenance_mode;
+    updateMaintenanceIndicator();
+  }
+}
+
+function updateMaintenanceIndicator(){
+  const el=document.getElementById('maintenanceIndicator');
+  if(!el)return;
+  const textEl=el.querySelector('.mi-text');
+  if(maintenanceMode){
+    el.classList.remove('live');
+    el.classList.add('maintenance');
+    if(textEl)textEl.textContent=L('maintenance');
+  }else{
+    el.classList.remove('maintenance');
+    el.classList.add('live');
+    if(textEl)textEl.textContent=L('live');
+  }
+}
+
+async function toggleMaintenanceMode(){
+  const res=await api('POST','/api/admin/app-status/toggle',{});
+  if(res.success&&res.data){
+    maintenanceMode=!!res.data.maintenance_mode;
+    updateMaintenanceIndicator();
+    if(maintenanceMode){
+      toast(L('maintenanceModeOn'),'warning');
+    }else{
+      toast(L('maintenanceModeOff'),'success');
+    }
+  }else{
+    toast(res.message||'Failed to toggle maintenance mode','error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHANGE PASSWORD
+// ══════════════════════════════════════════════════════════
+function showChangePasswordModal(userId,username){
+  document.getElementById('cpUserId').value=userId;
+  document.getElementById('cpNewPassword').value='';
+  document.getElementById('changePasswordModal').classList.add('active');
+}
+function closeChangePasswordModal(){
+  document.getElementById('changePasswordModal').classList.remove('active');
+}
+
+async function doChangePassword(){
+  const user_id=parseInt(document.getElementById('cpUserId').value);
+  const new_password=document.getElementById('cpNewPassword').value;
+  if(!new_password){
+    toast('Please enter a new password','error');
+    return;
+  }
+  if(new_password.length<4){
+    toast('Password must be at least 4 characters','error');
+    return;
+  }
+  const res=await api('POST','/api/admin/users/change-password',{user_id,new_password});
+  if(res.success){
+    toast(L('passwordChanged'),'success');
+    closeChangePasswordModal();
+  }else{
+    toast(res.message||'Failed to change password','error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  VEHICLE CHANGE REQUESTS
+// ══════════════════════════════════════════════════════════
+async function loadVehicleRequests(){
+  const res=await api('GET','/api/admin/vehicle-change-requests');
+  if(res.success){
+    allVehicleRequests=res.data||[];
+    renderVehicleRequests();
+  }
+}
+
+function renderVehicleRequests(){
+  const container=document.getElementById('vehicleRequestList');
+  const badge=document.getElementById('vrequestCountBadge');
+  if(badge)badge.textContent='('+allVehicleRequests.length+')';
+
+  if(allVehicleRequests.length===0){
+    container.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">'+L('noVehicleRequests')+'</div>';
+    return;
+  }
+
+  container.innerHTML=allVehicleRequests.map(r=>{
+    const currentIcon=VEHICLE_ICONS[r.current_vehicle]||'&#128692;';
+    const requestedIcon=VEHICLE_ICONS[r.requested_vehicle]||'&#128692;';
+    return `<div class="vrequest-row">
+      <div class="row-avatar" style="background:var(--blue)">${(r.courier_name||'?')[0].toUpperCase()}</div>
+      <div class="vr-info">
+        <h4>${esc(r.courier_name||'Unknown')}</h4>
+        <p>${L('courier')} #${r.courier_id} &middot; ${formatDate(r.created_at)}</p>
+      </div>
+      <span class="vr-vehicle vr-current">${currentIcon} ${r.current_vehicle}</span>
+      <span class="vr-arrow">&#10132;</span>
+      <span class="vr-vehicle vr-requested">${requestedIcon} ${r.requested_vehicle}</span>
+      <div class="vr-actions">
+        <button class="btn-approve" onclick="doApproveVehicleRequest(${r.id})">${L('approveVRequest')}</button>
+        <button class="btn-reject" onclick="doRejectVehicleRequest(${r.id})">${L('rejectVRequest')}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function doApproveVehicleRequest(id){
+  const res=await api('POST','/api/admin/vehicle-change-requests/approve',{request_id:id});
+  if(res.success){
+    toast(L('vehicleApproved'),'success');
+    if(useMockData){const idx=MOCK_VEHICLE_REQUESTS.findIndex(x=>x.id===id);if(idx>=0)MOCK_VEHICLE_REQUESTS.splice(idx,1)}
+    loadVehicleRequests();
+  }else{
+    toast(res.message||'Failed to approve','error');
+  }
+}
+
+async function doRejectVehicleRequest(id){
+  if(!confirm('Reject this vehicle change request?'))return;
+  const res=await api('POST','/api/admin/vehicle-change-requests/reject',{request_id:id});
+  if(res.success){
+    toast(L('vehicleRejected'),'warning');
+    if(useMockData){const idx=MOCK_VEHICLE_REQUESTS.findIndex(x=>x.id===id);if(idx>=0)MOCK_VEHICLE_REQUESTS.splice(idx,1)}
+    loadVehicleRequests();
+  }else{
+    toast(res.message||'Failed to reject','error');
+  }
 }
 </script>
 </body>

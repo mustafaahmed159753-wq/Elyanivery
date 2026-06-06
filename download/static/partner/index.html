@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Elyanivery - Partner Dashboard</title>
 <style>
+/* ════════ THEME VARIABLES ════════ */
 :root{
   --pri:#FF6B00;--pri2:#FF8C33;--pri-dark:#CC5500;
   --dark:#1a1a2e;--dark2:#16213e;--dark3:#0f3460;
@@ -14,37 +15,100 @@
   --purple:#9b59b6;--teal:#1abc9c;--amber:#f0a500;
   --shadow:0 4px 20px rgba(0,0,0,.3);
   --radius:14px;
+  --topbar-bg:var(--dark);
+  --card-blur:0px;
+  --card-border:var(--border);
 }
+[data-theme="ocean"]{
+  --dark:#0a1628;--dark2:#0e2240;--dark3:#1a3a5c;
+  --card:#0f2847;--card2:#133660;--bg:#071222;
+  --text:#c8e0ff;--muted:#6a8fc0;--border:#1a3a5c;
+  --topbar-bg:#0a1628;
+}
+[data-theme="emerald"]{
+  --dark:#0a1f14;--dark2:#0e2e1e;--dark3:#1a4a32;
+  --card:#0f3422;--card2:#14422c;--bg:#071a10;
+  --text:#c0f0d0;--muted:#5aaa78;--border:#1a4a32;
+  --topbar-bg:#0a1f14;
+}
+[data-theme="sunset"]{
+  --dark:#2a1810;--dark2:#3a2218;--dark3:#4a3020;
+  --card:#3a2018;--card2:#4a2e22;--bg:#1a0e08;
+  --text:#ffd8c0;--muted:#c0886a;--border:#4a3020;
+  --topbar-bg:#2a1810;
+}
+[data-theme="royal"]{
+  --dark:#1a1030;--dark2:#241840;--dark3:#34245a;
+  --card:#221848;--card2:#2c2260;--bg:#120a20;
+  --text:#d8c0ff;--muted:#9070c0;--border:#34245a;
+  --topbar-bg:#1a1030;
+}
+[data-theme="rosegold"]{
+  --dark:#2a1a1e;--dark2:#3a2428;--dark3:#4a3035;
+  --card:#3a2228;--card2:#4a2e34;--bg:#1a0e12;
+  --text:#ffd0d8;--muted:#c08090;--border:#4a3035;
+  --topbar-bg:#2a1a1e;
+}
+[data-theme="arctic"]{
+  --dark:#e8eef4;--dark2:#d0dce8;--dark3:#b0c4d8;
+  --card:#f0f4f8;--card2:#e0e8f0;--bg:#f5f8fc;
+  --text:#1a2a3a;--muted:#6a8098;--border:#c0d0e0;
+  --topbar-bg:#e8eef4;
+  --shadow:0 4px 20px rgba(0,0,0,.08);
+}
+[data-theme="glass"]{
+  --dark:rgba(20,20,40,.6);--dark2:rgba(30,30,60,.5);--dark3:rgba(40,40,80,.4);
+  --card:rgba(255,255,255,.08);--card2:rgba(255,255,255,.12);
+  --bg:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  --text:#e8e0ff;--muted:#a0a0cc;--border:rgba(255,255,255,.15);
+  --topbar-bg:rgba(15,12,41,.7);
+  --shadow:0 8px 32px rgba(0,0,0,.3);
+  --card-blur:16px;
+  --card-border:rgba(255,255,255,.18);
+}
+
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .4s,color .4s}
+[data-theme="glass"] body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
 button{cursor:pointer;border:none;font-family:inherit}
 input,textarea,select{font-family:inherit}
 ::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 
-/* ════════ SPLASH ════════ */
+/* ════════ SPLASH - 3D letter animation + cooking items ════════ */
 .splash-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
-.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 30%,#1a1a2e 70%,#0f3460 100%)}
-.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(255,107,0,.15) 0%,transparent 50%);animation:splashShift 3s ease-in-out infinite}
-@keyframes splashShift{0%,100%{transform:translate(0,0)}50%{transform:translate(2%,-2%)}}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 30%,#1a1a2e 65%,#0f3460 100%);background-size:300% 300%;animation:splashGradient 3s ease-in-out forwards}
+.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(255,255,255,.08) 0%,transparent 50%);animation:splashShift 4s ease-in-out infinite}
+.splash-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.15) 0%,transparent 60%)}
+@keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
+@keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
 .splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
-.splash-logo{width:110px;height:110px;background:rgba(255,255,255,.15);border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:56px;margin-bottom:24px;animation:splashPulse 2s infinite;box-shadow:0 8px 32px rgba(0,0,0,.2);backdrop-filter:blur(10px)}
-.splash-screen h1{color:#fff;font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.1)}
-.splash-screen p{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:36px}
-.splash-loader{width:44px;height:44px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
-.splash-progress{width:180px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin-top:20px;overflow:hidden}
-.splash-progress-bar{height:100%;background:#fff;border-radius:2px;animation:splashLoad 2s ease-in-out forwards}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-@keyframes splashLoad{0%{width:0}30%{width:40%}70%{width:75%}100%{width:100%}}
-.splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .6s,transform .6s}
+.splash-letters{display:flex;gap:2px;margin-bottom:8px;perspective:600px}
+.splash-letter{display:inline-block;font-size:42px;font-weight:800;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+@keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-3px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
+.splash-subtitle{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:24px;opacity:0;animation:fadeInUp .6s ease 1.4s forwards}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.splash-surround{position:absolute;inset:0;pointer-events:none;z-index:1}
+.splash-item{position:absolute;font-size:34px;opacity:0;animation:itemFloat 3s ease-in-out infinite}
+@keyframes itemFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.8}25%{transform:translateY(-12px) rotate(8deg);opacity:1}75%{transform:translateY(-8px) rotate(-5deg);opacity:.9}}
+
+/* Circular progress */
+.splash-progress{margin-top:8px;position:relative;width:64px;height:64px}
+.splash-progress svg{transform:rotate(-90deg);width:64px;height:64px}
+.splash-progress circle{fill:none;stroke-width:4;stroke-linecap:round}
+.splash-progress .progress-bg{stroke:rgba(255,255,255,.15)}
+.splash-progress .progress-fg{stroke:#fff;stroke-dasharray:157;stroke-dashoffset:157;animation:circularProgress 2.2s ease forwards}
+@keyframes circularProgress{0%{stroke-dashoffset:157}100%{stroke-dashoffset:0}}
+.splash-progress .progress-percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+
+.splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .7s ease,transform .7s ease}
 
 /* ════════ LOGIN ════════ */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
-.login-screen.active{display:flex}
+[data-theme="glass"] .login-screen{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
 .login-box{width:100%;max-width:400px;text-align:center}
 .login-box .login-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 20px;box-shadow:0 8px 30px rgba(255,107,0,.25)}
 .login-box h1{font-size:32px;font-weight:800;color:var(--pri);margin-bottom:4px}
@@ -64,21 +128,22 @@ input,textarea,select{font-family:inherit}
 #app.active{display:flex}
 
 /* ════════ TOP BAR ════════ */
-.top-bar{background:var(--dark);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-.top-bar .brand{display:flex;align-items:center;gap:10px}
+.top-bar{background:var(--topbar-bg);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;backdrop-filter:blur(16px)}
+.top-bar .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .top-bar .brand .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
 .top-bar .brand h2{font-size:18px;font-weight:700;color:var(--pri)}
-.top-bar .rest-name{font-size:15px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.open-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.top-bar .rest-name{font-size:15px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.open-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex-shrink:0}
 .open-toggle .switch{width:44px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background .3s}
 .open-toggle .switch.on{background:var(--green)}
 .open-toggle .switch::after{content:'';width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .3s}
 .open-toggle .switch.on::after{left:22px}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .notif-btn{position:relative;background:var(--card);border:1px solid var(--border);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:background .2s}
 .notif-btn:hover{background:var(--card2)}
 .notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;animation:badgePop .3s}
 @keyframes badgePop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
-.notif-dropdown{position:absolute;top:52px;right:0;width:340px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:none;z-index:200;overflow:hidden}
+.notif-dropdown{position:absolute;top:52px;right:0;width:340px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:none;z-index:200;overflow:hidden;backdrop-filter:blur(16px)}
 .notif-dropdown.open{display:block;animation:dropIn .2s}
 @keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .notif-dropdown .notif-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
@@ -94,7 +159,9 @@ input,textarea,select{font-family:inherit}
 .notif-item .n-body p{font-size:11px;color:var(--muted);line-height:1.3}
 .notif-item .n-time{font-size:10px;color:var(--muted);flex-shrink:0;margin-top:2px}
 .notif-empty{text-align:center;padding:30px 16px;color:var(--muted);font-size:13px}
-.logout-btn{background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;transition:color .2s,border-color .2s}
+.settings-btn{background:var(--card);border:1px solid var(--border);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:background .2s}
+.settings-btn:hover{background:var(--card2)}
+.logout-btn{background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;transition:color .2s,border-color .2s;white-space:nowrap}
 .logout-btn:hover{color:var(--red);border-color:var(--red)}
 
 /* ════════ MAIN CONTENT ════════ */
@@ -113,7 +180,7 @@ input,textarea,select{font-family:inherit}
 
 /* ════════ STATS ════════ */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;backdrop-filter:blur(var(--card-blur))}
 .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .stat-card .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px}
 .stat-card .stat-val{font-size:28px;font-weight:800;margin-bottom:4px}
@@ -129,7 +196,7 @@ input,textarea,select{font-family:inherit}
 .stat-card.rating .stat-glow{background:var(--purple)}
 
 .weekly-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.weekly-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;align-items:center;gap:16px}
+.weekly-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:20px;display:flex;align-items:center;gap:16px;backdrop-filter:blur(var(--card-blur))}
 .weekly-card .wk-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px}
 .weekly-card .wk-info h4{font-size:22px;font-weight:800}
 .weekly-card .wk-info p{font-size:12px;color:var(--muted)}
@@ -145,13 +212,14 @@ input,textarea,select{font-family:inherit}
 .order-tab:not(.active) .tab-count{background:rgba(255,107,0,.1);color:var(--pri)}
 
 .orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
-.order-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden}
+.order-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;backdrop-filter:blur(var(--card-blur))}
 .order-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .order-card.is-new{animation:cardPulse 2s ease-in-out 3;border-color:var(--pri)}
 @keyframes cardPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,0,0)}50%{box-shadow:0 0 0 6px rgba(255,107,0,.15)}}
-.order-card .oc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.order-card .oc-header h4{font-size:15px;font-weight:700}
-.order-card .oc-time{font-size:11px;color:var(--muted)}
+.order-card .oc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+.order-card .oc-order-num{font-size:16px;font-weight:800;color:var(--pri);letter-spacing:.5px}
+.order-card .oc-time{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.order-card .oc-status-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
 .status-badge .dot{width:6px;height:6px;border-radius:50%}
 .status-pending{background:rgba(240,165,0,.15);color:var(--amber)}
@@ -168,18 +236,29 @@ input,textarea,select{font-family:inherit}
 .status-cancelled,.status-rejected{background:rgba(231,76,60,.15);color:var(--red)}
 .status-cancelled .dot,.status-rejected .dot{background:var(--red)}
 .order-card .oc-customer{font-size:13px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.order-card .oc-items{font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px 10px;background:var(--bg);border-radius:8px}
+.order-card .oc-items{font-size:12px;color:var(--muted);margin-bottom:10px;padding:8px 10px;background:rgba(0,0,0,.15);border-radius:8px}
+[data-theme="arctic"] .order-card .oc-items{background:rgba(0,0,0,.05)}
 .order-card .oc-items div{padding:2px 0}
-.order-card .oc-total{font-size:16px;font-weight:800;color:var(--pri);margin-bottom:12px}
+.order-card .oc-total{font-size:16px;font-weight:800;color:var(--pri);margin-bottom:10px}
+
+/* Prep countdown */
+.prep-countdown{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(52,152,219,.1);border-radius:10px;font-size:13px;color:var(--blue);margin-bottom:10px;font-weight:600}
+.prep-countdown .cd-icon{font-size:18px}
+.prep-countdown .cd-time{font-variant-numeric:tabular-nums}
+.prep-countdown.cd-urgent{background:rgba(231,76,60,.1);color:var(--red);animation:cdPulse 1s infinite}
+.prep-countdown.cd-done{background:rgba(46,204,113,.1);color:var(--green)}
+@keyframes cdPulse{0%,100%{opacity:1}50%{opacity:.7}}
+
 .oc-actions{display:flex;gap:8px;flex-wrap:wrap}
 .oc-actions button{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;transition:transform .15s,opacity .15s;flex:1;min-width:0;text-align:center}
 .oc-actions button:active{transform:scale(.97)}
 .btn-accept{background:var(--green);color:#fff}
 .btn-reject{background:var(--card2);color:var(--red);border:1px solid rgba(231,76,60,.3)}
 .btn-ready{background:var(--blue);color:#fff}
-.courier-badge{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(26,188,156,.1);border-radius:10px;font-size:12px;color:var(--teal);margin-bottom:12px}
+.courier-badge{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(26,188,156,.1);border-radius:10px;font-size:12px;color:var(--teal);margin-bottom:10px}
 .courier-badge .cb-avatar{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
-.waiting-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(155,89,182,.1);border-radius:10px;font-size:12px;color:var(--purple);margin-bottom:12px;animation:waitPulse 2s infinite}
+.courier-badge .cb-vehicle{font-size:11px;color:var(--muted);margin-left:4px}
+.waiting-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(155,89,182,.1);border-radius:10px;font-size:12px;color:var(--purple);margin-bottom:10px;animation:waitPulse 2s infinite}
 @keyframes waitPulse{0%,100%{opacity:1}50%{opacity:.6}}
 .delivered-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(46,204,113,.1);border-radius:10px;font-size:12px;color:var(--green)}
 .rejected-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(231,76,60,.1);border-radius:10px;font-size:12px;color:var(--red)}
@@ -194,21 +273,22 @@ input,textarea,select{font-family:inherit}
 .btn-add{padding:10px 18px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:10px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;transition:transform .15s;box-shadow:0 2px 10px rgba(255,107,0,.25)}
 .btn-add:hover{transform:translateY(-1px)}
 
-.add-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;display:none;animation:fadeIn .3s}
+.add-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;display:none;animation:fadeIn .3s;backdrop-filter:blur(var(--card-blur))}
 .add-form.open{display:block}
 .add-form h4{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--pri)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .form-group{margin-bottom:12px}
 .form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.form-group input,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;background:var(--bg);color:var(--text);transition:border .2s}
-.form-group input:focus,.form-group textarea:focus{border-color:var(--pri)}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;background:rgba(0,0,0,.15);color:var(--text);transition:border .2s}
+[data-theme="arctic"] .form-group input,[data-theme="arctic"] .form-group textarea,[data-theme="arctic"] .form-group select{background:rgba(0,0,0,.05)}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--pri)}
 .form-group textarea{height:60px;resize:none}
 .form-actions{display:flex;gap:10px;justify-content:flex-end}
 .btn-save{padding:10px 20px;background:var(--green);color:#fff;border-radius:10px;font-size:13px;font-weight:700}
 .btn-cancel{padding:10px 20px;background:var(--card2);color:var(--muted);border-radius:10px;font-size:13px;font-weight:700;border:1px solid var(--border)}
 
 .menu-items-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
-.menu-item-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:transform .2s;position:relative}
+.menu-item-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;transition:transform .2s;position:relative;backdrop-filter:blur(var(--card-blur))}
 .menu-item-card:hover{transform:translateY(-1px)}
 .menu-item-card.unavailable{opacity:.55}
 .menu-item-card .mi-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
@@ -228,14 +308,40 @@ input,textarea,select{font-family:inherit}
 .mi-delete{background:rgba(231,76,60,.15);color:var(--red)}
 .mi-delete:hover{background:rgba(231,76,60,.25)}
 
+/* ════════ SETTINGS SECTION ════════ */
+.settings-section{max-width:600px}
+.settings-group{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;backdrop-filter:blur(var(--card-blur))}
+.settings-group h4{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--pri)}
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.theme-option{padding:12px;border-radius:12px;border:2px solid var(--border);cursor:pointer;transition:all .2s;text-align:center;font-size:12px;font-weight:600}
+.theme-option:hover{border-color:var(--pri);transform:translateY(-1px)}
+.theme-option.active{border-color:var(--pri);box-shadow:0 0 0 3px rgba(255,107,0,.2)}
+.theme-swatch{width:36px;height:36px;border-radius:10px;margin:0 auto 8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.profile-info{display:flex;align-items:center;gap:14px}
+.profile-avatar{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(255,107,0,.2)}
+.profile-details h4{font-size:16px;font-weight:700}
+.profile-details p{font-size:13px;color:var(--muted)}
+
 /* ════════ EDIT MODAL ════════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .modal-overlay.active{display:flex}
-.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;animation:modalIn .3s}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;animation:modalIn .3s;backdrop-filter:blur(16px)}
 @keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .modal-box h3{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--pri)}
 .modal-box .form-group{margin-bottom:14px}
 .modal-box .form-actions{margin-top:20px}
+
+/* ════════ PREP TIME MODAL ════════ */
+.prep-modal .prep-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.prep-option{padding:12px 8px;border-radius:10px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-size:14px;font-weight:700;text-align:center;cursor:pointer;transition:all .2s}
+.prep-option:hover{border-color:var(--pri)}
+.prep-option.selected{border-color:var(--pri);background:rgba(255,107,0,.15);color:var(--pri)}
+.prep-option .prep-label{font-size:11px;font-weight:400;color:var(--muted);margin-top:2px}
+.prep-option.selected .prep-label{color:var(--pri)}
+.prep-option.prep-custom{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.prep-option.prep-custom input::placeholder{color:var(--muted);font-size:11px;font-weight:400}
+.btn-update-prep{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;transition:transform .15s;cursor:pointer}
+.btn-update-prep:active{transform:scale(.97)}
 
 /* ════════ DELETE CONFIRM ════════ */
 .confirm-box{text-align:center}
@@ -255,14 +361,28 @@ input,textarea,select{font-family:inherit}
 .toast.fade-out{opacity:0;transform:translateX(20px);transition:all .3s}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
+/* ════════ IN-APP NOTIFICATION POPUP ════════ */
+.inapp-notif-container{position:fixed;top:80px;right:20px;z-index:9998;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:360px}
+.inapp-notif{pointer-events:auto;display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:16px;background:rgba(30,30,54,.92);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.4);backdrop-filter:blur(20px);animation:notifSlideIn .4s;cursor:pointer;transition:transform .2s}
+[data-theme="arctic"] .inapp-notif{background:rgba(240,244,248,.94);border:1px solid rgba(0,0,0,.08);box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.inapp-notif:hover{transform:translateX(-4px)}
+.inapp-notif.fade-out{opacity:0;transform:translateX(60px);transition:all .4s}
+.inapp-notif .in-emoji{font-size:28px;flex-shrink:0;line-height:1}
+.inapp-notif .in-body{flex:1;min-width:0}
+.inapp-notif .in-body h5{font-size:13px;font-weight:700;margin-bottom:3px;color:var(--text)}
+.inapp-notif .in-body p{font-size:12px;color:var(--muted);line-height:1.3}
+.inapp-notif .in-close{font-size:16px;color:var(--muted);cursor:pointer;flex-shrink:0;opacity:.5;transition:opacity .2s}
+.inapp-notif .in-close:hover{opacity:1}
+@keyframes notifSlideIn{from{opacity:0;transform:translateX(60px) scale(.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+
 /* ════════ NEW ORDER INDICATOR ════════ */
-.new-order-flash{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--pri),transparent);z-index:9998;display:none;animation:flashBar 1s ease-in-out 3}
+.new-order-flash{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--pri),transparent);z-index:9997;display:none;animation:flashBar 1s ease-in-out 3}
 .new-order-flash.active{display:block}
 @keyframes flashBar{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
 
 /* ════════ RESPONSIVE ════════ */
 @media(max-width:768px){
-  .top-bar{padding:10px 14px;gap:10px}
+  .top-bar{padding:10px 12px;gap:8px}
   .top-bar .brand h2{display:none}
   .top-bar .rest-name{font-size:14px}
   .main-content{padding:16px}
@@ -276,6 +396,10 @@ input,textarea,select{font-family:inherit}
   .form-row{grid-template-columns:1fr}
   .notif-dropdown{width:calc(100vw - 28px);right:-60px}
   .nav-tab{font-size:12px;padding:8px 10px}
+  .prep-modal .prep-options{grid-template-columns:repeat(4,1fr)}
+  .inapp-notif-container{right:10px;left:10px;max-width:none}
+  .logout-btn span{display:none}
+  .open-toggle span{display:none}
 }
 @media(max-width:480px){
   .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
@@ -284,6 +408,8 @@ input,textarea,select{font-family:inherit}
   .logout-btn span{display:none}
   .logout-btn{padding:8px 10px}
   .open-toggle span{display:none}
+  .prep-modal .prep-options{grid-template-columns:repeat(3,1fr)}
+  .theme-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -292,12 +418,17 @@ input,textarea,select{font-family:inherit}
 <!-- ════════ SPLASH ════════ -->
 <div class="splash-screen" id="splashScreen">
   <div class="splash-bg"></div>
+  <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
-    <div class="splash-logo">&#127869;</div>
-    <h1>Elyanivery</h1>
-    <p>Restaurant Partner</p>
-    <div class="splash-loader"></div>
-    <div class="splash-progress"><div class="splash-progress-bar"></div></div>
+    <div class="splash-letters" id="splashLetters"></div>
+    <div class="splash-subtitle">Restaurant Partner</div>
+    <div class="splash-progress">
+      <svg viewBox="0 0 64 64">
+        <circle class="progress-bg" cx="32" cy="32" r="25"/>
+        <circle class="progress-fg" cx="32" cy="32" r="25"/>
+      </svg>
+      <div class="progress-percent" id="splashPercent">0%</div>
+    </div>
   </div>
 </div>
 
@@ -306,6 +437,9 @@ input,textarea,select{font-family:inherit}
 
 <!-- ════════ TOAST CONTAINER ════════ -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- ════════ IN-APP NOTIFICATION CONTAINER ════════ -->
+<div class="inapp-notif-container" id="inappNotifContainer"></div>
 
 <!-- ════════ LOGIN SCREEN ════════ -->
 <div class="login-screen" id="loginScreen" style="display:none">
@@ -341,31 +475,35 @@ input,textarea,select{font-family:inherit}
       <span id="openLabel">Closed</span>
       <div class="switch" id="openSwitch" onclick="toggleRestaurantOpen()"></div>
     </div>
-    <div style="position:relative">
-      <button class="notif-btn" id="notifBtn" onclick="toggleNotifDropdown()">
-        &#128276;
-        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
-      </button>
-      <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-header">
-          <h4>Notifications</h4>
-          <button onclick="markAllNotifRead()">Mark all read</button>
+    <div class="topbar-actions">
+      <div style="position:relative">
+        <button class="notif-btn" id="notifBtn" onclick="toggleNotifDropdown()">
+          &#128276;
+          <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+        </button>
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-header">
+            <h4>Notifications</h4>
+            <button onclick="markAllNotifRead()">Mark all read</button>
+          </div>
+          <div class="notif-body" id="notifBody"></div>
         </div>
-        <div class="notif-body" id="notifBody"></div>
       </div>
+      <button class="settings-btn" onclick="switchSection('settings',document.querySelector('.nav-tab[data-sec=settings]'))" title="Settings">&#9881;</button>
+      <button class="logout-btn" onclick="doLogout()">
+        <span>&#128682;</span> Logout
+      </button>
     </div>
-    <button class="logout-btn" onclick="doLogout()">
-      <span>&#128682;</span> Logout
-    </button>
   </header>
 
   <!-- ════════ MAIN ════════ -->
   <main class="main-content">
     <!-- Nav tabs -->
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="switchSection('dashboard',this)">&#128202; Dashboard</button>
-      <button class="nav-tab" onclick="switchSection('orders',this)">&#128230; Orders</button>
-      <button class="nav-tab" onclick="switchSection('menu',this)">&#127858; Menu</button>
+      <button class="nav-tab active" data-sec="dashboard" onclick="switchSection('dashboard',this)">&#128202; Dashboard</button>
+      <button class="nav-tab" data-sec="orders" onclick="switchSection('orders',this)">&#128230; Orders</button>
+      <button class="nav-tab" data-sec="menu" onclick="switchSection('menu',this)">&#127858; Menu</button>
+      <button class="nav-tab" data-sec="settings" onclick="switchSection('settings',this)">&#9881; Settings</button>
     </div>
 
     <!-- ════════ DASHBOARD SECTION ════════ -->
@@ -379,7 +517,7 @@ input,textarea,select{font-family:inherit}
         </div>
         <div class="stat-card revenue">
           <div class="stat-icon">&#128176;</div>
-          <div class="stat-val" id="statTodayRevenue">\u20ac0</div>
+          <div class="stat-val" id="statTodayRevenue">&#8364;0</div>
           <div class="stat-label">Today's Revenue</div>
           <div class="stat-glow"></div>
         </div>
@@ -407,7 +545,7 @@ input,textarea,select{font-family:inherit}
         <div class="weekly-card wk-revenue">
           <div class="wk-icon">&#128178;</div>
           <div class="wk-info">
-            <h4 id="statWeekRevenue">\u20ac0</h4>
+            <h4 id="statWeekRevenue">&#8364;0</h4>
             <p>Weekly Revenue</p>
           </div>
         </div>
@@ -460,6 +598,38 @@ input,textarea,select{font-family:inherit}
 
       <div class="menu-items-list" id="menuItemsList"></div>
     </div>
+
+    <!-- ════════ SETTINGS SECTION ════════ -->
+    <div class="section-panel" id="sec-settings">
+      <div class="settings-section">
+        <div class="settings-group">
+          <h4>&#128100; Profile</h4>
+          <div class="profile-info">
+            <div class="profile-avatar" id="profileAvatar">&#127869;</div>
+            <div class="profile-details">
+              <h4 id="profileName">Restaurant</h4>
+              <p id="profileRole">Partner</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>&#127912; Theme</h4>
+          <div class="theme-grid" id="themeGrid"></div>
+        </div>
+
+        <div class="settings-group">
+          <h4>&#128276; Notifications</h4>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+            <span style="font-size:14px">Order notification sound</span>
+            <div class="avail-toggle">
+              <div class="mini-switch on" id="soundToggle" onclick="toggleSound(this)"></div>
+              <span id="soundLabel">On</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -507,14 +677,133 @@ input,textarea,select{font-family:inherit}
   </div>
 </div>
 
+<!-- ════════ PREP TIME MODAL ════════ -->
+<div class="modal-overlay" id="prepModal" onclick="if(event.target===this)closePrepModal()">
+  <div class="modal-box prep-modal">
+    <h3>&#9203; Estimated Prep Time</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">How long will this order take to prepare?</p>
+    <p style="font-size:12px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:4px">&#128232; The courier will be notified when the order is expected to be ready</p>
+    <input type="hidden" id="prepOrderId">
+    <input type="hidden" id="prepMode" value="accept">
+    <div class="prep-options" id="prepOptions">
+      <div class="prep-option" onclick="selectPrepTime(10,this)"><div>10</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(15,this)"><div>15</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(20,this)"><div>20</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(25,this)"><div>25</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(30,this)"><div>30</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(45,this)"><div>45</div><div class="prep-label">min</div></div>
+      <div class="prep-option" onclick="selectPrepTime(60,this)"><div>60</div><div class="prep-label">min</div></div>
+      <div class="prep-option prep-custom" onclick="focusCustomPrep()" style="grid-column:span 1">
+        <input type="number" id="customPrepInput" min="1" max="180" placeholder="Custom" style="width:100%;background:transparent;border:none;color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none;" oninput="selectCustomPrep(this.value)">
+        <div class="prep-label">min</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closePrepModal()">Cancel</button>
+      <button class="btn-save" id="confirmAcceptBtn" onclick="confirmAcceptWithPrep()" disabled style="opacity:.5">&#9989; Accept Order</button>
+      <button class="btn-save" id="confirmUpdateBtn" onclick="confirmUpdatePrep()" disabled style="opacity:.5;display:none">&#9203; Update Prep Time</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ════════════════════════════════════════════════════════
-//  SPLASH
+//  SPLASH ANIMATION - 3D letters + cooking items
 // ════════════════════════════════════════════════════════
 (function(){
+  const word='Elyanivery';
+  const lettersEl=document.getElementById('splashLetters');
+  const surroundEl=document.getElementById('splashSurround');
+
+  // 3D letter animation
+  word.split('').forEach((ch,i)=>{
+    const span=document.createElement('span');
+    span.className='splash-letter';
+    span.textContent=ch;
+    span.style.animationDelay=(i*0.08)+'s';
+    lettersEl.appendChild(span);
+  });
+
+  // Cooking/restaurant items surrounding the word
+  const items=[
+    {emoji:'🍕',top:'14%',left:'8%'},
+    {emoji:'🍳',top:'10%',right:'10%'},
+    {emoji:'🥘',top:'42%',left:'3%'},
+    {emoji:'🍽️',bottom:'18%',right:'6%'},
+    {emoji:'🧑‍🍳',bottom:'14%',left:'10%'}
+  ];
+  items.forEach((item,i)=>{
+    const el=document.createElement('div');
+    el.className='splash-item';
+    el.textContent=item.emoji;
+    if(item.top) el.style.top=item.top;
+    if(item.bottom) el.style.bottom=item.bottom;
+    if(item.left) el.style.left=item.left;
+    if(item.right) el.style.right=item.right;
+    el.style.animationDelay=(i*0.3+0.5)+'s';
+    el.style.animationDuration=(2.5+Math.random())+'s';
+    surroundEl.appendChild(el);
+  });
+
+  // Animate percent
+  const pctEl=document.getElementById('splashPercent');
+  let pct=0;
+  const pctInterval=setInterval(()=>{
+    pct+=2;
+    if(pct>100)pct=100;
+    pctEl.textContent=pct+'%';
+    if(pct>=100)clearInterval(pctInterval);
+  },42);
+
   const s=document.getElementById('splashScreen');
-  setTimeout(()=>{s.classList.add('fade-out');setTimeout(()=>{s.style.display='none';init()},600)},2200);
+  setTimeout(()=>{
+    s.classList.add('fade-out');
+    setTimeout(()=>{s.style.display='none';init()},700);
+  },2500);
 })();
+
+// ════════════════════════════════════════════════════════
+//  THEME SYSTEM
+// ════════════════════════════════════════════════════════
+const THEMES=[
+  {id:'midnight',name:'Midnight Dark',swatch:'linear-gradient(135deg,#1a1a2e,#0f3460)'},
+  {id:'ocean',name:'Ocean Blue',swatch:'linear-gradient(135deg,#0a1628,#1a3a5c)'},
+  {id:'emerald',name:'Emerald Forest',swatch:'linear-gradient(135deg,#0a1f14,#1a4a32)'},
+  {id:'sunset',name:'Sunset Warm',swatch:'linear-gradient(135deg,#2a1810,#4a3020)'},
+  {id:'royal',name:'Royal Purple',swatch:'linear-gradient(135deg,#1a1030,#34245a)'},
+  {id:'rosegold',name:'Rose Gold',swatch:'linear-gradient(135deg,#2a1a1e,#4a3035)'},
+  {id:'arctic',name:'Arctic Light',swatch:'linear-gradient(135deg,#e8eef4,#c0d0e0)'},
+  {id:'glass',name:'Glassmorphism',swatch:'linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.15))'}
+];
+
+let currentTheme=localStorage.getItem('partner_theme')||'midnight';
+
+function initThemeGrid(){
+  const grid=document.getElementById('themeGrid');
+  grid.innerHTML=THEMES.map(t=>`
+    <div class="theme-option${t.id===currentTheme?' active':''}" data-theme="${t.id}" onclick="setTheme('${t.id}',this)">
+      <div class="theme-swatch" style="background:${t.swatch}"></div>
+      ${t.name}
+    </div>
+  `).join('');
+  applyTheme(currentTheme);
+}
+
+function setTheme(id,el){
+  currentTheme=id;
+  localStorage.setItem('partner_theme',id);
+  applyTheme(id);
+  document.querySelectorAll('.theme-option').forEach(o=>o.classList.remove('active'));
+  if(el)el.classList.add('active');
+}
+
+function applyTheme(id){
+  if(id==='midnight'){
+    document.documentElement.removeAttribute('data-theme');
+  }else{
+    document.documentElement.setAttribute('data-theme',id);
+  }
+}
 
 // ════════════════════════════════════════════════════════
 //  CONSTANTS & STATE
@@ -528,6 +817,9 @@ const STATUS_LABELS={
   delivered:'Delivered',cancelled:'Cancelled',rejected:'Rejected'
 };
 
+const VEHICLE_LABELS={bicycle:'Bicycle',motorcycle:'Motorcycle',car:'Car',scooter:'Scooter',on_foot:'On Foot'};
+const VEHICLE_EMOJIS={bicycle:'🚲',motorcycle:'🏍️',car:'🚗',scooter:'🛴',on_foot:'🚶'};
+
 let token=localStorage.getItem('partner_token')||'';
 let user=JSON.parse(localStorage.getItem('partner_user')||'null');
 let allOrders=[];
@@ -536,11 +828,15 @@ let orderPollTimer=null;
 let notifPollTimer=null;
 let lastOrderIds=[];
 let isRestaurantOpen=false;
+let selectedPrepTime=null;
+let soundEnabled=true;
+let countdownTimer=null;
 
 // ════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════
 function init(){
+  initThemeGrid();
   if(token&&user&&user.role==='partner'){
     enterApp();
   }else{
@@ -557,12 +853,15 @@ function enterApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').classList.add('active');
   document.getElementById('restName').textContent=user.display_name||user.username||'My Restaurant';
+  document.getElementById('profileName').textContent=user.display_name||user.username||'Restaurant';
+  document.getElementById('profileAvatar').textContent=(user.display_name||user.username||'R').charAt(0).toUpperCase();
   loadRestaurantInfo();
   loadStats();
   loadOrders();
   loadMenu();
   loadNotifications();
   startPolling();
+  startCountdownTimer();
 }
 
 async function loadRestaurantInfo(){
@@ -628,6 +927,7 @@ function doLogout(){
   token='';user=null;
   localStorage.removeItem('partner_token');localStorage.removeItem('partner_user');
   stopPolling();
+  if(countdownTimer)clearInterval(countdownTimer);
   document.getElementById('app').classList.remove('active');
   showLogin();
 }
@@ -639,7 +939,7 @@ function switchSection(id,el){
   document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('sec-'+id).classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
+  if(el)el.classList.add('active');
   if(id==='orders')loadOrders();
   if(id==='menu')loadMenu();
   if(id==='dashboard')loadStats();
@@ -693,6 +993,58 @@ async function toggleRestaurantOpen(){
 }
 
 // ════════════════════════════════════════════════════════
+//  SOUND TOGGLE
+// ════════════════════════════════════════════════════════
+function toggleSound(el){
+  el.classList.toggle('on');
+  soundEnabled=el.classList.contains('on');
+  document.getElementById('soundLabel').textContent=soundEnabled?'On':'Off';
+}
+
+// ════════════════════════════════════════════════════════
+//  ORDER NUMBER FORMAT
+// ════════════════════════════════════════════════════════
+function formatOrderNum(order){
+  if(order.order_number)return '#Ely-'+order.order_number;
+  return '#Ely-'+String(order.id).padStart(5,'0');
+}
+
+// ════════════════════════════════════════════════════════
+//  COUNTDOWN TIMER
+// ════════════════════════════════════════════════════════
+function startCountdownTimer(){
+  countdownTimer=setInterval(updateCountdowns,1000);
+}
+
+function updateCountdowns(){
+  document.querySelectorAll('.prep-countdown[data-end]').forEach(el=>{
+    const endTs=parseInt(el.dataset.end);
+    const now=Date.now();
+    const remaining=Math.max(0,Math.floor((endTs-now)/1000));
+    
+    if(remaining<=0){
+      el.classList.remove('cd-urgent');
+      el.classList.add('cd-done');
+      el.querySelector('.cd-time').textContent='Done!';
+      el.querySelector('.cd-icon').textContent='✅';
+    }else{
+      const min=Math.floor(remaining/60);
+      const sec=remaining%60;
+      el.querySelector('.cd-time').textContent=min+':'+String(sec).padStart(2,'0');
+      if(remaining<=300){
+        el.classList.add('cd-urgent');
+      }
+    }
+  });
+}
+
+function getCountdownEnd(order){
+  if(!order.estimated_prep_minutes||!order.accepted_at)return null;
+  const accepted=new Date(order.accepted_at).getTime();
+  return accepted+order.estimated_prep_minutes*60*1000;
+}
+
+// ════════════════════════════════════════════════════════
 //  ORDERS
 // ════════════════════════════════════════════════════════
 async function loadOrders(){
@@ -701,14 +1053,16 @@ async function loadOrders(){
     const newOrders=(res.data||[]).filter(o=>!lastOrderIds.includes(o.id)&&o.status==='pending');
     allOrders=res.data||[];
     
-    // Check for truly new orders (only after initial load)
     if(lastOrderIds.length>0&&newOrders.length>0){
-      playNotificationSound();
+      if(soundEnabled)playNotificationSound();
       flashNewOrder();
-      toast('New order received!','info');
+      newOrders.forEach(o=>{
+        showInAppNotif('😊','New Order!',formatOrderNum(o)+' - '+(o.customer_name||'Customer'));
+      });
     }
     lastOrderIds=allOrders.map(o=>o.id);
     
+    // Check for courier assignments
     updateOrderCounts();
     renderOrders();
   }
@@ -758,7 +1112,6 @@ function renderOrders(){
     return;
   }
   
-  // Sort: pending first, then by date desc
   const sorted=[...orders].sort((a,b)=>{
     if(a.status==='pending'&&b.status!=='pending')return -1;
     if(b.status==='pending'&&a.status!=='pending')return 1;
@@ -767,6 +1120,7 @@ function renderOrders(){
 
   grid.innerHTML=sorted.map(o=>{
     const label=STATUS_LABELS[o.status]||o.status;
+    const orderNum=formatOrderNum(o);
     const items=(o.items||[]).map(i=>`<div>${esc(i.item_name||i.name||'Item')} x${i.quantity} &mdash; $${parseFloat(i.item_price||i.price||0).toFixed(2)}</div>`).join('');
     const timeAgo=getTimeAgo(o.created_at);
     const isNew=o.status==='pending';
@@ -774,32 +1128,61 @@ function renderOrders(){
     let actionsHtml='';
     let statusExtra='';
     
+    // Prep countdown for accepted orders
+    if(o.status==='accepted'&&o.estimated_prep_minutes){
+      const endTs=getCountdownEnd(o);
+      const now=Date.now();
+      const remaining=endTs?Math.max(0,Math.floor((endTs-now)/1000)):0;
+      const min=Math.floor(remaining/60);
+      const sec=remaining%60;
+      const timeStr=remaining>0?min+':'+String(sec).padStart(2,'0'):'Done!';
+      const isUrgent=remaining>0&&remaining<=300;
+      const isDone=remaining<=0;
+      statusExtra+=`<div class="prep-countdown${isUrgent?' cd-urgent':''}${isDone?' cd-done':''}" data-end="${endTs||''}"><span class="cd-icon">${isDone?'✅':'⏱️'}</span><span>Prep: </span><span class="cd-time">${timeStr}</span><span style="font-size:11px;color:var(--muted);margin-left:4px">(${o.estimated_prep_minutes}min est.)</span></div>`;
+    }
+    
     if(o.status==='pending'){
       actionsHtml=`
-        <button class="btn-accept" onclick="event.stopPropagation();acceptOrder(${o.id})">&#9989; Accept</button>
+        <button class="btn-accept" onclick="event.stopPropagation();openPrepModal(${o.id},'accept')">&#9989; Accept</button>
         <button class="btn-reject" onclick="event.stopPropagation();rejectOrder(${o.id})">&#10060; Reject</button>`;
     }else if(o.status==='accepted'){
-      actionsHtml=`<button class="btn-ready" onclick="event.stopPropagation();markReady(${o.id})">&#128230; Mark Ready</button>`;
+      actionsHtml=`<button class="btn-ready" onclick="event.stopPropagation();markReady(${o.id})">&#128230; Mark Ready</button><button class="btn-update-prep" onclick="event.stopPropagation();openPrepModal(${o.id},'update')" style="background:var(--card2);color:var(--blue);border:1px solid rgba(52,152,219,.3)">&#9203; Update Prep</button>`;
     }else if(o.status==='ready_for_pickup'){
-      statusExtra=`<div class="waiting-badge">&#9203; Waiting for courier pickup</div>`;
-    }else if(['courier_assigned','heading_to_restaurant','arrived_at_restaurant'].includes(o.status)){
+      statusExtra+=`<div class="waiting-badge">&#9203; Waiting for courier pickup</div>`;
+    }else if(o.status==='arrived_at_restaurant'){
       const cName=o.courier_name||'Courier';
-      statusExtra=`<div class="courier-badge"><div class="cb-avatar">${cName.charAt(0)}</div><div>&#128694; ${esc(cName)} &mdash; ${label}</div></div>`;
+      const cVehicle=o.courier_vehicle_type||'';
+      const vEmoji=VEHICLE_EMOJIS[cVehicle]||'🏍️';
+      const vLabel=VEHICLE_LABELS[cVehicle]||'';
+      statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${cName.charAt(0)}</div><div>${vEmoji} ${esc(cName)} is <strong>waiting at restaurant</strong></div></div>`;
+      statusExtra+=`<div class="waiting-badge">&#128657; Courier is waiting!</div>`;
+    }else if(['courier_assigned','heading_to_restaurant'].includes(o.status)){
+      const cName=o.courier_name||'Courier';
+      const cVehicle=o.courier_vehicle_type||'';
+      const vEmoji=VEHICLE_EMOJIS[cVehicle]||'🏍️';
+      const vLabel=VEHICLE_LABELS[cVehicle]||'';
+      statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${cName.charAt(0)}</div><div>${vEmoji} ${esc(cName)} &mdash; ${label}${vLabel?" <span class='cb-vehicle'>("+vLabel+")</span>":''}</div></div>`;
     }else if(['order_picked_up','heading_to_customer','arrived_at_customer'].includes(o.status)){
-      statusExtra=`<div class="courier-badge"><div class="cb-avatar">&#128666;</div><div>&#128666; Out for delivery</div></div>`;
+      const cName=o.courier_name||'Courier';
+      const cVehicle=o.courier_vehicle_type||'';
+      const vEmoji=VEHICLE_EMOJIS[cVehicle]||'🏍️';
+      statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${vEmoji}</div><div>${vEmoji} ${esc(cName)} &mdash; ${label}</div></div>`;
     }else if(o.status==='delivered'){
-      statusExtra=`<div class="delivered-badge">&#9989; Delivered</div>`;
+      statusExtra+=`<div class="delivered-badge">&#9989; Delivered</div>`;
     }else if(o.status==='rejected'||o.status==='cancelled'){
-      statusExtra=`<div class="rejected-badge">&#10060; ${label}</div>`;
+      statusExtra+=`<div class="rejected-badge">&#10060; ${label}</div>`;
     }
     
     return `
     <div class="order-card${isNew?' is-new':''}">
       <div class="oc-header">
-        <h4>#${o.id} &mdash; ${esc(o.customer_name||'Customer')}</h4>
+        <span class="oc-order-num">${orderNum}</span>
         <span class="oc-time">${timeAgo}</span>
       </div>
-      <span class="status-badge status-${o.status}"><span class="dot"></span>${label}</span>
+      <div class="oc-status-row">
+        <span class="status-badge status-${o.status}"><span class="dot"></span>${label}</span>
+        ${o.estimated_prep_minutes&&o.status!=='pending'?`<span style="font-size:11px;color:var(--muted);background:var(--card2);padding:2px 8px;border-radius:8px">&#9203; ${o.estimated_prep_minutes}min</span>`:''}
+      </div>
       <div class="oc-customer">&#128100; ${esc(o.customer_name||'Customer')}</div>
       ${items?`<div class="oc-items">${items}</div>`:''}
       <div class="oc-total">$${parseFloat(o.total||0).toFixed(2)}</div>
@@ -809,14 +1192,117 @@ function renderOrders(){
   }).join('');
 }
 
-async function acceptOrder(oid){
-  const res=await api('POST',`/api/partner/order/${oid}/accept`);
+// ════════════════════════════════════════════════════════
+//  PREP TIME MODAL
+// ════════════════════════════════════════════════════════
+function openPrepModal(oid,mode){
+  mode=mode||'accept';
+  selectedPrepTime=null;
+  document.getElementById('prepOrderId').value=oid;
+  document.getElementById('prepMode').value=mode;
+  document.querySelectorAll('.prep-option').forEach(o=>o.classList.remove('selected'));
+  const customInput=document.getElementById('customPrepInput');
+  if(customInput)customInput.value='';
+  const acceptBtn=document.getElementById('confirmAcceptBtn');
+  const updateBtn=document.getElementById('confirmUpdateBtn');
+  if(mode==='accept'){
+    acceptBtn.style.display='';
+    updateBtn.style.display='none';
+    acceptBtn.disabled=true;
+    acceptBtn.style.opacity='.5';
+  }else{
+    acceptBtn.style.display='none';
+    updateBtn.style.display='';
+    updateBtn.disabled=true;
+    updateBtn.style.opacity='.5';
+    // Pre-select current prep time if updating
+    const order=allOrders.find(o=>o.id===oid);
+    if(order&&order.estimated_prep_minutes){
+      const existing=order.estimated_prep_minutes;
+      const matchEl=document.querySelector(`.prep-option[onclick*="selectPrepTime(${existing}"]`);
+      if(matchEl){selectPrepTime(existing,matchEl);}
+      else if(customInput){customInput.value=existing;selectCustomPrep(existing);}
+    }
+  }
+  document.getElementById('prepModal').classList.add('active');
+}
+
+function closePrepModal(){
+  document.getElementById('prepModal').classList.remove('active');
+  selectedPrepTime=null;
+}
+
+function focusCustomPrep(){
+  const input=document.getElementById('customPrepInput');
+  if(input)input.focus();
+  document.querySelectorAll('.prep-option:not(.prep-custom)').forEach(o=>o.classList.remove('selected'));
+}
+
+function selectCustomPrep(val){
+  const mins=parseInt(val);
+  const customEl=document.querySelector('.prep-option.prep-custom');
+  if(!isNaN(mins)&&mins>0){
+    selectedPrepTime=mins;
+    document.querySelectorAll('.prep-option:not(.prep-custom)').forEach(o=>o.classList.remove('selected'));
+    if(customEl)customEl.classList.add('selected');
+    enableConfirmBtn();
+  }else{
+    if(customEl)customEl.classList.remove('selected');
+    if(!selectedPrepTime)disableConfirmBtn();
+  }
+}
+
+function enableConfirmBtn(){
+  const mode=document.getElementById('prepMode').value;
+  const btn=mode==='accept'?document.getElementById('confirmAcceptBtn'):document.getElementById('confirmUpdateBtn');
+  btn.disabled=false;
+  btn.style.opacity='1';
+}
+
+function disableConfirmBtn(){
+  const mode=document.getElementById('prepMode').value;
+  const btn=mode==='accept'?document.getElementById('confirmAcceptBtn'):document.getElementById('confirmUpdateBtn');
+  btn.disabled=true;
+  btn.style.opacity='.5';
+}
+
+function selectPrepTime(mins,el){
+  selectedPrepTime=mins;
+  document.querySelectorAll('.prep-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const customInput=document.getElementById('customPrepInput');
+  if(customInput)customInput.value='';
+  enableConfirmBtn();
+}
+
+async function confirmAcceptWithPrep(){
+  const oid=document.getElementById('prepOrderId').value;
+  if(!selectedPrepTime){toast('Please select a prep time','error');return}
+  
+  const res=await api('POST',`/api/partner/order/${oid}/accept`,{estimated_prep_minutes:selectedPrepTime});
   if(res.success){
-    toast('Order accepted!','success');
+    closePrepModal();
+    toast('Order accepted! Prep time: '+selectedPrepTime+'min','success');
+    showInAppNotif('🎉','Order Accepted!','Estimated prep: '+selectedPrepTime+' minutes — courier will be notified');
     loadOrders();
     loadStats();
   }else{
     toast(res.message||'Failed to accept order','error');
+  }
+}
+
+async function confirmUpdatePrep(){
+  const oid=document.getElementById('prepOrderId').value;
+  if(!selectedPrepTime){toast('Please select a prep time','error');return}
+  
+  const res=await api('POST',`/api/partner/order/${oid}/accept`,{estimated_prep_minutes:selectedPrepTime});
+  if(res.success){
+    closePrepModal();
+    toast('Prep time updated to '+selectedPrepTime+'min','success');
+    showInAppNotif('⏱️','Prep Time Updated','New estimate: '+selectedPrepTime+' minutes — courier will be notified');
+    loadOrders();
+  }else{
+    toast(res.message||'Failed to update prep time','error');
   }
 }
 
@@ -832,9 +1318,21 @@ async function rejectOrder(oid){
 }
 
 async function markReady(oid){
+  // Show a quick confirmation with option to update prep time first
+  const order=allOrders.find(o=>o.id===oid);
+  if(order&&order.estimated_prep_minutes){
+    const endTs=getCountdownEnd(order);
+    const remaining=endTs?Math.max(0,Math.floor((endTs-Date.now())/1000)):0;
+    if(remaining>60){
+      // Still have more than 1 min left - ask if they want to update prep time
+      const minLeft=Math.floor(remaining/60);
+      if(!confirm(`Prep time still has ${minLeft} min remaining. Mark as ready anyway? (Cancel to update prep time first)`))return;
+    }
+  }
   const res=await api('POST',`/api/partner/order/${oid}/ready`);
   if(res.success){
     toast('Order marked as ready for pickup!','success');
+    showInAppNotif('👍','Ready for Pickup!','Courier will be notified');
     loadOrders();
     loadStats();
   }else{
@@ -1034,7 +1532,6 @@ function toggleNotifDropdown(){
   }
 }
 
-// Close dropdown when clicking outside
 document.addEventListener('click',e=>{
   const dd=document.getElementById('notifDropdown');
   const btn=document.getElementById('notifBtn');
@@ -1044,15 +1541,41 @@ document.addEventListener('click',e=>{
 });
 
 async function markNotifRead(id){
-  // Just reload notifications; the backend should handle marking
   await loadNotifications();
 }
 
 async function markAllNotifRead(){
-  // Mark all as read by fetching - backend implementation may vary
   await loadNotifications();
   document.getElementById('notifBadge').style.display='none';
   toast('All notifications marked as read','success');
+}
+
+// ════════════════════════════════════════════════════════
+//  IN-APP NOTIFICATIONS
+// ════════════════════════════════════════════════════════
+function showInAppNotif(emoji,title,body){
+  const container=document.getElementById('inappNotifContainer');
+  const el=document.createElement('div');
+  el.className='inapp-notif';
+  el.innerHTML=`
+    <span class="in-emoji">${emoji}</span>
+    <div class="in-body">
+      <h5>${esc(title)}</h5>
+      <p>${esc(body)}</p>
+    </div>
+    <span class="in-close" onclick="dismissInAppNotif(this.parentElement)">&#10005;</span>
+  `;
+  el.onclick=function(e){
+    if(!e.target.classList.contains('in-close'))dismissInAppNotif(el);
+  };
+  container.appendChild(el);
+  setTimeout(()=>dismissInAppNotif(el),5000);
+}
+
+function dismissInAppNotif(el){
+  if(!el||!el.parentElement)return;
+  el.classList.add('fade-out');
+  setTimeout(()=>el.remove(),400);
 }
 
 // ════════════════════════════════════════════════════════
@@ -1081,10 +1604,8 @@ let audioCtx=null;
 function playNotificationSound(){
   try{
     if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-    // Chime: two pleasant tones
     const now=audioCtx.currentTime;
     
-    // First tone
     const osc1=audioCtx.createOscillator();
     const gain1=audioCtx.createGain();
     osc1.type='sine';
@@ -1097,7 +1618,6 @@ function playNotificationSound(){
     osc1.start(now);
     osc1.stop(now+0.4);
     
-    // Second tone (higher, delayed)
     const osc2=audioCtx.createOscillator();
     const gain2=audioCtx.createGain();
     osc2.type='sine';
@@ -1111,7 +1631,6 @@ function playNotificationSound(){
     osc2.start(now+0.15);
     osc2.stop(now+0.55);
     
-    // Third tone (chime bell)
     const osc3=audioCtx.createOscillator();
     const gain3=audioCtx.createGain();
     osc3.type='triangle';
@@ -1176,6 +1695,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     closeEditModal();
     closeDeleteModal();
+    closePrepModal();
     document.getElementById('notifDropdown').classList.remove('open');
   }
 });

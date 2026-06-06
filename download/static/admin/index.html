@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight_dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Elyanivery - Admin Dashboard</title>
+<style>
+/* ══════════════════════════════════════════════════════════
+   THEME SYSTEM — 8 Themes
+   ══════════════════════════════════════════════════════════ */
+:root{--pri:#FF6B00;--pri2:#FF8C33;--pri-dark:#CC5500;--bg:#12122a;--bg2:#1a1a2e;--card:#1e1e36;--card2:#252545;--text:#e0e0f0;--muted:#8888aa;--border:#2a2a50;--green:#2ecc71;--red:#e74c3c;--blue:#3498db;--purple:#9b59b6;--teal:#1abc9c;--amber:#f0a500;--shadow:0 4px 20px rgba(0,0,0,.3);--radius:14px;--glass:0}
+/* 1. Ocean Blue */
+html[data-theme="ocean_blue"]{--pri:#2980b9;--pri2:#3498db;--pri-dark:#1a6da0;--bg:#0a1628;--bg2:#0f1f3a;--card:#142a4a;--card2:#1a3560;--text:#d0e4f5;--muted:#6a8fad;--border:#1e3d65;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;--purple:#8e44ad;--teal:#1abc9c;--amber:#f39c12;--shadow:0 4px 20px rgba(0,40,80,.3)}
+/* 2. Emerald Forest */
+html[data-theme="emerald_forest"]{--pri:#27ae60;--pri2:#2ecc71;--pri-dark:#1e8449;--bg:#0a1f14;--bg2:#0f2a1b;--card:#143828;--card2:#1a4530;--text:#d0f0e0;--muted:#6aad88;--border:#1e5038;--green:#2ecc71;--red:#e74c3c;--blue:#3498db;--purple:#8e44ad;--teal:#1abc9c;--amber:#f39c12;--shadow:0 4px 20px rgba(0,40,20,.3)}
+/* 3. Sunset Warm */
+html[data-theme="sunset_warm"]{--pri:#e67e22;--pri2:#f39c12;--pri-dark:#d35400;--bg:#1a0f0a;--bg2:#2a1810;--card:#3a2218;--card2:#4a2c20;--text:#f0ddd0;--muted:#ad8868;--border:#5a3828;--green:#2ecc71;--red:#e74c3c;--blue:#3498db;--purple:#8e44ad;--teal:#1abc9c;--amber:#f39c12;--shadow:0 4px 20px rgba(40,15,0,.3)}
+/* 4. Royal Purple */
+html[data-theme="royal_purple"]{--pri:#8e44ad;--pri2:#9b59b6;--pri-dark:#6c3483;--bg:#140a1e;--bg2:#1a0f2a;--card:#241438;--card2:#2c1a45;--text:#e0d0f0;--muted:#8a6aad;--border:#382050;--green:#2ecc71;--red:#e74c3c;--blue:#3498db;--purple:#9b59b6;--teal:#1abc9c;--amber:#f39c12;--shadow:0 4px 20px rgba(20,0,40,.3)}
+/* 5. Rose Gold */
+html[data-theme="rose_gold"]{--pri:#e8a0b4;--pri2:#f0c0d0;--pri-dark:#c88098;--bg:#1a0f14;--bg2:#2a141c;--card:#3a1c28;--card2:#4a2434;--text:#f0d8e0;--muted:#a87888;--border:#5a3040;--green:#4ecdc4;--red:#e74c3c;--blue:#6fa8dc;--purple:#c27ba0;--teal:#4ecdc4;--amber:#f0b880;--shadow:0 4px 20px rgba(40,10,20,.3)}
+/* 6. Arctic Light */
+html[data-theme="arctic_light"]{--pri:#2c3e50;--pri2:#34495e;--pri-dark:#1a252f;--bg:#ecf0f1;--bg2:#f5f7f8;--card:#ffffff;--card2:#f8f9fa;--text:#2c3e50;--muted:#7f8c8d;--border:#bdc3c7;--green:#27ae60;--red:#e74c3c;--blue:#2980b9;--purple:#8e44ad;--teal:#16a085;--amber:#f39c12;--shadow:0 4px 20px rgba(0,0,0,.08)}
+/* 7. Glassmorphism */
+html[data-theme="glassmorphism"]{--pri:#e74c3c;--pri2:#ff6b6b;--pri-dark:#c0392b;--bg:transparent;--bg2:transparent;--card:rgba(255,255,255,.08);--card2:rgba(255,255,255,.12);--text:#fff;--muted:rgba(255,255,255,.6);--border:rgba(255,255,255,.15);--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;--purple:#9b59b6;--teal:#1abc9c;--amber:#f39c12;--shadow:0 8px 32px rgba(0,0,0,.2);--glass:1}
+html[data-theme="glassmorphism"] body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)!important;min-height:100vh}
+html[data-theme="glassmorphism"] .top-bar{background:rgba(15,12,41,.75)!important;backdrop-filter:blur(16px)!important;border-bottom:1px solid rgba(255,255,255,.1)!important}
+html[data-theme="glassmorphism"] .stat-card,html[data-theme="glassmorphism"] .feature-box,html[data-theme="glassmorphism"] .orders-table-wrap,html[data-theme="glassmorphism"] .chart-card{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.12)!important}
+html[data-theme="glassmorphism"] .login-box{background:rgba(255,255,255,.08)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .login-form input{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
+html[data-theme="glassmorphism"] .courier-row,html[data-theme="glassmorphism"] .restaurant-row,html[data-theme="glassmorphism"] .ticket-row{background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.08)!important}
+html[data-theme="glassmorphism"] table thead{background:rgba(255,255,255,.05)!important}
+html[data-theme="glassmorphism"] table tr:nth-child(even){background:rgba(255,255,255,.03)!important}
+html[data-theme="glassmorphism"] table tr:hover{background:rgba(255,255,255,.08)!important}
+html[data-theme="glassmorphism"] .in-app-notif{background:rgba(15,12,41,.9)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] select{background:rgba(255,255,255,.1)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important}
+html[data-theme="glassmorphism"] .modal-box{background:rgba(20,15,45,.95)!important;backdrop-filter:blur(20px)!important;border:1px solid rgba(255,255,255,.15)!important}
+
+/* ══════════════════════════════════════════════════════════
+   RESET & BASE
+   ══════════════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+button{cursor:pointer;border:none;font-family:inherit}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ══════════════════════════════════════════════════════════
+   SPLASH SCREEN - 3D letter animation + surrounding food items
+   ══════════════════════════════════════════════════════════ */
+.splash-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 30%,#1a1a2e 65%,#0f3460 100%);background-size:300% 300%;animation:splashGradient 3s ease-in-out forwards}
+.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(255,255,255,.08) 0%,transparent 50%);animation:splashShift 4s ease-in-out infinite}
+.splash-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.15) 0%,transparent 60%)}
+@keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
+@keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
+.splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+
+/* Letter-by-letter animation */
+.splash-letters{display:flex;gap:2px;margin-bottom:8px;perspective:600px}
+.splash-letter{font-size:48px;font-weight:900;color:#fff;opacity:0;transform:scale(0) translateY(30px);text-shadow:0 4px 20px rgba(0,0,0,.3);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-3px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
+
+/* Surrounding items */
+.splash-surround{position:absolute;inset:0;pointer-events:none;z-index:1}
+.splash-item{position:absolute;font-size:32px;opacity:0;animation:itemFloat 3s ease-in-out infinite}
+@keyframes itemFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.8}25%{transform:translateY(-12px) rotate(8deg);opacity:1}75%{transform:translateY(-8px) rotate(-5deg);opacity:.9}}
+
+.splash-subtitle{color:rgba(255,255,255,.85);font-size:16px;margin-bottom:24px;font-weight:400;opacity:0;animation:fadeInUp .6s ease 1.4s forwards}
+
+/* Circular progress bar */
+.splash-progress{margin-top:8px;position:relative;width:64px;height:64px}
+.splash-progress svg{transform:rotate(-90deg);width:64px;height:64px}
+.splash-progress circle{fill:none;stroke-width:4;stroke-linecap:round}
+.splash-progress .progress-bg{stroke:rgba(255,255,255,.15)}
+.splash-progress .progress-fg{stroke:#fff;stroke-dasharray:157;stroke-dashoffset:157;animation:circularProgress 2.2s ease forwards}
+@keyframes circularProgress{0%{stroke-dashoffset:157}100%{stroke-dashoffset:0}}
+.splash-progress .progress-percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .7s ease,transform .7s ease}
+
+/* ══════════════════════════════════════════════════════════
+   LOGIN
+   ══════════════════════════════════════════════════════════ */
+.login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.login-screen.active{display:flex}
+.login-box{width:100%;max-width:420px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow)}
+.login-box .login-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 20px;box-shadow:0 8px 30px rgba(255,107,0,.25)}
+.login-box h1{font-size:30px;font-weight:800;color:var(--pri);margin-bottom:4px}
+.login-box .login-subtitle{color:var(--muted);margin-bottom:28px;font-size:14px}
+.login-form input{width:100%;padding:14px 16px 14px 44px;border:1px solid var(--border);border-radius:12px;margin-bottom:14px;font-size:15px;outline:none;background:var(--bg2);color:var(--text);transition:border .2s,box-shadow .2s}
+.login-form input:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(255,107,0,.15)}
+.login-form .input-wrap{position:relative;margin-bottom:14px}
+.login-form .input-wrap .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:18px;pointer-events:none}
+.login-form .input-wrap input{margin-bottom:0}
+.btn-pri{width:100%;padding:14px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:12px;font-size:16px;font-weight:700;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 15px rgba(255,107,0,.3)}
+.btn-pri:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,107,0,.4)}
+.btn-pri:active{transform:translateY(0)}
+.login-error{color:var(--red);font-size:13px;margin-top:12px;min-height:18px}
+
+/* ══════════════════════════════════════════════════════════
+   APP SHELL
+   ══════════════════════════════════════════════════════════ */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.active{display:flex}
+
+/* ══════════════════════════════════════════════════════════
+   TOP BAR
+   ══════════════════════════════════════════════════════════ */
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.top-bar .brand{display:flex;align-items:center;gap:10px}
+.top-bar .brand .brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.top-bar .brand h2{font-size:18px;font-weight:700;color:var(--pri)}
+.top-bar .dashboard-title{font-size:15px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Theme selector */
+.theme-select{padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600;background:var(--card);color:var(--text);border:1px solid var(--border);cursor:pointer;outline:none;transition:border .2s}
+.theme-select:focus{border-color:var(--pri)}
+.theme-select option{background:var(--card);color:var(--text)}
+
+.top-bar-btn{position:relative;background:var(--card);border:1px solid var(--border);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:background .2s}
+.top-bar-btn:hover{background:var(--card2)}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;animation:badgePop .3s}
+@keyframes badgePop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.logout-btn{background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:10px;color:var(--muted);font-size:13px;font-weight:600;transition:color .2s,border-color .2s}
+.logout-btn:hover{color:var(--red);border-color:var(--red)}
+
+/* ══════════════════════════════════════════════════════════
+   MAIN CONTENT
+   ══════════════════════════════════════════════════════════ */
+.main-content{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
+
+/* ══════════════════════════════════════════════════════════
+   STATS ROW
+   ══════════════════════════════════════════════════════════ */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.stat-card .stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px}
+.stat-card .stat-val{font-size:26px;font-weight:800;margin-bottom:4px}
+.stat-card .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat-card .stat-glow{position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.08}
+.stat-card.s-orders .stat-icon{background:rgba(255,107,0,.15);color:var(--pri)}
+.stat-card.s-orders .stat-glow{background:var(--pri)}
+.stat-card.s-revenue .stat-icon{background:rgba(46,204,113,.15);color:var(--green)}
+.stat-card.s-revenue .stat-glow{background:var(--green)}
+.stat-card.s-couriers .stat-icon{background:rgba(52,152,219,.15);color:var(--blue)}
+.stat-card.s-couriers .stat-glow{background:var(--blue)}
+.stat-card.s-restaurants .stat-icon{background:rgba(155,89,182,.15);color:var(--purple)}
+.stat-card.s-restaurants .stat-glow{background:var(--purple)}
+.stat-card.s-customers .stat-icon{background:rgba(26,188,156,.15);color:var(--teal)}
+.stat-card.s-customers .stat-glow{background:var(--teal)}
+.stat-card.s-tickets .stat-icon{background:rgba(240,165,0,.15);color:var(--amber)}
+.stat-card.s-tickets .stat-glow{background:var(--amber)}
+
+/* ══════════════════════════════════════════════════════════
+   FEATURE BOXES
+   ══════════════════════════════════════════════════════════ */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:24px}
+.feature-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform .2s,box-shadow .2s}
+.feature-box:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.feature-header{padding:18px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.feature-header .f-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.feature-header h3{font-size:16px;font-weight:700}
+.feature-header .f-count{margin-left:auto;font-size:12px;color:var(--muted);background:var(--bg2);padding:4px 10px;border-radius:20px}
+.feature-body{padding:16px 20px}
+.feature-stats{display:flex;gap:16px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.feature-stat{text-align:center;flex:1}
+.feature-stat .fs-val{font-size:20px;font-weight:800;color:var(--pri)}
+.feature-stat .fs-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px}
+
+/* Mini rows inside feature boxes */
+.feature-list{max-height:280px;overflow-y:auto}
+.feature-list::-webkit-scrollbar{width:4px}
+.feature-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.courier-row,.restaurant-row,.ticket-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:var(--bg2);transition:background .15s}
+.courier-row:hover,.restaurant-row:hover,.ticket-row:hover{background:var(--card2)}
+.row-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.row-info{flex:1;min-width:0}
+.row-info h4{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-info p{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-status{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+.row-btn{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.row-btn:active{transform:scale(.95)}
+.btn-view{background:rgba(52,152,219,.15);color:var(--blue)}
+.btn-view:hover{background:rgba(52,152,219,.25)}
+.btn-toggle{background:rgba(46,204,113,.15);color:var(--green)}
+.btn-toggle:hover{background:rgba(46,204,113,.25)}
+.btn-toggle.closed{background:rgba(231,76,60,.15);color:var(--red)}
+.btn-toggle.closed:hover{background:rgba(231,76,60,.25)}
+
+.status-online{background:rgba(46,204,113,.15);color:var(--green)}
+.status-offline{background:rgba(231,76,60,.15);color:var(--red)}
+.status-open{background:rgba(46,204,113,.15);color:var(--green)}
+.status-closed{background:rgba(231,76,60,.15);color:var(--red)}
+.status-ticket-open{background:rgba(240,165,0,.15);color:var(--amber)}
+.status-ticket-progress{background:rgba(52,152,219,.15);color:var(--blue)}
+.status-ticket-closed{background:rgba(46,204,113,.15);color:var(--green)}
+
+/* Vehicle type badge */
+.vehicle-badge{font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(155,89,182,.12);color:var(--purple)}
+
+/* Feature box icon colors */
+.feature-box.f-couriers .f-icon{background:rgba(52,152,219,.15);color:var(--blue)}
+.feature-box.f-partners .f-icon{background:rgba(155,89,182,.15);color:var(--purple)}
+.feature-box.f-support .f-icon{background:rgba(240,165,0,.15);color:var(--amber)}
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM SECTION — ORDERS TABLE + CHART
+   ══════════════════════════════════════════════════════════ */
+.bottom-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.orders-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.orders-table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.orders-table-header h3{font-size:16px;font-weight:700}
+.table-scroll{max-height:350px;overflow-y:auto}
+.table-scroll::-webkit-scrollbar{width:4px}
+.table-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--bg2);position:sticky;top:0;z-index:1}
+th{padding:10px 14px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;white-space:nowrap}
+td{padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+tr:nth-child(even){background:rgba(0,0,0,.05)}
+tr:hover{background:var(--card2);transition:background .15s}
+.order-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.order-status-badge .dot{width:5px;height:5px;border-radius:50%}
+.os-pending{background:rgba(240,165,0,.15);color:var(--amber)}.os-pending .dot{background:var(--amber);animation:dotPulse 1.5s infinite}
+.os-accepted{background:rgba(52,152,219,.15);color:var(--blue)}.os-accepted .dot{background:var(--blue)}
+.os-ready_for_pickup{background:rgba(155,89,182,.15);color:var(--purple)}.os-ready_for_pickup .dot{background:var(--purple)}
+.os-courier_assigned,.os-heading_to_restaurant,.os-arrived_at_restaurant,.os-order_picked_up,.os-heading_to_customer,.os-arrived_at_customer{background:rgba(26,188,156,.15);color:var(--teal)}.os-courier_assigned .dot,.os-heading_to_restaurant .dot,.os-arrived_at_restaurant .dot,.os-order_picked_up .dot,.os-heading_to_customer .dot,.os-arrived_at_customer .dot{background:var(--teal)}
+.os-delivered{background:rgba(46,204,113,.15);color:var(--green)}.os-delivered .dot{background:var(--green)}
+.os-cancelled,.os-rejected{background:rgba(231,76,60,.15);color:var(--red)}.os-cancelled .dot,.os-rejected .dot{background:var(--red)}
+@keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Chart card */
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.chart-card h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.chart-bar-group{display:flex;flex-direction:column;gap:10px}
+.chart-bar-item{display:flex;align-items:center;gap:10px}
+.chart-bar-label{width:90px;font-size:11px;color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-bar-track{flex:1;height:24px;background:var(--bg2);border-radius:6px;overflow:hidden;position:relative}
+.chart-bar-fill{height:100%;border-radius:6px;transition:width .8s ease;display:flex;align-items:center;padding-left:8px;font-size:10px;font-weight:700;color:#fff;min-width:fit-content}
+.chart-bar-count{font-size:12px;font-weight:700;min-width:28px;text-align:center}
+
+/* ══════════════════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════════════════ */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:14px 20px;border-radius:12px;font-size:13px;font-weight:600;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:toastIn .3s;display:flex;align-items:center;gap:8px;min-width:260px;pointer-events:auto}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+.toast.info{background:var(--blue)}
+.toast.warning{background:var(--amber)}
+.toast.fade-out{opacity:0;transform:translateX(20px);transition:all .3s}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ══════════════════════════════════════════════════════════
+   IN-APP NOTIFICATION POPUP
+   ══════════════════════════════════════════════════════════ */
+.in-app-notif{position:fixed;top:80px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:0 8px 30px rgba(0,0,0,.3);z-index:500;display:none;min-width:300px;max-width:380px;animation:notifSlide .3s;opacity:.95}
+.in-app-notif.show{display:block}
+@keyframes notifSlide{from{opacity:0;transform:translateX(20px)}to{opacity:.95;transform:translateX(0)}}
+.in-app-notif .notif-close{position:absolute;top:8px;right:10px;background:none;color:var(--muted);font-size:16px;cursor:pointer}
+.in-app-notif .notif-close:hover{color:var(--text)}
+.in-app-notif h4{font-size:14px;font-weight:700;margin-bottom:4px;padding-right:20px}
+.in-app-notif p{font-size:12px;color:var(--muted);line-height:1.4}
+.in-app-notif .notif-time{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* ══════════════════════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:500px;animation:modalIn .3s;max-height:80vh;overflow-y:auto}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-box h3{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--pri)}
+.modal-close{position:absolute;top:16px;right:16px;background:none;color:var(--muted);font-size:20px;cursor:pointer}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.detail-row .label{font-size:13px;color:var(--muted)}
+.detail-row .value{font-size:13px;font-weight:600}
+
+/* ══════════════════════════════════════════════════════════
+   SOUND TOGGLE
+   ══════════════════════════════════════════════════════════ */
+.sound-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer}
+.sound-toggle .mini-switch{width:36px;height:20px;border-radius:10px;background:var(--border);position:relative;transition:background .3s}
+.sound-toggle .mini-switch.on{background:var(--green)}
+.sound-toggle .mini-switch::after{content:'';width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .3s}
+.sound-toggle .mini-switch.on::after{left:18px}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .feature-grid{grid-template-columns:1fr 1fr}
+  .bottom-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  .top-bar{padding:10px 14px;gap:8px;flex-wrap:wrap}
+  .top-bar .brand h2{display:none}
+  .top-bar .dashboard-title{font-size:14px}
+  .theme-select{font-size:11px;padding:6px 8px}
+  .logout-btn span{display:none}
+  .logout-btn{padding:8px 10px}
+  .main-content{padding:16px}
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-card{padding:14px}
+  .stat-card .stat-val{font-size:20px}
+  .stat-card .stat-icon{width:36px;height:36px;font-size:18px;margin-bottom:8px}
+  .feature-grid{grid-template-columns:1fr}
+  .bottom-grid{grid-template-columns:1fr}
+  .sound-toggle span{display:none}
+  table{font-size:12px}
+  th,td{padding:8px 10px}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:12px}
+  .stat-card .stat-val{font-size:18px}
+  .in-app-notif{right:12px;left:12px;min-width:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SPLASH SCREEN ═══════════════════ -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-bg"></div>
+  <div class="splash-surround" id="splashSurround"></div>
+  <div class="splash-content">
+    <div class="splash-letters" id="splashLetters"></div>
+    <div class="splash-subtitle">Admin Dashboard</div>
+    <div class="splash-progress">
+      <svg viewBox="0 0 64 64">
+        <circle class="progress-bg" cx="32" cy="32" r="25"/>
+        <circle class="progress-fg" cx="32" cy="32" r="25"/>
+      </svg>
+      <div class="progress-percent" id="splashPercent">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TOAST CONTAINER ═══════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════ IN-APP NOTIFICATION ═══════════════════ -->
+<div class="in-app-notif" id="inAppNotif">
+  <button class="notif-close" onclick="hideInAppNotif()">&times;</button>
+  <h4 id="notifTitle">Notification</h4>
+  <p id="notifBody">Message</p>
+  <div class="notif-time" id="notifTime">just now</div>
+</div>
+
+<!-- ═══════════════════ LOGIN SCREEN ═══════════════════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">&#128272;</div>
+    <h1>Elyanivery</h1>
+    <div class="login-subtitle">Admin Dashboard</div>
+    <div class="login-form">
+      <div class="input-wrap">
+        <span class="input-icon">&#128100;</span>
+        <input id="loginUser" placeholder="Username" autocomplete="off">
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">&#128274;</span>
+        <input id="loginPass" type="password" placeholder="Password" onkeypress="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-pri" onclick="doLogin()">Sign In</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAIN APP ═══════════════════ -->
+<div id="app">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="brand">
+      <div class="brand-icon">&#127829;</div>
+      <h2>Elyanivery</h2>
+    </div>
+    <div class="dashboard-title">Admin Dashboard</div>
+    <select class="theme-select" id="themeSelect" onchange="setTheme(this.value)">
+      <option value="midnight_dark">&#127769; Midnight Dark</option>
+      <option value="ocean_blue">&#127754; Ocean Blue</option>
+      <option value="emerald_forest">&#127795; Emerald Forest</option>
+      <option value="sunset_warm">&#127751; Sunset Warm</option>
+      <option value="royal_purple">&#128081; Royal Purple</option>
+      <option value="rose_gold">&#128141; Rose Gold</option>
+      <option value="arctic_light">&#10052;&#65039; Arctic Light</option>
+      <option value="glassmorphism">&#128302; Glassmorphism</option>
+    </select>
+    <label class="sound-toggle" title="Notification sound">
+      <span>&#128276;</span>
+      <div class="mini-switch" id="soundSwitch" onclick="toggleSound()"></div>
+    </label>
+    <div style="position:relative">
+      <button class="top-bar-btn" onclick="showNotifications()">&#128276;<span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
+    </div>
+    <button class="logout-btn" onclick="doLogout()"><span>&#128682;</span> Logout</button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Stats Row -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card s-orders">
+        <div class="stat-icon">&#128230;</div>
+        <div class="stat-val" id="statOrdersToday">0</div>
+        <div class="stat-label">Orders Today</div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card s-revenue">
+        <div class="stat-icon">&#128176;</div>
+        <div class="stat-val" id="statRevenueToday">&euro;0</div>
+        <div class="stat-label">Revenue Today</div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card s-couriers">
+        <div class="stat-icon">&#128664;</div>
+        <div class="stat-val" id="statActiveCouriers">0</div>
+        <div class="stat-label">Online Couriers</div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card s-restaurants">
+        <div class="stat-icon">&#127860;</div>
+        <div class="stat-val" id="statOpenRestaurants">0</div>
+        <div class="stat-label">Open Restaurants</div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card s-customers">
+        <div class="stat-icon">&#128101;</div>
+        <div class="stat-val" id="statCustomers">0</div>
+        <div class="stat-label">Customers</div>
+        <div class="stat-glow"></div>
+      </div>
+      <div class="stat-card s-tickets">
+        <div class="stat-icon">&#128172;</div>
+        <div class="stat-val" id="statOpenTickets">0</div>
+        <div class="stat-label">Open Tickets</div>
+        <div class="stat-glow"></div>
+      </div>
+    </div>
+
+    <!-- 3 Feature Boxes -->
+    <div class="feature-grid">
+      <!-- Box 1: Couriers -->
+      <div class="feature-box f-couriers">
+        <div class="feature-header">
+          <div class="f-icon">&#128664;</div>
+          <h3>Couriers</h3>
+          <div class="f-count" id="courierCount">0 total</div>
+        </div>
+        <div class="feature-body">
+          <div class="feature-stats">
+            <div class="feature-stat">
+              <div class="fs-val" id="courierTotal">0</div>
+              <div class="fs-label">Total</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="courierOnline">0</div>
+              <div class="fs-label">Online</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="courierOffline">0</div>
+              <div class="fs-label">Offline</div>
+            </div>
+          </div>
+          <div id="vehicleBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+          <div class="feature-list" id="courierList"></div>
+        </div>
+      </div>
+
+      <!-- Box 2: Partners -->
+      <div class="feature-box f-partners">
+        <div class="feature-header">
+          <div class="f-icon">&#127860;</div>
+          <h3>Partners</h3>
+          <div class="f-count" id="restaurantCount">0 total</div>
+        </div>
+        <div class="feature-body">
+          <div class="feature-stats">
+            <div class="feature-stat">
+              <div class="fs-val" id="restaurantTotal">0</div>
+              <div class="fs-label">Total</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="restaurantOpen">0</div>
+              <div class="fs-label">Open</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="restaurantClosed">0</div>
+              <div class="fs-label">Closed</div>
+            </div>
+          </div>
+          <div id="categoryBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+          <div class="feature-list" id="restaurantList"></div>
+        </div>
+      </div>
+
+      <!-- Box 3: Customer Services -->
+      <div class="feature-box f-support">
+        <div class="feature-header">
+          <div class="f-icon">&#128172;</div>
+          <h3>Customer Services</h3>
+          <div class="f-count" id="ticketCount">0 total</div>
+        </div>
+        <div class="feature-body">
+          <div class="feature-stats">
+            <div class="feature-stat">
+              <div class="fs-val" id="ticketOpen">0</div>
+              <div class="fs-label">Open</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="ticketTotal">0</div>
+              <div class="fs-label">Total</div>
+            </div>
+            <div class="feature-stat">
+              <div class="fs-val" id="ticketAvgResp">-</div>
+              <div class="fs-label">Avg Response</div>
+            </div>
+          </div>
+          <div class="feature-list" id="ticketList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom: Orders Table + Chart -->
+    <div class="bottom-grid">
+      <div class="orders-table-wrap">
+        <div class="orders-table-header">
+          <h3>&#128230; Recent Orders</h3>
+          <span style="font-size:12px;color:var(--muted)" id="orderCount">0 orders</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Restaurant</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>&#128202; Order Status Breakdown</h3>
+        <div class="chart-bar-group" id="chartBars"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════ DETAIL MODAL ═══════════════════ -->
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle">Details</h3>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  SPLASH SCREEN — 3D letter animation + surrounding items
+// ══════════════════════════════════════════════════════════
+(function(){
+  const word='Elyanivery';
+  const container=document.getElementById('splashLetters');
+  const surroundEl=document.getElementById('splashSurround');
+  word.split('').forEach((ch,i)=>{
+    const span=document.createElement('span');
+    span.className='splash-letter';
+    span.textContent=ch;
+    span.style.animationDelay=(i*0.08)+'s';
+    container.appendChild(span);
+  });
+
+  // Surrounding food items: pizza, burger, ice cream, cans, taco, drink
+  const items=[
+    {emoji:'🍕',top:'12%',left:'6%'},
+    {emoji:'🍔',top:'8%',right:'10%'},
+    {emoji:'🍦',top:'40%',left:'2%'},
+    {emoji:'🥫',bottom:'18%',left:'8%'},
+    {emoji:'🌮',bottom:'12%',right:'6%'},
+    {emoji:'🥤',top:'38%',right:'3%'}
+  ];
+  items.forEach((item,i)=>{
+    const el=document.createElement('div');
+    el.className='splash-item';
+    el.textContent=item.emoji;
+    if(item.top) el.style.top=item.top;
+    if(item.bottom) el.style.bottom=item.bottom;
+    if(item.left) el.style.left=item.left;
+    if(item.right) el.style.right=item.right;
+    el.style.animationDelay=(i*0.3+0.5)+'s';
+    el.style.animationDuration=(2.5+Math.random())+'s';
+    surroundEl.appendChild(el);
+  });
+
+  // Animate percentage counter
+  const pctEl=document.getElementById('splashPercent');
+  let pct=0;
+  const pctInterval=setInterval(()=>{
+    pct+=2;
+    if(pct>100){pct=100;clearInterval(pctInterval)}
+    pctEl.textContent=pct+'%';
+  },42);
+
+  // Fade out splash after 2.5s
+  setTimeout(()=>{
+    const s=document.getElementById('splashScreen');
+    s.classList.add('fade-out');
+    setTimeout(()=>{s.style.display='none';initApp()},700);
+  },2500);
+})();
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+const API_PORT='8080';
+const API='';
+let token=localStorage.getItem('admin_token')||'';
+let user=JSON.parse(localStorage.getItem('admin_user')||'null');
+let soundEnabled=localStorage.getItem('admin_sound')==='true';
+let pollTimer=null;
+let notifTimer=null;
+let allOrders=[];
+let allCouriers=[];
+let allRestaurants=[];
+let allTickets=[];
+let stats={};
+
+const STATUS_LABELS={
+  pending:'Pending',accepted:'Accepted',ready_for_pickup:'Ready',
+  courier_assigned:'Assigned',heading_to_restaurant:'To Restaurant',
+  arrived_at_restaurant:'At Restaurant',order_picked_up:'Picked Up',
+  heading_to_customer:'Delivering',arrived_at_customer:'Arrived',
+  delivered:'Delivered',cancelled:'Cancelled',rejected:'Rejected'
+};
+
+const VEHICLE_ICONS={walking:'&#129694;',bicycle:'&#128692;',scooter:'&#128757;',car:'&#128663;'};
+const CATEGORY_ICONS={restaurant:'&#127858;',pharmacy:'&#128138;',supermarket:'&#128722;',fast_food:'&#127828;',delivery_service:'&#128666;'};
+
+// ══════════════════════════════════════════════════════════
+//  MOCK DATA — Used when API is unavailable
+// ══════════════════════════════════════════════════════════
+const MOCK_STATS={
+  orders_today:23,orders_week:142,revenue_today:1847.50,revenue_week:12890.00,
+  active_couriers:8,active_partners:6,customer_count:342,support_tickets_open:3,
+  status_breakdown:{pending:3,accepted:2,ready_for_pickup:1,courier_assigned:2,heading_to_restaurant:1,heading_to_customer:2,delivered:15,cancelled:1}
+};
+const MOCK_COURIERS=[
+  {id:1,username:'courier1',display_name:'Marco Rossi',is_online:true,vehicle_type:'bicycle',latitude:41.39,longitude:2.17},
+  {id:2,username:'courier2',display_name:'Sofia Garcia',is_online:true,vehicle_type:'scooter',latitude:41.38,longitude:2.18},
+  {id:3,username:'courier3',display_name:'Liam Chen',is_online:true,vehicle_type:'car',latitude:41.40,longitude:2.16},
+  {id:4,username:'courier4',display_name:'Emma Wilson',is_online:false,vehicle_type:'bicycle',latitude:41.39,longitude:2.15},
+  {id:5,username:'courier5',display_name:'Hans Mueller',is_online:true,vehicle_type:'scooter',latitude:41.385,longitude:2.175},
+  {id:6,username:'courier6',display_name:'Yuki Tanaka',is_online:false,vehicle_type:'walking',latitude:0,longitude:0},
+  {id:7,username:'courier7',display_name:'Pierre Dubois',is_online:true,vehicle_type:'bicycle',latitude:41.395,longitude:2.16},
+  {id:8,username:'courier8',display_name:'Ana Silva',is_online:true,vehicle_type:'car',latitude:41.388,longitude:2.165},
+  {id:9,username:'courier9',display_name:'Kai Andersen',is_online:false,vehicle_type:'scooter',latitude:0,longitude:0},
+  {id:10,username:'courier10',display_name:'Ravi Patel',is_online:true,vehicle_type:'bicycle',latitude:41.392,longitude:2.158}
+];
+const MOCK_RESTAURANTS=[
+  {id:1,name:'Pizza Palace',category:'restaurant',is_open:true,address:'Carrer de Balmes 15',latitude:41.392,longitude:2.153},
+  {id:2,name:'Burger Barn',category:'restaurant',is_open:true,address:'Carrer de Provenca 88',latitude:41.395,longitude:2.162},
+  {id:3,name:'Sushi World',category:'restaurant',is_open:false,address:'Rambla de Catalunya 42',latitude:41.388,longitude:2.168},
+  {id:4,name:'Taco Fiesta',category:'fast_food',is_open:true,address:'Carrer de Muntaner 200',latitude:41.3935,longitude:2.157},
+  {id:5,name:'Green Bowl',category:'restaurant',is_open:true,address:'Passeig de Gracia 55',latitude:41.3905,longitude:2.165},
+  {id:6,name:'Quick Pharmacy',category:'pharmacy',is_open:true,address:'Carrer de Arago 120',latitude:41.389,longitude:2.164},
+  {id:7,name:'Fresh Market',category:'supermarket',is_open:false,address:'Carrer de Valencia 200',latitude:41.387,longitude:2.170},
+  {id:8,name:'Speed Eats',category:'fast_food',is_open:true,address:'Rambla del Raval 30',latitude:41.379,longitude:2.169}
+];
+const MOCK_ORDERS=[
+  {id:1,order_number:'ORD-10001',customer_name:'Alice Johnson',restaurant_name:'Pizza Palace',status:'pending',total:24.99,created_at:'2026-06-06T10:15:00'},
+  {id:2,order_number:'ORD-10002',customer_name:'Bob Smith',restaurant_name:'Burger Barn',status:'accepted',total:18.50,created_at:'2026-06-06T10:10:00'},
+  {id:3,order_number:'ORD-10003',customer_name:'Carol White',restaurant_name:'Green Bowl',status:'heading_to_customer',total:32.00,created_at:'2026-06-06T09:55:00'},
+  {id:4,order_number:'ORD-10004',customer_name:'David Brown',restaurant_name:'Sushi World',status:'delivered',total:45.50,created_at:'2026-06-06T09:30:00'},
+  {id:5,order_number:'ORD-10005',customer_name:'Eva Martinez',restaurant_name:'Taco Fiesta',status:'courier_assigned',total:15.99,created_at:'2026-06-06T10:20:00'},
+  {id:6,order_number:'ORD-10006',customer_name:'Frank Lee',restaurant_name:'Pizza Palace',status:'pending',total:28.75,created_at:'2026-06-06T10:22:00'},
+  {id:7,order_number:'ORD-10007',customer_name:'Grace Kim',restaurant_name:'Quick Pharmacy',status:'delivered',total:12.50,created_at:'2026-06-06T08:45:00'},
+  {id:8,order_number:'ORD-10008',customer_name:'Henry Davis',restaurant_name:'Speed Eats',status:'ready_for_pickup',total:9.99,created_at:'2026-06-06T10:05:00'},
+  {id:9,order_number:'ORD-10009',customer_name:'Iris Wilson',restaurant_name:'Burger Barn',status:'heading_to_restaurant',total:22.00,created_at:'2026-06-06T10:18:00'},
+  {id:10,order_number:'ORD-10010',customer_name:'Jack Taylor',restaurant_name:'Green Bowl',status:'cancelled',total:19.50,created_at:'2026-06-06T09:00:00'},
+  {id:11,order_number:'ORD-10011',customer_name:'Karen Moore',restaurant_name:'Pizza Palace',status:'delivered',total:35.25,created_at:'2026-06-06T07:30:00'},
+  {id:12,order_number:'ORD-10012',customer_name:'Leo Garcia',restaurant_name:'Taco Fiesta',status:'delivered',total:16.80,created_at:'2026-06-06T08:15:00'}
+];
+const MOCK_TICKETS=[
+  {id:1,order_id:10,order_number:'ORD-10010',user_name:'Jack Taylor',status:'open',created_at:'2026-06-06T09:15:00'},
+  {id:2,order_id:4,order_number:'ORD-10004',user_name:'David Brown',status:'in_progress',created_at:'2026-06-06T09:45:00'},
+  {id:3,order_id:7,order_number:'ORD-10007',user_name:'Grace Kim',status:'open',created_at:'2026-06-06T10:00:00'},
+  {id:4,order_id:1,order_number:'ORD-10001',user_name:'Alice Johnson',status:'resolved',created_at:'2026-06-05T14:30:00'},
+  {id:5,order_id:2,order_number:'ORD-10002',user_name:'Bob Smith',status:'open',created_at:'2026-06-06T10:10:00'}
+];
+let useMockData=false;
+
+function getMockResponse(path){
+  if(path==='/api/admin/stats')return{success:true,data:MOCK_STATS};
+  if(path==='/api/admin/couriers')return{success:true,data:MOCK_COURIERS};
+  if(path.startsWith('/api/restaurants'))return{success:true,data:MOCK_RESTAURANTS};
+  if(path==='/api/admin/orders')return{success:true,data:MOCK_ORDERS};
+  if(path==='/api/support/tickets')return{success:true,data:MOCK_TICKETS};
+  if(path.startsWith('/api/support/tickets/')&&path.endsWith('/messages'))return{success:true,data:[]};
+  if(path==='/api/notifications')return{success:true,data:[]};
+  if(path==='/api/notifications/unread-count')return{success:true,data:{count:0}};
+  if(path.startsWith('/api/restaurants/')&&path.endsWith('/toggle'))return{success:true,data:{is_open:true}};
+  return{success:false,message:'Mock not available'};
+}
+
+// ══════════════════════════════════════════════════════════
+//  THEME
+// ══════════════════════════════════════════════════════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('admin_theme',t);
+  document.getElementById('themeSelect').value=t;
+}
+// Restore saved theme
+(function(){
+  const saved=localStorage.getItem('admin_theme');
+  if(saved)setTheme(saved);
+})();
+
+// ══════════════════════════════════════════════════════════
+//  SOUND TOGGLE
+// ══════════════════════════════════════════════════════════
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  localStorage.setItem('admin_sound',soundEnabled);
+  const sw=document.getElementById('soundSwitch');
+  if(soundEnabled)sw.classList.add('on');else sw.classList.remove('on');
+}
+(function(){
+  const sw=document.getElementById('soundSwitch');
+  if(soundEnabled)sw.classList.add('on');
+})();
+
+function playSound(){
+  if(!soundEnabled)return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.frequency.value=880;osc.type='sine';gain.gain.value=0.15;
+    osc.start();osc.stop(ctx.currentTime+0.15);
+    setTimeout(()=>{
+      const osc2=ctx.createOscillator();const gain2=ctx.createGain();
+      osc2.connect(gain2);gain2.connect(ctx.destination);
+      osc2.frequency.value=1100;osc2.type='sine';gain2.gain.value=0.12;
+      osc2.start();osc2.stop(ctx.currentTime+0.12);
+    },180);
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════════
+//  HTTP
+// ══════════════════════════════════════════════════════════
+async function api(method,path,body){
+  // If using mock data, return mock response
+  if(useMockData){
+    return getMockResponse(path.split('?')[0]);
+  }
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(token)opts.headers['Authorization']='Bearer '+token;
+  if(body)opts.body=JSON.stringify(body);
+  // Add XTransformPort for gateway routing to Python backend
+  const sep=path.includes('?')?'&':'?';
+  const url=API+path+sep+'XTransformPort='+API_PORT;
+  try{
+    const r=await fetch(url,opts);
+    if(r.status===401&&token){
+      token='';user=null;
+      localStorage.removeItem('admin_token');localStorage.removeItem('admin_user');
+      stopPolling();
+      document.getElementById('app').classList.remove('active');
+      document.getElementById('loginScreen').classList.add('active');
+      toast('Session expired. Please login again.','error');
+      return{success:false,message:'Session expired'};
+    }
+    return await r.json();
+  }catch(e){
+    console.warn('API error, falling back to mock data:',e);
+    if(!useMockData){
+      useMockData=true;
+      toast('Backend unavailable — using demo data','warning');
+    }
+    return getMockResponse(path.split('?')[0]);
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════════
+function toast(msg,type='info'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className='toast '+type;
+  const icons={success:'&#10004;',error:'&#10060;',info:'&#8505;&#65039;',warning:'&#9888;&#65039;'};
+  t.innerHTML=(icons[type]||'')+' '+msg;
+  c.appendChild(t);
+  setTimeout(()=>{t.classList.add('fade-out');setTimeout(()=>t.remove(),300)},3500);
+}
+
+// ══════════════════════════════════════════════════════════
+//  IN-APP NOTIFICATION POPUP
+// ══════════════════════════════════════════════════════════
+let notifTimeout=null;
+function showInAppNotif(title,body){
+  const el=document.getElementById('inAppNotif');
+  document.getElementById('notifTitle').textContent=title;
+  document.getElementById('notifBody').textContent=body;
+  document.getElementById('notifTime').textContent='just now';
+  el.classList.add('show');
+  playSound();
+  if(notifTimeout)clearTimeout(notifTimeout);
+  notifTimeout=setTimeout(hideInAppNotif,5000);
+}
+function hideInAppNotif(){
+  document.getElementById('inAppNotif').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT APP
+// ══════════════════════════════════════════════════════════
+function initApp(){
+  if(token&&user&&user.role==='admin'){
+    enterApp();
+  }else{
+    document.getElementById('loginScreen').classList.add('active');
+  }
+}
+
+function enterApp(){
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  loadAll();
+  startPolling();
+}
+
+async function loadAll(){
+  await Promise.all([loadStats(),loadCouriers(),loadOrders(),loadRestaurants(),loadTickets()]);
+}
+
+// ══════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════
+async function doLogin(){
+  const username=document.getElementById('loginUser').value.trim();
+  const password=document.getElementById('loginPass').value;
+  const errEl=document.getElementById('loginError');
+  errEl.textContent='';
+  if(!username||!password){errEl.textContent='Please enter username and password';return}
+  errEl.textContent='Signing in...';
+  const res=await api('POST','/api/auth/login',{username,password});
+  if(res.success){
+    if(res.data.role!=='admin'){
+      errEl.textContent='Access denied. Admin role required.';
+      return;
+    }
+    token=res.data.token;
+    user=res.data;
+    localStorage.setItem('admin_token',token);
+    localStorage.setItem('admin_user',JSON.stringify(user));
+    errEl.textContent='';
+    enterApp();
+    toast('Welcome back, '+user.display_name+'!','success');
+  }else{
+    // Fallback: allow admin/admin login with mock data if API fails
+    if(useMockData&&username==='admin'&&password==='admin'){
+      token='mock-admin-token';
+      user={id:1,username:'admin',role:'admin',display_name:'Administrator'};
+      localStorage.setItem('admin_token',token);
+      localStorage.setItem('admin_user',JSON.stringify(user));
+      errEl.textContent='';
+      enterApp();
+      toast('Welcome! Running in demo mode.','info');
+    }else{
+      errEl.textContent=res.message||'Login failed';
+    }
+  }
+}
+
+function doLogout(){
+  token='';user=null;
+  localStorage.removeItem('admin_token');localStorage.removeItem('admin_user');
+  stopPolling();
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginError').textContent='';
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD STATS
+// ══════════════════════════════════════════════════════════
+async function loadStats(){
+  const res=await api('GET','/api/admin/stats');
+  if(res.success&&res.data){
+    stats=res.data;
+    document.getElementById('statOrdersToday').textContent=stats.orders_today||0;
+    document.getElementById('statRevenueToday').textContent='\u20ac'+parseFloat(stats.revenue_today||0).toFixed(2);
+    document.getElementById('statActiveCouriers').textContent=stats.active_couriers||0;
+    document.getElementById('statOpenRestaurants').textContent=stats.active_partners||0;
+    document.getElementById('statCustomers').textContent=stats.customer_count||0;
+    document.getElementById('statOpenTickets').textContent=stats.support_tickets_open||0;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD COURIERS
+// ══════════════════════════════════════════════════════════
+async function loadCouriers(){
+  const res=await api('GET','/api/admin/couriers');
+  if(res.success){
+    allCouriers=res.data||[];
+    renderCouriers();
+  }
+}
+
+function renderCouriers(){
+  const list=document.getElementById('courierList');
+  const online=allCouriers.filter(c=>c.is_online).length;
+  const offline=allCouriers.length-online;
+
+  document.getElementById('courierTotal').textContent=allCouriers.length;
+  document.getElementById('courierOnline').textContent=online;
+  document.getElementById('courierOffline').textContent=offline;
+  document.getElementById('courierCount').textContent=allCouriers.length+' total';
+
+  // Vehicle breakdown
+  const vehicles={};
+  allCouriers.forEach(c=>{
+    const v=c.vehicle_type||'bicycle';
+    vehicles[v]=(vehicles[v]||0)+1;
+  });
+  const vb=document.getElementById('vehicleBreakdown');
+  vb.innerHTML=Object.entries(vehicles).map(([v,c])=>
+    `<span class="vehicle-badge">${VEHICLE_ICONS[v]||'&#128692;'} ${v}: ${c}</span>`
+  ).join('');
+
+  if(allCouriers.length===0){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No couriers found</div>';
+    return;
+  }
+
+  list.innerHTML=allCouriers.map(c=>{
+    const status=c.is_online?'online':'offline';
+    const statusClass=c.is_online?'status-online':'status-offline';
+    const vehicle=c.vehicle_type||'bicycle';
+    const initial=(c.display_name||c.username||'?')[0].toUpperCase();
+    return `<div class="courier-row">
+      <div class="row-avatar" style="background:${c.is_online?'var(--blue)':'var(--muted)'}">${initial}</div>
+      <div class="row-info">
+        <h4>${esc(c.display_name||c.username)}</h4>
+        <p>${VEHICLE_ICONS[vehicle]||''} ${vehicle}</p>
+      </div>
+      <span class="row-status ${statusClass}">${status}</span>
+      <button class="row-btn btn-view" onclick="viewCourier(${c.id})">View</button>
+    </div>`;
+  }).join('');
+}
+
+async function viewCourier(id){
+  const c=allCouriers.find(x=>x.id===id);
+  if(!c)return;
+  const vehicle=c.vehicle_type||'bicycle';
+  document.getElementById('modalTitle').textContent='Courier Details';
+  document.getElementById('modalBody').innerHTML=`
+    <div class="detail-row"><span class="label">Name</span><span class="value">${esc(c.display_name||c.username)}</span></div>
+    <div class="detail-row"><span class="label">Username</span><span class="value">${esc(c.username)}</span></div>
+    <div class="detail-row"><span class="label">Status</span><span class="value" style="color:${c.is_online?'var(--green)':'var(--red)'}">${c.is_online?'Online':'Offline'}</span></div>
+    <div class="detail-row"><span class="label">Vehicle</span><span class="value">${VEHICLE_ICONS[vehicle]||''} ${vehicle}</span></div>
+    <div class="detail-row"><span class="label">Latitude</span><span class="value">${c.latitude||'N/A'}</span></div>
+    <div class="detail-row"><span class="label">Longitude</span><span class="value">${c.longitude||'N/A'}</span></div>
+  `;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD RESTAURANTS
+// ══════════════════════════════════════════════════════════
+async function loadRestaurants(){
+  const res=await api('GET','/api/restaurants');
+  if(res.success){
+    allRestaurants=res.data||[];
+    renderRestaurants();
+  }
+}
+
+function renderRestaurants(){
+  const list=document.getElementById('restaurantList');
+  const openCount=allRestaurants.filter(r=>r.is_open).length;
+  const closedCount=allRestaurants.length-openCount;
+
+  document.getElementById('restaurantTotal').textContent=allRestaurants.length;
+  document.getElementById('restaurantOpen').textContent=openCount;
+  document.getElementById('restaurantClosed').textContent=closedCount;
+  document.getElementById('restaurantCount').textContent=allRestaurants.length+' total';
+
+  // Category breakdown
+  const categories={};
+  allRestaurants.forEach(r=>{
+    const cat=r.category||'restaurant';
+    categories[cat]=(categories[cat]||0)+1;
+  });
+  const cb=document.getElementById('categoryBreakdown');
+  cb.innerHTML=Object.entries(categories).map(([cat,c])=>
+    `<span class="vehicle-badge" style="background:rgba(155,89,182,.12);color:var(--purple)">${CATEGORY_ICONS[cat]||''} ${cat}: ${c}</span>`
+  ).join('');
+
+  if(allRestaurants.length===0){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No restaurants found</div>';
+    return;
+  }
+
+  list.innerHTML=allRestaurants.map(r=>{
+    const isOpen=!!r.is_open;
+    const statusClass=isOpen?'status-open':'status-closed';
+    const cat=r.category||'restaurant';
+    const initial=r.name[0].toUpperCase();
+    return `<div class="restaurant-row">
+      <div class="row-avatar" style="background:${isOpen?'var(--purple)':'var(--muted)'}">${initial}</div>
+      <div class="row-info">
+        <h4>${esc(r.name)}</h4>
+        <p>${CATEGORY_ICONS[cat]||''} ${cat}</p>
+      </div>
+      <span class="row-status ${statusClass}">${isOpen?'Open':'Closed'}</span>
+      <button class="row-btn btn-toggle ${isOpen?'':'closed'}" onclick="toggleRestaurant(${r.id},${isOpen})">${isOpen?'Close':'Open'}</button>
+    </div>`;
+  }).join('');
+}
+
+async function toggleRestaurant(id,isCurrentlyOpen){
+  const res=await api('POST',`/api/restaurants/${id}/toggle`,{});
+  if(res.success){
+    // Update mock data if using mock
+    if(useMockData){
+      const r=MOCK_RESTAURANTS.find(x=>x.id===id);
+      if(r)r.is_open=!isCurrentlyOpen;
+    }
+    toast(isCurrentlyOpen?'Restaurant closed':'Restaurant opened',isCurrentlyOpen?'warning':'success');
+    loadRestaurants();
+    loadStats();
+  }else{
+    toast(res.message||'Failed to toggle','error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD TICKETS
+// ══════════════════════════════════════════════════════════
+async function loadTickets(){
+  const res=await api('GET','/api/support/tickets');
+  if(res.success){
+    allTickets=res.data||[];
+    renderTickets();
+  }
+}
+
+function renderTickets(){
+  const list=document.getElementById('ticketList');
+  const openCount=allTickets.filter(t=>t.status==='open').length;
+  const inProgressCount=allTickets.filter(t=>t.status==='in_progress').length;
+
+  document.getElementById('ticketOpen').textContent=openCount;
+  document.getElementById('ticketTotal').textContent=allTickets.length;
+  document.getElementById('ticketCount').textContent=allTickets.length+' total';
+
+  // Avg response time estimation
+  const responded=allTickets.filter(t=>t.status==='in_progress'||t.status==='resolved');
+  if(responded.length>0){
+    document.getElementById('ticketAvgResp').textContent='~15m';
+  }else{
+    document.getElementById('ticketAvgResp').textContent='-';
+  }
+
+  if(allTickets.length===0){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No tickets found</div>';
+    return;
+  }
+
+  list.innerHTML=allTickets.slice(0,15).map(t=>{
+    const statusClass=t.status==='open'?'status-ticket-open':t.status==='in_progress'?'status-ticket-progress':'status-ticket-closed';
+    const initial=(t.user_name||'?')[0].toUpperCase();
+    return `<div class="ticket-row">
+      <div class="row-avatar" style="background:${t.status==='open'?'var(--amber)':'var(--teal)'}">${initial}</div>
+      <div class="row-info">
+        <h4>${esc(t.user_name||'Unknown')}</h4>
+        <p>Order #${t.order_number||t.order_id}</p>
+      </div>
+      <span class="row-status ${statusClass}">${t.status}</span>
+      <button class="row-btn btn-view" onclick="viewTicket(${t.id})">View</button>
+    </div>`;
+  }).join('');
+}
+
+async function viewTicket(id){
+  const t=allTickets.find(x=>x.id===id);
+  if(!t)return;
+  const res=await api('GET',`/api/support/tickets/${id}/messages`);
+  let messagesHtml='';
+  if(res.success&&res.data){
+    messagesHtml=res.data.map(m=>`
+      <div style="margin-bottom:8px;padding:8px 12px;background:var(--bg2);border-radius:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">${esc(m.sender_name||'User')} <span style="opacity:.5">${m.sender_role||''}</span></div>
+        <div style="font-size:13px">${esc(m.message)}</div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('modalTitle').textContent='Ticket #'+id;
+  document.getElementById('modalBody').innerHTML=`
+    <div class="detail-row"><span class="label">Customer</span><span class="value">${esc(t.user_name||'Unknown')}</span></div>
+    <div class="detail-row"><span class="label">Order</span><span class="value">#${t.order_number||t.order_id}</span></div>
+    <div class="detail-row"><span class="label">Status</span><span class="value" style="color:${t.status==='open'?'var(--amber)':'var(--teal)'}">${t.status}</span></div>
+    <div class="detail-row"><span class="label">Created</span><span class="value">${formatDate(t.created_at)}</span></div>
+    ${messagesHtml?'<h4 style="margin:16px 0 8px;font-size:14px">Messages</h4>'+messagesHtml:''}
+  `;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOAD ORDERS
+// ══════════════════════════════════════════════════════════
+async function loadOrders(){
+  const res=await api('GET','/api/admin/orders');
+  if(res.success){
+    allOrders=res.data||[];
+    renderOrders();
+    renderChart();
+  }
+}
+
+function renderOrders(){
+  const body=document.getElementById('ordersBody');
+  document.getElementById('orderCount').textContent=allOrders.length+' orders';
+
+  if(allOrders.length===0){
+    body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No orders found</td></tr>';
+    return;
+  }
+
+  body.innerHTML=allOrders.slice(0,30).map(o=>{
+    const statusClass='os-'+o.status.replace(/ /g,'_');
+    return `<tr>
+      <td>${o.id}</td>
+      <td title="${esc(o.order_number||'')}">${esc(o.order_number||'-')}</td>
+      <td title="${esc(o.customer_name||'')}">${esc(o.customer_name||'-')}</td>
+      <td title="${esc(o.restaurant_name||'')}">${esc(o.restaurant_name||'-')}</td>
+      <td><span class="order-status-badge ${statusClass}"><span class="dot"></span>${STATUS_LABELS[o.status]||o.status}</span></td>
+      <td>&euro;${parseFloat(o.total||0).toFixed(2)}</td>
+      <td>${formatDate(o.created_at)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderChart(){
+  const container=document.getElementById('chartBars');
+  const statusCounts={};
+  allOrders.forEach(o=>{statusCounts[o.status]=(statusCounts[o.status]||0)+1});
+  const total=Math.max(allOrders.length,1);
+
+  const colors={
+    pending:'var(--amber)',accepted:'var(--blue)',ready_for_pickup:'var(--purple)',
+    courier_assigned:'var(--teal)',heading_to_restaurant:'var(--teal)',
+    arrived_at_restaurant:'var(--teal)',order_picked_up:'var(--teal)',
+    heading_to_customer:'var(--teal)',arrived_at_customer:'var(--teal)',
+    delivered:'var(--green)',cancelled:'var(--red)',rejected:'var(--red)'
+  };
+
+  const order=['pending','accepted','ready_for_pickup','courier_assigned','heading_to_restaurant','arrived_at_restaurant','order_picked_up','heading_to_customer','arrived_at_customer','delivered','cancelled','rejected'];
+
+  container.innerHTML=order.filter(s=>statusCounts[s]).map(s=>{
+    const count=statusCounts[s];
+    const pct=Math.round(count/total*100);
+    const color=colors[s]||'var(--pri)';
+    return `<div class="chart-bar-item">
+      <div class="chart-bar-label">${STATUS_LABELS[s]||s}</div>
+      <div class="chart-bar-track">
+        <div class="chart-bar-fill" style="width:${pct}%;background:${color}">${pct>8?pct+'%':''}</div>
+      </div>
+      <div class="chart-bar-count">${count}</div>
+    </div>`;
+  }).join('');
+
+  if(container.innerHTML===''){
+    container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No data yet</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════════════════
+async function showNotifications(){
+  const res=await api('GET','/api/notifications');
+  if(res.success&&res.data){
+    const unread=res.data.filter(n=>!n.is_read).length;
+    if(unread>0){
+      showInAppNotif('Notifications','You have '+unread+' unread notification'+(unread>1?'s':''));
+    }else{
+      toast('No unread notifications','info');
+    }
+  }
+}
+
+async function pollNotifications(){
+  const res=await api('GET','/api/notifications');
+  if(res.success&&res.data){
+    const unread=res.data.filter(n=>!n.is_read).length;
+    const badge=document.getElementById('notifBadge');
+    if(unread>0){
+      badge.style.display='flex';
+      badge.textContent=unread>9?'9+':unread;
+    }else{
+      badge.style.display='none';
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  POLLING
+// ══════════════════════════════════════════════════════════
+function startPolling(){
+  stopPolling();
+  pollTimer=setInterval(async()=>{
+    const prevOrders=allOrders.length;
+    const prevPending=allOrders.filter(o=>o.status==='pending').length;
+    await loadAll();
+    const newPending=allOrders.filter(o=>o.status==='pending').length;
+    if(newPending>prevPending){
+      showInAppNotif('New Orders',newPending+' pending order'+(newPending>1?'s':'')+' waiting');
+    }
+  },15000);
+  notifTimer=setInterval(pollNotifications,10000);
+  pollNotifications();
+}
+
+function stopPolling(){
+  if(pollTimer){clearInterval(pollTimer);pollTimer=null}
+  if(notifTimer){clearInterval(notifTimer);notifTimer=null}
+}
+
+// ══════════════════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════════════════
+function closeModal(){
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+// ══════════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════════
+function esc(s){
+  if(!s)return'';
+  const d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
+
+function formatDate(d){
+  if(!d)return'-';
+  try{
+    const dt=new Date(d);
+    return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){return d}
+}
+</script>
+</body>
+</html>

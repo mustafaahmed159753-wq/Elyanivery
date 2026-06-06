@@ -875,8 +875,8 @@ def handle_toggle_restaurant(payload, rid):
 
 def handle_admin_all_orders(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         rows = query("""
             SELECT o.id, o.order_number, o.status, o.total, o.created_at, o.delivered_at,
                    r.name as restaurant_name,
@@ -1538,20 +1538,26 @@ def handle_support_tickets(payload):
 
 
 def handle_support_create_ticket(body, payload):
-    """Create a support ticket for an order."""
+    """Create a support ticket for an order. Support/admin can create for any order."""
     try:
         order_id = body.get('order_id')
         if not order_id:
             return 400, {"success": False, "message": "order_id required"}
-        order = query("SELECT id FROM Orders WHERE id=? AND customer_id=?", (order_id, payload['uid']), fetch_one=True)
+        # Support/admin can create tickets for any order
+        if payload['role'] in ('admin', 'support'):
+            order = query("SELECT id, customer_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
+        else:
+            order = query("SELECT id, customer_id FROM Orders WHERE id=? AND customer_id=?", (order_id, payload['uid']), fetch_one=True)
         if not order:
             return 404, {"success": False, "message": "Order not found or not yours"}
         # Check if there's already an open ticket for this order
         existing = query("SELECT id FROM SupportTickets WHERE order_id=? AND status='open'", (order_id,), fetch_one=True)
         if existing:
             return 400, {"success": False, "message": "An open ticket already exists for this order"}
+        # Use order's customer_id as the ticket user_id (for support-created tickets)
+        ticket_user_id = order['customer_id'] if payload['role'] in ('admin', 'support') else payload['uid']
         tid = insert("INSERT INTO SupportTickets (order_id,user_id,status) VALUES (?,?,'open')",
-                     (order_id, payload['uid']))
+                     (order_id, ticket_user_id))
         return 201, {"success": True, "data": {"id": tid, "order_id": order_id, "status": "open"}}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1600,6 +1606,22 @@ def handle_support_send_message(body, payload):
         msg_id = insert("INSERT INTO SupportMessages (ticket_id,sender_id,message) VALUES (?,?,?)",
                         (ticket_id, uid, message))
         return 201, {"success": True, "data": {"id": msg_id, "ticket_id": ticket_id, "message": message}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_close_ticket(payload, ticket_id):
+    """Close a support ticket (admin/support only)."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        ticket = query("SELECT * FROM SupportTickets WHERE id=?", (ticket_id,), fetch_one=True)
+        if not ticket:
+            return 404, {"success": False, "message": "Ticket not found"}
+        if ticket['status'] == 'closed':
+            return 400, {"success": False, "message": "Ticket already closed"}
+        query("UPDATE SupportTickets SET status='closed', updated_at=CURRENT_TIMESTAMP WHERE id=?", (ticket_id,))
+        return 200, {"success": True, "message": "Ticket closed"}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -1697,8 +1719,8 @@ def handle_deliver_anything(body, payload):
 def handle_admin_stats(payload):
     """Admin dashboard statistics."""
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
 
         today = datetime.date.today().isoformat()
         week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
@@ -1744,9 +1766,9 @@ def handle_admin_stats(payload):
 # ── ADMIN ──
 def handle_admin_couriers(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
-        rows = query("SELECT u.id, u.username, u.display_name, u.avatar_url, cl.latitude, cl.longitude, cl.is_online FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.role='courier'", fetch=True)
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        rows = query("SELECT u.id, u.username, u.display_name, u.avatar_url, cl.latitude, cl.longitude, cl.is_online, cl.vehicle_type FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.role='courier'", fetch=True)
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1754,8 +1776,8 @@ def handle_admin_couriers(payload):
 
 def handle_admin_unassigned_orders(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         rows = query("SELECT o.*, r.name as restaurant_name FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id WHERE o.courier_id IS NULL AND o.status NOT IN ('delivered','cancelled') ORDER BY o.created_at", fetch=True)
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
@@ -1764,8 +1786,8 @@ def handle_admin_unassigned_orders(payload):
 
 def handle_admin_assign_order(body, payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         oid, cid = body.get('order_id'), body.get('courier_id')
         if not oid or not cid:
             return 400, {"success": False, "message": "order_id and courier_id required"}
@@ -1781,7 +1803,7 @@ def handle_admin_assign_order(body, payload):
 #  NEW: IN-APP CHAT (Customer <-> Courier)
 # ══════════════════════════════════════════════
 def handle_chat_send(body, payload):
-    """Send a chat message. Both customer and courier can use this."""
+    """Send a chat message. Both customer and courier can use this. Support/admin can also send."""
     try:
         order_id = body.get('order_id')
         message = (body.get('message') or '').strip()
@@ -1789,19 +1811,24 @@ def handle_chat_send(body, payload):
         if not order_id or not message:
             return 400, {"success": False, "message": "order_id and message required"}
 
-        # Verify the user is part of this order
+        # Verify the user is part of this order or is support/admin
         order = query("SELECT customer_id, courier_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
         if not order:
             return 404, {"success": False, "message": "Order not found"}
 
         uid = payload['uid']
-        if uid != order['customer_id'] and uid != order['courier_id']:
+        is_support_admin = payload['role'] in ('admin', 'support')
+        if uid != order['customer_id'] and uid != order['courier_id'] and not is_support_admin:
             return 403, {"success": False, "message": "Not authorized for this conversation"}
 
         # Determine receiver
-        receiver_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
+        if is_support_admin:
+            # Support messages go to customer by default
+            receiver_id = order['customer_id']
+        else:
+            receiver_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
         if not receiver_id:
-            return 400, {"success": False, "message": "No courier assigned yet"}
+            return 400, {"success": False, "message": "No recipient available"}
 
         msg_id = insert(
             "INSERT INTO ChatMessages (order_id,sender_id,receiver_id,message,message_type) VALUES (?,?,?,?,?)",
@@ -1827,11 +1854,13 @@ def handle_chat_messages(payload, order_id, after_id=0):
         if not order:
             return 404, {"success": False, "message": "Order not found"}
         uid = payload['uid']
-        if uid != order['customer_id'] and uid != order['courier_id']:
-            return 403, {"success": False, "message": "Not authorized"}
+        # Support/admin can view any order's chat
+        if payload['role'] not in ('admin', 'support'):
+            if uid != order['customer_id'] and uid != order['courier_id']:
+                return 403, {"success": False, "message": "Not authorized"}
 
         rows = query(
-            "SELECT cm.*, u.display_name as sender_name, u.avatar_url as sender_avatar "
+            "SELECT cm.*, u.display_name as sender_name, u.avatar_url as sender_avatar, u.role as sender_role "
             "FROM ChatMessages cm JOIN Users u ON cm.sender_id=u.id "
             "WHERE cm.order_id=? AND cm.id>? ORDER BY cm.id ASC",
             (order_id, after_id), fetch=True
@@ -2908,6 +2937,17 @@ class Handler(BaseHTTPRequestHandler):
                 except:
                     return self._json(400, {"success": False, "message": "Invalid address ID"})
                 code, data = handle_update_address(body, p, aid)
+                self._json(code, data)
+            # ── Support ticket close ──
+            elif path.startswith('/api/support/tickets/') and path.endswith('/close'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    ticket_id = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ticket ID"})
+                code, data = handle_support_close_ticket(p, ticket_id)
                 self._json(code, data)
             # ── Items ──
             elif path.startswith('/api/restaurants/') and '/items/' in path:

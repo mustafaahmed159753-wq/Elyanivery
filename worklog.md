@@ -83,3 +83,67 @@ Stage Summary:
 - Chat input box is now always visible when in chat screen
 - New orders appear as a floating bottom-sheet overlay on courier page (not splash)
 - Files modified: server.py, courier/index.html, customer/index.html
+
+---
+Task ID: 4
+Agent: Main Agent (with 3 subagents)
+Task: Major Elyanivery upgrade - splash screens, courier fixes, messaging, categories, partner duration, support messaging
+
+Work Log:
+- Upgraded ALL 5 splash screens (customer, courier, admin, partner, support):
+  - 3D letter animation: "Elyanivery" letters fly in from nothing (scale(0)→scale(1), translateY, rotateY)
+  - Circular SVG progress bar below the word with percentage
+  - App-specific surrounding items:
+    - Customer: 🍕🥫🍦🍦🍔🌮🥤 (food items floating)
+    - Courier: 🚲🚗🛵🚚 (vehicles driving across)
+    - Admin: 🍕🍔🍦🥫🌮🥤 (food items floating)
+    - Partner: 🍕🍳🥘🍽️🧑‍🍳 (cooking items floating)
+    - Support: 💬🎧📞🎯 (support items floating)
+  - Same gradient background across all apps
+- Fixed message system (customer + courier apps):
+  - Replaced ALL browser alert/confirm/prompt with custom in-app notification overlays
+  - Semi-transparent backdrop with blur effect
+  - Smiling faces and emojis on every popup (🎉😊 ✅🤩 😞😔 💬😄 etc.)
+  - ShowMessagePopup() and showConfirmPopup() reusable functions
+  - 16 browser dialogs replaced in courier app
+- Fixed Courier app:
+  - Earnings screen now properly loads and displays total/today/weekly earnings
+  - Floating order overlay works with new order detection
+  - 5-step delivery cycle with distance-gated progression:
+    1. Navigate to Restaurant (always available)
+    2. Arrived at Restaurant (only when <400m, with "I'm here" override)
+    3. Pick Up Order (with waiting timer)
+    4. Navigate to Customer
+    5. Mark as Delivered (with earnings breakdown)
+  - GPS polling every 5 seconds for distance checks
+  - Waiting time timer at restaurant (€0.10/min after first 5 min)
+  - Estimated prep time display from partner
+  - haversineDistance() function added for distance calculations
+- Upgraded Client app categories:
+  - 5 category circles: 🍕 Restaurants, 🍔 Fast Food, 💊 Pharmacies, 🛒 Supermarket, 📦 Deliver Anything
+  - "Deliver Anything" has special styling (larger, gradient, pulse glow)
+  - Toggle filtering (click again to deselect)
+  - Proper filtering by restaurant category
+- Enhanced Partner app:
+  - Prep time modal with more options (10, 15, 20, 25, 30, 45, 60 min + custom)
+  - "Update Prep Time" button on accepted orders
+  - Confirmation before marking ready with remaining prep time
+  - Courier notification note on prep time modal
+- Enhanced Support app:
+  - Color-coded sender identification (👤 Customer, 🏪 Restaurant, 🛵 Courier, 🎧 Support)
+  - Order status indicators on messages
+  - Quick emoji replies (👍😊✅⏳❌🙏📞💡)
+  - Recipient selection dropdown (All/Customer/Restaurant/Courier)
+  - 3-second polling for real-time chat
+  - Expanded chat area
+- Backend already had: order_number (#Ely-XXXXX), vehicle-based assignment, courier earnings, waiting time
+- Admin dashboard already had 3 feature boxes (Couriers, Partners, Customer Services)
+
+Stage Summary:
+- All 5 app splash screens upgraded with consistent animated design
+- Browser alerts completely eliminated, replaced with themed in-app popups with emojis
+- Courier app fully functional with distance-gated delivery cycle
+- Client app has proper category filtering with special "Deliver Anything" feature
+- Partner can set and update prep time, visible to couriers
+- Support app has real-time multi-participant chat per order
+- Files modified: customer/index.html, courier/index.html, admin/index.html, partner/index.html, support/index.html

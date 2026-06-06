@@ -1,7 +1,8 @@
 """
 Elyanivery — Pure Python HTTP Server + PostgreSQL
-  v3.0 — PostgreSQL migration, In-App Chat, Voice Calling (WebRTC Signaling),
-         Notifications, Address Book, Loyalty Points
+  v4.0 — PostgreSQL migration, In-App Chat, Voice Calling (WebRTC Signaling),
+         Notifications, Address Book, Loyalty Points, Vehicle-based Courier Assignment,
+         Courier Earnings, Support Tickets, Deliver Anything, Admin Dashboard
 """
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -30,6 +31,7 @@ def ensure_default_users():
         ('admin', 'admin', 'admin', 'Administrator'),
         ('customer1', '1234', 'customer', 'Customer One'),
         ('courier1', '1234', 'courier', 'Courier One'),
+        ('support1', '1234', 'support', 'Customer Support'),
     ]
     for username, password, role, display_name in defaults:
         existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
@@ -171,7 +173,7 @@ def handle_partner_order_detail(payload, oid):
         return 500, {"success": False, "message": str(e)}
 
 
-def handle_partner_accept_order(payload, oid):
+def handle_partner_accept_order(body, payload, oid):
     """Partner accepts a pending order. Status changes: pending → accepted."""
     try:
         rid = get_partner_restaurant_id(payload['uid'])
@@ -182,8 +184,13 @@ def handle_partner_accept_order(payload, oid):
             return 404, {"success": False, "message": "Order not found"}
         if order['status'] != 'pending':
             return 400, {"success": False, "message": f"Order is {order['status']}, cannot accept"}
-        est_minutes = 30  # default estimate
-        query("UPDATE Orders SET status='accepted', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        est_minutes = body.get('estimated_prep_minutes', 30) if body else 30
+        try:
+            est_minutes = int(est_minutes)
+        except:
+            est_minutes = 30
+        query("UPDATE Orders SET status='accepted', estimated_prep_minutes=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+              (est_minutes, oid))
         query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'accepted', ?)",
               (oid, f'Order accepted by restaurant. Estimated prep time: {est_minutes} min'))
         # Notify customer
@@ -216,7 +223,7 @@ def handle_partner_reject_order(payload, oid):
         return 500, {"success": False, "message": str(e)}
 
 
-def handle_partner_ready_order(payload, oid):
+def handle_partner_ready_order(body, payload, oid):
     """Partner marks order as ready for pickup. Status: accepted → ready_for_pickup, then auto-assigns courier."""
     try:
         rid = get_partner_restaurant_id(payload['uid'])
@@ -228,10 +235,23 @@ def handle_partner_ready_order(payload, oid):
         if order['status'] not in ('accepted',):
             return 400, {"success": False, "message": f"Order is {order['status']}, must be 'accepted' first"}
         restaurant = query("SELECT * FROM Restaurants WHERE id=?", (rid,), fetch_one=True)
-        query("UPDATE Orders SET status='ready_for_pickup', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        # Update estimated prep time if provided
+        est_minutes = body.get('estimated_prep_minutes', None) if body else None
+        if est_minutes is not None:
+            try:
+                est_minutes = int(est_minutes)
+                query("UPDATE Orders SET status='ready_for_pickup', estimated_prep_minutes=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                      (est_minutes, oid))
+            except:
+                query("UPDATE Orders SET status='ready_for_pickup', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
+        else:
+            query("UPDATE Orders SET status='ready_for_pickup', updated_at=CURRENT_TIMESTAMP WHERE id=?", (oid,))
         query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'ready_for_pickup', 'Order is ready for pickup')", (oid,))
         # Auto-assign courier now that the order is ready
-        courier_id = auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+        delivery_lat = order.get('delivery_lat')
+        delivery_lng = order.get('delivery_lng')
+        courier_id = auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']),
+                                          delivery_lat, delivery_lng)
         # Notify customer
         push_notification(order['customer_id'], 'Order Ready',
                           f'Your order #{oid} is ready for pickup! A courier is being assigned.', 'order_ready', oid)
@@ -484,6 +504,14 @@ def init_extra_tables():
             description VARCHAR(200),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
+        """CREATE TABLE IF NOT EXISTS SupportMessages (
+            id SERIAL PRIMARY KEY,
+            ticket_id INT NOT NULL,
+            sender_id INT NOT NULL,
+            message VARCHAR(2000),
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
     ]
     for sql in tables:
         try:
@@ -541,10 +569,20 @@ def reverse_geocode(lat, lng):
         return f'{lat:.6f}, {lng:.6f}'
 
 
-def auto_assign_courier(order_id, restaurant_lat, restaurant_lng):
+def auto_assign_courier(order_id, restaurant_lat, restaurant_lng, delivery_lat=None, delivery_lng=None):
+    """Auto-assign nearest available courier, filtering by vehicle type based on delivery distance."""
     try:
+        # Calculate delivery distance from restaurant to delivery location
+        delivery_distance_km = 9999  # default large value
+        if delivery_lat and delivery_lng:
+            try:
+                delivery_distance_km = haversine(restaurant_lat, restaurant_lng,
+                                                  float(delivery_lat), float(delivery_lng))
+            except:
+                delivery_distance_km = 9999
+
         couriers = query("""
-            SELECT cl.courier_id, cl.latitude, cl.longitude
+            SELECT cl.courier_id, cl.latitude, cl.longitude, cl.vehicle_type
             FROM CourierLocations cl
             JOIN Users u ON cl.courier_id = u.id
             WHERE cl.is_online = TRUE AND u.role = 'courier'
@@ -558,22 +596,34 @@ def auto_assign_courier(order_id, restaurant_lat, restaurant_lng):
         """, fetch=True)
 
         if couriers:
+            # Filter couriers by vehicle type based on delivery distance
+            eligible = []
             for c in couriers:
                 try:
                     c['dist_km'] = haversine(restaurant_lat, restaurant_lng,
                                              float(c['latitude']), float(c['longitude']))
                 except:
                     c['dist_km'] = 9999
-            couriers.sort(key=lambda x: x['dist_km'])
-            c = couriers[0]
-            query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=CURRENT_TIMESTAMP WHERE id=?",
-                  (c['courier_id'], order_id))
-            query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'courier_assigned', ?)",
-                  (order_id, f"Courier {c['courier_id']} assigned ({c['dist_km']:.1f}km away)"))
-            # Notify courier
-            push_notification(c['courier_id'], 'New Order Assigned',
-                              f'You have been assigned to order #{order_id}', 'order_assigned', order_id)
-            return c['courier_id']
+
+                vehicle = c.get('vehicle_type', 'bicycle')
+                # Walkers and bikes can only handle orders < 3km delivery distance
+                if vehicle in ('walking', 'bicycle') and delivery_distance_km >= 3:
+                    continue  # skip — too far for this vehicle
+                # Scooters and cars can handle any distance
+                eligible.append(c)
+
+            if eligible:
+                eligible.sort(key=lambda x: x['dist_km'])
+                c = eligible[0]
+                vehicle = c.get('vehicle_type', 'bicycle')
+                query("UPDATE Orders SET courier_id=?, status='courier_assigned', updated_at=CURRENT_TIMESTAMP WHERE id=?",
+                      (c['courier_id'], order_id))
+                query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'courier_assigned', ?)",
+                      (order_id, f"Courier {c['courier_id']} assigned ({c['dist_km']:.1f}km away, vehicle: {vehicle})"))
+                # Notify courier
+                push_notification(c['courier_id'], 'New Order Assigned',
+                                  f'You have been assigned to order #{order_id}', 'order_assigned', order_id)
+                return c['courier_id']
     except Exception as e:
         print(f"  Auto-assign error: {e}")
 
@@ -623,7 +673,7 @@ def handle_register(body):
         display_name = body.get('display_name', username)
         if not username or not password:
             return 400, {"success": False, "message": "Username and password required"}
-        if role not in ('customer', 'courier', 'admin'):
+        if role not in ('customer', 'courier', 'admin', 'support', 'partner'):
             role = 'customer'
         existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
         if existing:
@@ -825,8 +875,8 @@ def handle_toggle_restaurant(payload, rid):
 
 def handle_admin_all_orders(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         rows = query("""
             SELECT o.id, o.order_number, o.status, o.total, o.created_at, o.delivered_at,
                    r.name as restaurant_name,
@@ -1099,9 +1149,13 @@ def handle_create_order(body, payload):
         total = round(subtotal + delivery_fee - discount - points_discount, 2)
 
         # Generate unique order number
-        order_number = f"ELY-{random.randint(100000, 999999)}"
+        count_row = query("SELECT COUNT(*) as cnt FROM Orders", fetch_one=True)
+        next_num = (count_row['cnt'] if count_row else 0) + 10001
+        order_number = f"Ely-{next_num}"
+        # Ensure uniqueness
         while query("SELECT id FROM Orders WHERE order_number=?", (order_number,), fetch_one=True):
-            order_number = f"ELY-{random.randint(100000, 999999)}"
+            next_num += 1
+            order_number = f"Ely-{next_num}"
 
         delivery_lat = body.get('delivery_lat', 41.3900) or 41.3900
         delivery_lng = body.get('delivery_lng', 2.1700) or 2.1700
@@ -1243,8 +1297,13 @@ def handle_courier_update_location(body, payload):
 def handle_courier_set_online(body, payload):
     try:
         is_online = body.get('is_online', True)
-        query("UPDATE CourierLocations SET is_online=? WHERE courier_id=?", (is_online, payload['uid']))
-        return 200, {"success": True, "data": {"is_online": is_online}}
+        vehicle_type = body.get('vehicle_type', None)
+        if vehicle_type and vehicle_type in ('walking', 'bicycle', 'scooter', 'car'):
+            query("UPDATE CourierLocations SET is_online=?, vehicle_type=? WHERE courier_id=?",
+                  (is_online, vehicle_type, payload['uid']))
+        else:
+            query("UPDATE CourierLocations SET is_online=? WHERE courier_id=?", (is_online, payload['uid']))
+        return 200, {"success": True, "data": {"is_online": is_online, "vehicle_type": vehicle_type}}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -1309,6 +1368,48 @@ def handle_courier_update_status(body, payload, oid):
                 award_loyalty_points(order['customer_id'], oid, float(order['total']))
             except:
                 pass
+            # Create CourierEarnings entry
+            try:
+                base_fee = 2.50
+                # Distance bonus: calculate from restaurant to delivery
+                distance_bonus = 0
+                restaurant = query("SELECT latitude, longitude FROM Restaurants WHERE id=?", (order['restaurant_id'],), fetch_one=True)
+                if restaurant and order.get('delivery_lat') and order.get('delivery_lng'):
+                    dist = haversine(float(restaurant['latitude']), float(restaurant['longitude']),
+                                     float(order['delivery_lat']), float(order['delivery_lng']))
+                    # €0.50 per km after first 2km
+                    if dist > 2:
+                        distance_bonus = round((dist - 2) * 0.50, 2)
+                # Waiting time bonus from courier_arrived_restaurant_at to order_picked_up_at
+                waiting_bonus = 0
+                if order.get('courier_arrived_restaurant_at') and order.get('order_picked_up_at'):
+                    try:
+                        arrived = order['courier_arrived_restaurant_at']
+                        picked_up = order['order_picked_up_at']
+                        if isinstance(arrived, str):
+                            arrived = datetime.datetime.fromisoformat(arrived.replace('Z', '+00:00'))
+                        if isinstance(picked_up, str):
+                            picked_up = datetime.datetime.fromisoformat(picked_up.replace('Z', '+00:00'))
+                        wait_minutes = max(0, (picked_up - arrived).total_seconds() / 60)
+                        # €0.10 per minute of waiting after first 5 minutes
+                        if wait_minutes > 5:
+                            waiting_bonus = round((wait_minutes - 5) * 0.10, 2)
+                    except:
+                        pass
+                total_earnings = round(base_fee + distance_bonus + waiting_bonus, 2)
+                # Save earnings to order
+                query("UPDATE Orders SET courier_earnings=?, waiting_minutes=? WHERE id=?",
+                      (total_earnings, int(wait_minutes) if order.get('courier_arrived_restaurant_at') and order.get('order_picked_up_at') else 0, oid))
+                # Insert into CourierEarnings
+                desc_parts = [f"Base: €{base_fee:.2f}"]
+                if distance_bonus > 0:
+                    desc_parts.append(f"Distance: €{distance_bonus:.2f}")
+                if waiting_bonus > 0:
+                    desc_parts.append(f"Waiting: €{waiting_bonus:.2f}")
+                insert("INSERT INTO CourierEarnings (courier_id,order_id,amount,earning_type,description) VALUES (?,?,?,'delivery_fee',?)",
+                       (payload['uid'], oid, total_earnings, ' + '.join(desc_parts)))
+            except Exception as e:
+                print(f"  CourierEarnings error: {e}")
         params.append(oid)
         query(f"UPDATE Orders SET {update_fields} WHERE id=?", tuple(params))
         query("INSERT INTO OrderLog (order_id,status) VALUES (?,?)", (oid, new_status))
@@ -1348,7 +1449,8 @@ def handle_courier_reject_order(payload, oid):
         # Try auto-assign to another courier
         restaurant = query("SELECT latitude, longitude FROM Restaurants WHERE id=?", (order['restaurant_id'],), fetch_one=True)
         if restaurant:
-            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']),
+                                order.get('delivery_lat'), order.get('delivery_lng'))
         return 200, {"success": True, "message": "Order rejected. It has been reassigned to another courier."}
     except Exception as e:
         traceback.print_exc()
@@ -1370,19 +1472,303 @@ def handle_courier_reassign_order(payload, oid):
                           'Your courier has changed. Finding a new courier...', 'order_status', oid)
         restaurant = query("SELECT latitude, longitude FROM Restaurants WHERE id=?", (order['restaurant_id'],), fetch_one=True)
         if restaurant:
-            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']))
+            auto_assign_courier(oid, float(restaurant['latitude']), float(restaurant['longitude']),
+                                order.get('delivery_lat'), order.get('delivery_lng'))
         return 200, {"success": True, "message": "Order reassigned to another courier."}
     except Exception as e:
         traceback.print_exc()
         return 500, {"success": False, "message": str(e)}
 
 
+def handle_courier_earnings(payload):
+    """Get courier earnings summary and recent entries."""
+    try:
+        uid = payload['uid']
+        # Total earnings
+        total_row = query("SELECT COALESCE(SUM(amount), 0) as total FROM CourierEarnings WHERE courier_id=?", (uid,), fetch_one=True)
+        total_earnings = float(total_row['total']) if total_row else 0
+        # Today's earnings
+        today = datetime.date.today().isoformat()
+        today_row = query("SELECT COALESCE(SUM(amount), 0) as total FROM CourierEarnings WHERE courier_id=? AND DATE(created_at) >= ?", (uid, today), fetch_one=True)
+        today_earnings = float(today_row['total']) if today_row else 0
+        # Recent earnings entries
+        recent = query("SELECT * FROM CourierEarnings WHERE courier_id=? ORDER BY created_at DESC LIMIT 20", (uid,), fetch=True)
+        return 200, {"success": True, "data": {
+            "total_earnings": total_earnings,
+            "today_earnings": today_earnings,
+            "recent_entries": recent or []
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_courier_set_vehicle(body, payload):
+    """Update courier's vehicle type."""
+    try:
+        vehicle_type = body.get('vehicle_type', 'bicycle')
+        if vehicle_type not in ('walking', 'bicycle', 'scooter', 'car'):
+            return 400, {"success": False, "message": "Invalid vehicle type. Must be: walking, bicycle, scooter, car"}
+        existing = query("SELECT id FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+        if existing:
+            query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?", (vehicle_type, payload['uid']))
+        else:
+            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online,vehicle_type) VALUES (?,0,0,FALSE,?)",
+                   (payload['uid'], vehicle_type))
+        return 200, {"success": True, "data": {"vehicle_type": vehicle_type}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── SUPPORT TICKETS ──
+def handle_support_tickets(payload):
+    """List all open support tickets (admin/support role)."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        rows = query("""
+            SELECT st.*, u.display_name as user_name, o.order_number
+            FROM SupportTickets st
+            JOIN Users u ON st.user_id=u.id
+            JOIN Orders o ON st.order_id=o.id
+            ORDER BY st.created_at DESC
+        """, fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_create_ticket(body, payload):
+    """Create a support ticket for an order. Support/admin can create for any order."""
+    try:
+        order_id = body.get('order_id')
+        if not order_id:
+            return 400, {"success": False, "message": "order_id required"}
+        # Support/admin can create tickets for any order
+        if payload['role'] in ('admin', 'support'):
+            order = query("SELECT id, customer_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
+        else:
+            order = query("SELECT id, customer_id FROM Orders WHERE id=? AND customer_id=?", (order_id, payload['uid']), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found or not yours"}
+        # Check if there's already an open ticket for this order
+        existing = query("SELECT id FROM SupportTickets WHERE order_id=? AND status='open'", (order_id,), fetch_one=True)
+        if existing:
+            return 400, {"success": False, "message": "An open ticket already exists for this order"}
+        # Use order's customer_id as the ticket user_id (for support-created tickets)
+        ticket_user_id = order['customer_id'] if payload['role'] in ('admin', 'support') else payload['uid']
+        tid = insert("INSERT INTO SupportTickets (order_id,user_id,status) VALUES (?,?,'open')",
+                     (order_id, ticket_user_id))
+        return 201, {"success": True, "data": {"id": tid, "order_id": order_id, "status": "open"}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_messages(payload, ticket_id):
+    """Get messages for a support ticket."""
+    try:
+        ticket = query("SELECT * FROM SupportTickets WHERE id=?", (ticket_id,), fetch_one=True)
+        if not ticket:
+            return 404, {"success": False, "message": "Ticket not found"}
+        # Only the ticket owner, admin, or support can view messages
+        uid = payload['uid']
+        if payload['role'] not in ('admin', 'support') and ticket['user_id'] != uid:
+            return 403, {"success": False, "message": "Not authorized"}
+        rows = query("""
+            SELECT sm.*, u.display_name as sender_name, u.role as sender_role
+            FROM SupportMessages sm
+            JOIN Users u ON sm.sender_id=u.id
+            WHERE sm.ticket_id=?
+            ORDER BY sm.created_at ASC
+        """, (ticket_id,), fetch=True)
+        # Mark messages as read for the current user
+        query("UPDATE SupportMessages SET is_read=TRUE WHERE ticket_id=? AND sender_id!=?", (ticket_id, uid))
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_send_message(body, payload):
+    """Send a message in a support ticket."""
+    try:
+        ticket_id = body.get('ticket_id')
+        message = (body.get('message') or '').strip()
+        if not ticket_id or not message:
+            return 400, {"success": False, "message": "ticket_id and message required"}
+        ticket = query("SELECT * FROM SupportTickets WHERE id=?", (ticket_id,), fetch_one=True)
+        if not ticket:
+            return 404, {"success": False, "message": "Ticket not found"}
+        uid = payload['uid']
+        if payload['role'] not in ('admin', 'support') and ticket['user_id'] != uid:
+            return 403, {"success": False, "message": "Not authorized"}
+        # If support/admin replies, mark ticket as in_progress
+        if payload['role'] in ('admin', 'support') and ticket['status'] == 'open':
+            query("UPDATE SupportTickets SET status='in_progress', updated_at=CURRENT_TIMESTAMP WHERE id=?", (ticket_id,))
+        msg_id = insert("INSERT INTO SupportMessages (ticket_id,sender_id,message) VALUES (?,?,?)",
+                        (ticket_id, uid, message))
+        return 201, {"success": True, "data": {"id": msg_id, "ticket_id": ticket_id, "message": message}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_close_ticket(payload, ticket_id):
+    """Close a support ticket (admin/support only)."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        ticket = query("SELECT * FROM SupportTickets WHERE id=?", (ticket_id,), fetch_one=True)
+        if not ticket:
+            return 404, {"success": False, "message": "Ticket not found"}
+        if ticket['status'] == 'closed':
+            return 400, {"success": False, "message": "Ticket already closed"}
+        query("UPDATE SupportTickets SET status='closed', updated_at=CURRENT_TIMESTAMP WHERE id=?", (ticket_id,))
+        return 200, {"success": True, "message": "Ticket closed"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── DELIVER ANYTHING ──
+def handle_deliver_anything(body, payload):
+    """Create a special 'Deliver Anything' order — no restaurant needed."""
+    try:
+        uid = payload['uid']
+        pickup_lat = body.get('pickup_lat')
+        pickup_lng = body.get('pickup_lng')
+        pickup_address = body.get('pickup_address', '')
+        pickup_description = body.get('pickup_description', '')
+        delivery_lat = body.get('delivery_lat')
+        delivery_lng = body.get('delivery_lng')
+        delivery_address = body.get('delivery_address', '')
+
+        if not pickup_lat or not pickup_lng:
+            return 400, {"success": False, "message": "pickup_lat and pickup_lng required"}
+        if not delivery_lat or not delivery_lng:
+            return 400, {"success": False, "message": "delivery_lat and delivery_lng required"}
+        if not pickup_description:
+            return 400, {"success": False, "message": "pickup_description required (what to pick up)"}
+
+        # Find or create a virtual restaurant for "Deliver Anything"
+        virtual = query("SELECT id FROM Restaurants WHERE name='Elyanivery Delivery Service'", fetch_one=True)
+        if not virtual:
+            virtual_id = insert(
+                "INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category) "
+                "VALUES ('Elyanivery Delivery Service','Virtual restaurant for Deliver Anything orders','',?,?,'TRUE','delivery_service')",
+                (pickup_lat, pickup_lng)
+            )
+        else:
+            virtual_id = virtual['id']
+
+        # Generate unique order number
+        count_row = query("SELECT COUNT(*) as cnt FROM Orders", fetch_one=True)
+        next_num = (count_row['cnt'] if count_row else 0) + 10001
+        order_number = f"Ely-{next_num}"
+        while query("SELECT id FROM Orders WHERE order_number=?", (order_number,), fetch_one=True):
+            next_num += 1
+            order_number = f"Ely-{next_num}"
+
+        delivery_fee = 3.50  # slightly higher for Deliver Anything
+        total = delivery_fee
+
+        oid = insert(
+            "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
+            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng,estimated_prep_minutes)"
+            " VALUES (?,?,?,'ready_for_pickup',0,?,?,?,?,NULL)",
+            (order_number, uid, virtual_id, delivery_fee, total,
+             delivery_address or 'Customer Location', delivery_lat, delivery_lng)
+        )
+
+        if not oid:
+            return 500, {"success": False, "message": "Failed to create order"}
+
+        # Add pickup description as a virtual order item
+        insert(
+            "INSERT INTO OrderItems (order_id,item_id,item_name,item_price,quantity) VALUES (?,0,?,0,1)",
+            (oid, pickup_description)
+        )
+
+        query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'ready_for_pickup', ?)",
+              (oid, f'Deliver Anything order. Pickup: {pickup_description}'))
+
+        # Auto-assign nearest courier
+        courier_id = auto_assign_courier(oid, float(pickup_lat), float(pickup_lng),
+                                          float(delivery_lat), float(delivery_lng))
+
+        # Notify customer
+        push_notification(uid, 'Delivery Requested',
+                          f'Your Deliver Anything order {order_number} has been placed! Finding a courier.', 'order_placed', oid)
+
+        order = query("SELECT o.*, r.name as restaurant_name FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id WHERE o.id=?", (oid,), fetch_one=True)
+        order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True) or []
+        order['pickup_lat'] = pickup_lat
+        order['pickup_lng'] = pickup_lng
+        order['pickup_address'] = pickup_address
+        order['pickup_description'] = pickup_description
+
+        result = {"success": True, "data": order}
+        if courier_id:
+            result['courier_assigned'] = True
+        else:
+            result['courier_assigned'] = False
+            result['message'] = 'Order created but no courier available yet.'
+        return 201, result
+    except Exception as e:
+        traceback.print_exc()
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN STATS ──
+def handle_admin_stats(payload):
+    """Admin dashboard statistics."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+
+        today = datetime.date.today().isoformat()
+        week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+
+        # Orders today
+        orders_today = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at) >= ?", (today,), fetch_one=True)
+        # Orders this week
+        orders_week = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at) >= ?", (week_ago,), fetch_one=True)
+        # Revenue today
+        revenue_today = query("SELECT COALESCE(SUM(total), 0) as total FROM Orders WHERE status='delivered' AND DATE(created_at) >= ?", (today,), fetch_one=True)
+        # Revenue this week
+        revenue_week = query("SELECT COALESCE(SUM(total), 0) as total FROM Orders WHERE status='delivered' AND DATE(created_at) >= ?", (week_ago,), fetch_one=True)
+        # Active couriers
+        active_couriers = query("SELECT COUNT(*) as cnt FROM CourierLocations WHERE is_online=TRUE", fetch_one=True)
+        # Active partners (restaurants that are open)
+        active_partners = query("SELECT COUNT(*) as cnt FROM Restaurants WHERE is_open=TRUE", fetch_one=True)
+        # Customer count
+        customer_count = query("SELECT COUNT(*) as cnt FROM Users WHERE role='customer'", fetch_one=True)
+        # Orders by status
+        status_rows = query("SELECT status, COUNT(*) as cnt FROM Orders GROUP BY status", fetch=True)
+        status_breakdown = {}
+        if status_rows:
+            for sr in status_rows:
+                status_breakdown[sr['status']] = sr['cnt']
+        # Support tickets count (open)
+        support_open = query("SELECT COUNT(*) as cnt FROM SupportTickets WHERE status IN ('open','in_progress')", fetch_one=True)
+
+        return 200, {"success": True, "data": {
+            "orders_today": orders_today['cnt'] if orders_today else 0,
+            "orders_week": orders_week['cnt'] if orders_week else 0,
+            "revenue_today": float(revenue_today['total']) if revenue_today else 0,
+            "revenue_week": float(revenue_week['total']) if revenue_week else 0,
+            "active_couriers": active_couriers['cnt'] if active_couriers else 0,
+            "active_partners": active_partners['cnt'] if active_partners else 0,
+            "customer_count": customer_count['cnt'] if customer_count else 0,
+            "status_breakdown": status_breakdown,
+            "support_tickets_open": support_open['cnt'] if support_open else 0
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
 # ── ADMIN ──
 def handle_admin_couriers(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
-        rows = query("SELECT u.id, u.username, u.display_name, u.avatar_url, cl.latitude, cl.longitude, cl.is_online FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.role='courier'", fetch=True)
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        rows = query("SELECT u.id, u.username, u.display_name, u.avatar_url, cl.latitude, cl.longitude, cl.is_online, cl.vehicle_type FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.role='courier'", fetch=True)
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
@@ -1390,8 +1776,8 @@ def handle_admin_couriers(payload):
 
 def handle_admin_unassigned_orders(payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         rows = query("SELECT o.*, r.name as restaurant_name FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id WHERE o.courier_id IS NULL AND o.status NOT IN ('delivered','cancelled') ORDER BY o.created_at", fetch=True)
         return 200, {"success": True, "data": rows or []}
     except Exception as e:
@@ -1400,8 +1786,8 @@ def handle_admin_unassigned_orders(payload):
 
 def handle_admin_assign_order(body, payload):
     try:
-        if payload['role'] != 'admin':
-            return 403, {"success": False, "message": "Admin only"}
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
         oid, cid = body.get('order_id'), body.get('courier_id')
         if not oid or not cid:
             return 400, {"success": False, "message": "order_id and courier_id required"}
@@ -1417,7 +1803,7 @@ def handle_admin_assign_order(body, payload):
 #  NEW: IN-APP CHAT (Customer <-> Courier)
 # ══════════════════════════════════════════════
 def handle_chat_send(body, payload):
-    """Send a chat message. Both customer and courier can use this."""
+    """Send a chat message. Both customer and courier can use this. Support/admin can also send."""
     try:
         order_id = body.get('order_id')
         message = (body.get('message') or '').strip()
@@ -1425,19 +1811,24 @@ def handle_chat_send(body, payload):
         if not order_id or not message:
             return 400, {"success": False, "message": "order_id and message required"}
 
-        # Verify the user is part of this order
+        # Verify the user is part of this order or is support/admin
         order = query("SELECT customer_id, courier_id FROM Orders WHERE id=?", (order_id,), fetch_one=True)
         if not order:
             return 404, {"success": False, "message": "Order not found"}
 
         uid = payload['uid']
-        if uid != order['customer_id'] and uid != order['courier_id']:
+        is_support_admin = payload['role'] in ('admin', 'support')
+        if uid != order['customer_id'] and uid != order['courier_id'] and not is_support_admin:
             return 403, {"success": False, "message": "Not authorized for this conversation"}
 
         # Determine receiver
-        receiver_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
+        if is_support_admin:
+            # Support messages go to customer by default
+            receiver_id = order['customer_id']
+        else:
+            receiver_id = order['courier_id'] if uid == order['customer_id'] else order['customer_id']
         if not receiver_id:
-            return 400, {"success": False, "message": "No courier assigned yet"}
+            return 400, {"success": False, "message": "No recipient available"}
 
         msg_id = insert(
             "INSERT INTO ChatMessages (order_id,sender_id,receiver_id,message,message_type) VALUES (?,?,?,?,?)",
@@ -1463,11 +1854,13 @@ def handle_chat_messages(payload, order_id, after_id=0):
         if not order:
             return 404, {"success": False, "message": "Order not found"}
         uid = payload['uid']
-        if uid != order['customer_id'] and uid != order['courier_id']:
-            return 403, {"success": False, "message": "Not authorized"}
+        # Support/admin can view any order's chat
+        if payload['role'] not in ('admin', 'support'):
+            if uid != order['customer_id'] and uid != order['courier_id']:
+                return 403, {"success": False, "message": "Not authorized"}
 
         rows = query(
-            "SELECT cm.*, u.display_name as sender_name, u.avatar_url as sender_avatar "
+            "SELECT cm.*, u.display_name as sender_name, u.avatar_url as sender_avatar, u.role as sender_role "
             "FROM ChatMessages cm JOIN Users u ON cm.sender_id=u.id "
             "WHERE cm.order_id=? AND cm.id>? ORDER BY cm.id ASC",
             (order_id, after_id), fetch=True
@@ -1913,6 +2306,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._serve('/static/courier/index.html')
             elif path == '/partner':
                 self._serve('/static/partner/index.html')
+            elif path == '/admin':
+                self._serve('/static/admin/index.html')
+            elif path == '/support':
+                self._serve('/static/support/index.html')
             elif path.startswith('/static/'):
                 self._serve(path)
 
@@ -2060,6 +2457,30 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_courier_assigned_orders(p)
                 self._json(code, data)
+            elif path == '/api/courier/earnings':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_earnings(p)
+                self._json(code, data)
+
+            # ── Support ──
+            elif path == '/api/support/tickets':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_support_tickets(p)
+                self._json(code, data)
+            elif path.startswith('/api/support/tickets/') and path.endswith('/messages'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    ticket_id = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ticket ID"})
+                code, data = handle_support_messages(p, ticket_id)
+                self._json(code, data)
 
             # ── Admin ──
             elif path == '/api/admin/couriers':
@@ -2079,6 +2500,12 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_all_orders(p)
+                self._json(code, data)
+            elif path == '/api/admin/stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_stats(p)
                 self._json(code, data)
 
             # ── Partner ──
@@ -2373,6 +2800,34 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_courier_reassign_order(p, oid)
                 self._json(code, data)
+            elif path == '/api/courier/set-vehicle':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_set_vehicle(body, p)
+                self._json(code, data)
+
+            # ── Support ──
+            elif path == '/api/support/tickets':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_support_create_ticket(body, p)
+                self._json(code, data)
+            elif path.startswith('/api/support/tickets/') and path.endswith('/messages'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_support_send_message(body, p)
+                self._json(code, data)
+
+            # ── Deliver Anything ──
+            elif path == '/api/deliver-anything':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_deliver_anything(body, p)
+                self._json(code, data)
 
             # ── Admin ──
             elif path == '/api/admin/assign':
@@ -2391,7 +2846,7 @@ class Handler(BaseHTTPRequestHandler):
                     oid = int(path.split('/')[4])
                 except:
                     return self._json(400, {"success": False, "message": "Invalid order ID"})
-                code, data = handle_partner_accept_order(p, oid)
+                code, data = handle_partner_accept_order(body, p, oid)
                 self._json(code, data)
             elif path.startswith('/api/partner/order/') and path.endswith('/reject'):
                 p = self._auth()
@@ -2411,7 +2866,7 @@ class Handler(BaseHTTPRequestHandler):
                     oid = int(path.split('/')[4])
                 except:
                     return self._json(400, {"success": False, "message": "Invalid order ID"})
-                code, data = handle_partner_ready_order(p, oid)
+                code, data = handle_partner_ready_order(body, p, oid)
                 self._json(code, data)
             elif path == '/api/partner/menu':
                 p = self._auth()
@@ -2482,6 +2937,17 @@ class Handler(BaseHTTPRequestHandler):
                 except:
                     return self._json(400, {"success": False, "message": "Invalid address ID"})
                 code, data = handle_update_address(body, p, aid)
+                self._json(code, data)
+            # ── Support ticket close ──
+            elif path.startswith('/api/support/tickets/') and path.endswith('/close'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    ticket_id = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid ticket ID"})
+                code, data = handle_support_close_ticket(p, ticket_id)
                 self._json(code, data)
             # ── Items ──
             elif path.startswith('/api/restaurants/') and '/items/' in path:
@@ -2616,9 +3082,12 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY v3.0 - Delivery Platform (PostgreSQL)")
+    print("  ELYANIVERY v4.0 - Delivery Platform (PostgreSQL)")
     print("  + Chat, Voice Calls, Notifications,")
-    print("    Address Book, Loyalty Points")
+    print("    Address Book, Loyalty Points,")
+    print("    Vehicle-based Courier, Earnings,")
+    print("    Support Tickets, Deliver Anything,")
+    print("    Admin Dashboard")
     print("=" * 50)
 
     # init_db() connects to PostgreSQL using DATABASE_URL or individual params
@@ -2661,13 +3130,19 @@ if __name__ == '__main__':
     print(f"\nServer: http://localhost:{Config.PORT}")
     print(f"  Customer: http://localhost:{Config.PORT}/customer")
     print(f"  Courier:  http://localhost:{Config.PORT}/courier")
-    print(f"\n  admin / admin | customer1 / 1234 | courier1 / 1234\n")
-    print("  New API Endpoints:")
+    print(f"  Admin:    http://localhost:{Config.PORT}/admin")
+    print(f"  Support:  http://localhost:{Config.PORT}/support")
+    print(f"\n  admin / admin | customer1 / 1234 | courier1 / 1234 | support1 / 1234\n")
+    print("  API Endpoints:")
     print("    Chat:    /api/chat/send | /api/chat/messages/{oid} | /api/chat/conversations | /api/chat/unread")
     print("    Call:    /api/call/initiate | /api/call/answer | /api/call/end | /api/call/reject | /api/call/incoming | /api/call/ice-candidate")
     print("    Notif:   /api/notifications | /api/notifications/unread-count")
     print("    Address: /api/addresses")
     print("    Loyalty: /api/loyalty | /api/loyalty/history")
+    print("    Earnings: /api/courier/earnings | /api/courier/set-vehicle")
+    print("    Support: /api/support/tickets | /api/support/tickets/{id}/messages")
+    print("    Deliver: /api/deliver-anything")
+    print("    Stats:  /api/admin/stats")
 
     try:
         srv.serve_forever()

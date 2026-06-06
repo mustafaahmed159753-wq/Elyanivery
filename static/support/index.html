@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight_dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Elyanivery - Customer Support</title>
+<style>
+/* ════════════════════════════════════════════════════════════════════
+   THEME SYSTEM — 8 Themes
+   ════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Midnight Dark (default) */
+  --pri:#ff6b35;--pri2:#ff8c5a;--bg:#0f1128;--bg2:#161938;--card:#1a1d42;
+  --card2:#22264f;--text:#e8e8f0;--text2:#b0b3d0;--muted:#6c6f9a;
+  --border:#2e3260;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --glass:0;--pri-glow:0 0 20px rgba(255,107,53,.25);--radius:12px;
+}
+/* Ocean Blue */
+html[data-theme="ocean_blue"]{
+  --pri:#2196f3;--pri2:#42a5f5;--bg:#0a1628;--bg2:#0f1f3a;--card:#142848;
+  --card2:#1a3358;--text:#e0eaff;--text2:#a0b8e0;--muted:#5a7aa0;
+  --border:#1e3a5f;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri-glow:0 0 20px rgba(33,150,243,.25);
+}
+/* Emerald Forest */
+html[data-theme="emerald_forest"]{
+  --pri:#27ae60;--pri2:#2ecc71;--bg:#0a1f0e;--bg2:#0f2a14;--card:#14381c;
+  --card2:#1a4524;--text:#d8f0dc;--text2:#90c098;--muted:#4a8a54;
+  --border:#1e5028;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri-glow:0 0 20px rgba(39,174,96,.25);
+}
+/* Sunset Warm */
+html[data-theme="sunset_warm"]{
+  --pri:#ff6b35;--pri2:#ff8c5a;--bg:#1a0f08;--bg2:#2a1a10;--card:#3a2418;
+  --card2:#4a3020;--text:#f5e0d0;--text2:#c0a080;--muted:#8a6a50;
+  --border:#5a3a28;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri-glow:0 0 20px rgba(255,107,53,.25);
+}
+/* Royal Purple */
+html[data-theme="royal_purple"]{
+  --pri:#9b59b6;--pri2:#af7ac5;--bg:#150f1e;--bg2:#1e1530;--card:#281e40;
+  --card2:#322850;--text:#e8d8f8;--text2:#b8a0d0;--muted:#7a60a0;
+  --border:#3a2860;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri-glow:0 0 20px rgba(155,89,182,.25);
+}
+/* Rose Gold */
+html[data-theme="rose_gold"]{
+  --pri:#e8a0a0;--pri2:#f0c0c0;--bg:#1a1015;--bg2:#281820;--card:#382028;
+  --card2:#482838;--text:#f8e0e8;--text2:#d0a0b0;--muted:#9a6a7a;
+  --border:#5a3040;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri-glow:0 0 20px rgba(232,160,160,.25);
+}
+/* Arctic Light */
+html[data-theme="arctic_light"]{
+  --pri:#2c3e50;--pri2:#34495e;--bg:#e8eef4;--bg2:#dce4ec;--card:#ffffff;
+  --card2:#f0f4f8;--text:#1a2a3a;--text2:#4a5a6a;--muted:#8a9aaa;
+  --border:#c0d0e0;--green:#27ae60;--red:#e74c3c;--blue:#2196f3;
+  --amber:#e67e22;--teal:#16a085;--purple:#8e44ad;--shadow:0 4px 20px rgba(0,0,0,.08);
+  --pri-glow:0 0 20px rgba(44,62,80,.1);
+}
+/* Glassmorphism */
+html[data-theme="glassmorphism"]{
+  --pri:#ff6b35;--pri2:#ff8c5a;--bg:transparent;--bg2:transparent;
+  --card:rgba(255,255,255,.1);--card2:rgba(255,255,255,.06);
+  --text:#ffffff;--text2:rgba(255,255,255,.8);--muted:rgba(255,255,255,.5);
+  --border:rgba(255,255,255,.15);--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 8px 32px rgba(0,0,0,.2);
+  --glass:1;--pri-glow:0 0 20px rgba(255,107,53,.3);
+}
+html[data-theme="glassmorphism"] body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 40%,#24243e 70%,#1a1a2e 100%)!important;min-height:100vh}
+html[data-theme="glassmorphism"] .dashboard-main,
+html[data-theme="glassmorphism"] .top-bar,
+html[data-theme="glassmorphism"] .order-card,
+html[data-theme="glassmorphism"] .ticket-card,
+html[data-theme="glassmorphism"] .detail-panel,
+html[data-theme="glassmorphism"] .chat-section,
+html[data-theme="glassmorphism"] .msg-bubble{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+html[data-theme="glassmorphism"] .order-card,
+html[data-theme="glassmorphism"] .ticket-card{border:1px solid rgba(255,255,255,.18)!important}
+html[data-theme="glassmorphism"] .top-bar{background:rgba(15,12,41,.7)!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
+html[data-theme="glassmorphism"] .left-panel,
+html[data-theme="glassmorphism"] .right-panel{background:rgba(15,12,41,.4)!important}
+html[data-theme="glassmorphism"] .detail-panel{background:rgba(15,12,41,.5)!important}
+html[data-theme="glassmorphism"] .chat-input-area{background:rgba(15,12,41,.7)!important}
+html[data-theme="glassmorphism"] input,html[data-theme="glassmorphism"] textarea{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
+html[data-theme="glassmorphism"] select{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
+
+/* ════════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ════════════════════════════════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+button{cursor:pointer;border:none;font-family:inherit}
+input,textarea,select{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+
+/* ════════════════════════════════════════════════════════════════════
+   SPLASH SCREEN - 3D letter animation + support items
+   ════════════════════════════════════════════════════════════════════ */
+.splash-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 30%,#1a1a2e 65%,#0f3460 100%);background-size:300% 300%;animation:splashGradient 3s ease-in-out forwards}
+.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(255,255,255,.08) 0%,transparent 50%);animation:splashShift 4s ease-in-out infinite}
+.splash-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.15) 0%,transparent 60%)}
+@keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
+@keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
+.splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+.splash-letters{display:flex;gap:2px;margin-bottom:8px;perspective:600px}
+.splash-letter{font-size:48px;font-weight:800;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 15px rgba(255,107,0,.4)}
+@keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-3px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
+.splash-subtitle{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:24px;opacity:0;animation:fadeInUp .6s ease 1.4s forwards}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.splash-surround{position:absolute;inset:0;pointer-events:none;z-index:1}
+.splash-item{position:absolute;font-size:34px;opacity:0;animation:itemFloat 3s ease-in-out infinite}
+@keyframes itemFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.8}25%{transform:translateY(-12px) rotate(8deg);opacity:1}75%{transform:translateY(-8px) rotate(-5deg);opacity:.9}}
+
+/* Circular progress */
+.splash-progress{margin-top:8px;position:relative;width:64px;height:64px}
+.splash-progress svg{transform:rotate(-90deg);width:64px;height:64px}
+.splash-progress circle{fill:none;stroke-width:4;stroke-linecap:round}
+.splash-progress .progress-bg{stroke:rgba(255,255,255,.15)}
+.splash-progress .progress-fg{stroke:#fff;stroke-dasharray:157;stroke-dashoffset:157;animation:circularProgress 2.2s ease forwards}
+@keyframes circularProgress{0%{stroke-dashoffset:157}100%{stroke-dashoffset:0}}
+.splash-progress .progress-percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+
+.splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .7s ease,transform .7s ease}
+
+/* ════════════════════════════════════════════════════════════════════
+   LOGIN SCREEN
+   ════════════════════════════════════════════════════════════════════ */
+.login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:20px;flex-direction:column}
+.login-screen.active{display:flex}
+.login-box{background:var(--card);border-radius:16px;padding:40px 32px;width:100%;max-width:400px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.login-box h2{color:var(--pri);font-size:28px;margin-bottom:4px;text-align:center}
+.login-box p{color:var(--muted);font-size:14px;text-align:center;margin-bottom:28px}
+.login-box .logo-icon{text-align:center;font-size:48px;margin-bottom:16px}
+.login-input{width:100%;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);margin-bottom:14px;transition:border .2s}
+.login-input:focus{border-color:var(--pri)}
+.login-btn{width:100%;padding:14px;background:var(--pri);color:#fff;border-radius:10px;font-size:16px;font-weight:600;transition:all .2s;box-shadow:var(--pri-glow)}
+.login-btn:hover{background:var(--pri2);transform:translateY(-1px)}
+.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
+
+/* ════════════════════════════════════════════════════════════════════
+   TOP BAR
+   ════════════════════════════════════════════════════════════════════ */
+.top-bar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;z-index:100;box-shadow:var(--shadow);gap:12px}
+.top-logo{font-size:22px;font-weight:800;color:var(--pri);white-space:nowrap;display:flex;align-items:center;gap:8px}
+.top-logo span{font-size:24px}
+.top-title{color:var(--text2);font-size:14px;font-weight:500;white-space:nowrap}
+.top-spacer{flex:1}
+.top-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer}
+.top-bell{position:relative;background:none;color:var(--text2);font-size:20px;padding:6px;border-radius:8px;transition:all .2s}
+.top-bell:hover{background:var(--bg2);color:var(--pri)}
+.bell-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.top-logout{background:none;color:var(--muted);font-size:13px;padding:6px 12px;border-radius:8px;transition:all .2s;white-space:nowrap}
+.top-logout:hover{background:var(--bg2);color:var(--red)}
+
+/* ════════════════════════════════════════════════════════════════════
+   DASHBOARD LAYOUT
+   ════════════════════════════════════════════════════════════════════ */
+.dashboard{display:none;height:100vh;padding-top:56px}
+.dashboard.active{display:flex}
+.dashboard-main{display:flex;flex:1;overflow:hidden;width:100%}
+
+/* Left Panel — Active Orders */
+.left-panel{width:320px;min-width:280px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-header h3{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.panel-header .count-badge{background:var(--pri);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
+.panel-search{padding:8px 16px}
+.panel-search input{width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px}
+.panel-search input:focus{border-color:var(--pri)}
+.orders-list{flex:1;overflow-y:auto;padding:8px}
+.order-card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:all .2s;position:relative}
+.order-card:hover{border-color:var(--pri);transform:translateY(-1px);box-shadow:var(--shadow)}
+.order-card.selected{border-color:var(--pri);box-shadow:var(--pri-glow)}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.order-number{font-weight:700;font-size:14px;color:var(--pri)}
+.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+.status-pending{background:rgba(243,156,18,.15);color:var(--amber)}
+.status-accepted{background:rgba(93,173,226,.15);color:var(--blue)}
+.status-ready_for_pickup{background:rgba(155,89,182,.15);color:var(--purple)}
+.status-courier_assigned{background:rgba(26,188,156,.15);color:var(--teal)}
+.status-heading_to_restaurant,.status-arrived_at_restaurant{background:rgba(26,188,156,.15);color:var(--teal)}
+.status-order_picked_up,.status-heading_to_customer,.status-arrived_at_customer,.status-delivering{background:rgba(46,204,113,.15);color:var(--green)}
+.order-customer{font-size:13px;color:var(--text);font-weight:500;margin-bottom:4px}
+.order-restaurant{font-size:12px;color:var(--muted)}
+.order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px}
+.order-items-summary{color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.order-total{font-weight:700;color:var(--pri)}
+
+/* Center Panel — Detail */
+.center-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);position:relative}
+.detail-panel{flex:1;overflow-y:auto;padding:20px}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:16px}
+.detail-empty span{font-size:64px;opacity:.4}
+.detail-empty p{font-size:16px}
+
+.detail-header{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
+.detail-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.detail-order-num{font-size:22px;font-weight:800;color:var(--pri)}
+.detail-status-badge{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;text-transform:uppercase}
+.detail-section{margin-bottom:16px}
+.detail-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.detail-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.detail-info-card{background:var(--bg2);border-radius:10px;padding:12px;border:1px solid var(--border)}
+.detail-info-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.detail-info-card .value{font-size:14px;font-weight:600;color:var(--text)}
+.detail-items-list{list-style:none}
+.detail-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.detail-item:last-child{border-bottom:none}
+.detail-item .name{color:var(--text)}
+.detail-item .price{color:var(--pri);font-weight:600}
+
+/* Status Timeline */
+.status-timeline{display:flex;align-items:center;gap:0;padding:12px 0;margin-bottom:16px;overflow-x:auto}
+.timeline-step{display:flex;flex-direction:column;align-items:center;min-width:70px;position:relative}
+.timeline-dot{width:24px;height:24px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .3s;position:relative;z-index:2}
+.timeline-dot.done{background:var(--green);color:#fff}
+.timeline-dot.current{background:var(--pri);color:#fff;box-shadow:var(--pri-glow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:var(--pri-glow)}50%{box-shadow:0 0 30px rgba(255,107,53,.5)}}
+.timeline-label{font-size:10px;color:var(--muted);margin-top:6px;text-align:center;white-space:nowrap}
+.timeline-step.done .timeline-label{color:var(--green)}
+.timeline-step.current .timeline-label{color:var(--pri);font-weight:600}
+.timeline-line{height:2px;flex:1;min-width:30px;background:var(--border);position:relative}
+.timeline-line.done{background:var(--green)}
+
+/* Chat Section */
+.chat-section{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-top:8px;display:flex;flex-direction:column;max-height:500px}
+.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chat-header h4{font-size:14px;font-weight:600;color:var(--text)}
+.chat-recipient-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:12px}
+.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:150px;max-height:340px}
+.msg-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;animation:msgIn .3s;position:relative}
+.msg-bubble.sent{align-self:flex-end;background:rgba(255,107,53,.2);color:var(--text);border-bottom-right-radius:4px}
+.msg-bubble.received{align-self:flex-start;background:rgba(255,255,255,.08);color:var(--text2);border-bottom-left-radius:4px}
+.msg-sender{font-size:10px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px}
+.msg-sender.sender-customer{color:var(--amber)}
+.msg-sender.sender-partner{color:var(--teal)}
+.msg-sender.sender-courier{color:var(--blue)}
+.msg-sender.sender-support{color:var(--purple)}
+.msg-sender-icon{font-size:12px}
+.msg-time{font-size:10px;color:var(--muted);margin-top:4px}
+.msg-status-indicator{font-size:10px;color:var(--muted);background:var(--bg2);border-radius:8px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;margin-top:4px;border:1px solid var(--border)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chat-input-area{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center}
+.chat-input-area input{flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px}
+.chat-input-area input:focus{border-color:var(--pri)}
+.chat-send-btn{background:var(--pri);color:#fff;border-radius:10px;padding:10px 16px;font-size:14px;transition:all .2s;white-space:nowrap}
+.chat-send-btn:hover{background:var(--pri2)}
+.emoji-row{display:flex;gap:4px;padding:4px 16px 8px;flex-wrap:wrap}
+.emoji-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:16px;cursor:pointer;transition:all .15s}
+.emoji-btn:hover{transform:scale(1.15);background:var(--card2)}
+.chat-channel-info{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.chat-live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Right Panel — Tickets */
+.right-panel{width:300px;min-width:260px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.ticket-card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
+.ticket-card:hover{border-color:var(--pri);transform:translateY(-1px)}
+.ticket-card.selected{border-color:var(--pri);box-shadow:var(--pri-glow)}
+.ticket-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ticket-order{font-size:13px;font-weight:600;color:var(--pri)}
+.ticket-status{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
+.ticket-open{background:rgba(231,76,60,.15);color:var(--red)}
+.ticket-in_progress{background:rgba(243,156,18,.15);color:var(--amber)}
+.ticket-closed{background:rgba(46,204,113,.15);color:var(--green)}
+.ticket-customer{font-size:12px;color:var(--text);margin-bottom:4px}
+.ticket-preview{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Ticket Conversation Modal */
+.ticket-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.ticket-modal-overlay.active{display:flex}
+.ticket-modal{background:var(--card);border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:var(--shadow);animation:modalIn .3s}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.ticket-modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.ticket-modal-header h3{font-size:16px;font-weight:700;color:var(--text)}
+.ticket-modal-close{background:none;color:var(--muted);font-size:20px;padding:4px 8px;border-radius:6px}
+.ticket-modal-close:hover{color:var(--red);background:var(--bg2)}
+.ticket-modal-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
+.ticket-modal-input{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ticket-modal-input input{flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px}
+.ticket-modal-input button{background:var(--pri);color:#fff;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600}
+
+/* Create Ticket */
+.create-ticket-btn{margin:8px 16px;padding:10px;background:var(--pri);color:#fff;border-radius:10px;font-size:13px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.create-ticket-btn:hover{background:var(--pri2)}
+.create-ticket-form{padding:12px 16px;display:none;border-bottom:1px solid var(--border)}
+.create-ticket-form.active{display:block}
+.create-ticket-form input,.create-ticket-form textarea{width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px}
+.create-ticket-form textarea{resize:vertical;min-height:60px}
+.create-ticket-form button{padding:8px 16px;background:var(--green);color:#fff;border-radius:8px;font-size:13px;font-weight:600}
+
+/* ════════════════════════════════════════════════════════════════════
+   NOTIFICATIONS & TOASTS
+   ════════════════════════════════════════════════════════════════════ */
+.toast-container{position:fixed;top:64px;right:16px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);box-shadow:var(--shadow);animation:toastIn .3s;pointer-events:auto;max-width:320px;display:flex;align-items:center;gap:10px;backdrop-filter:blur(10px)}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--blue)}
+.toast.fade-out{opacity:0;transform:translateX(100px);transition:all .3s}
+@keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+
+/* In-App Message Notification Popup */
+.notif-popup{position:fixed;top:64px;right:16px;z-index:250;background:var(--card);border:1px solid var(--pri);border-radius:14px;padding:16px 20px;box-shadow:0 8px 40px rgba(0,0,0,.4);max-width:340px;display:none;animation:notifIn .4s;backdrop-filter:blur(16px)}
+.notif-popup.active{display:flex;flex-direction:column;gap:8px}
+@keyframes notifIn{from{opacity:0;transform:translateY(-20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.notif-popup-smiley{font-size:36px;text-align:center;animation:smileyBounce .6s}
+@keyframes smileyBounce{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.notif-popup-title{font-size:15px;font-weight:700;color:var(--pri);text-align:center}
+.notif-popup-msg{font-size:13px;color:var(--text2);text-align:center}
+.notif-popup-close{align-self:center;background:var(--pri);color:#fff;padding:6px 20px;border-radius:8px;font-size:12px;font-weight:600;margin-top:4px}
+
+/* Notification Panel Dropdown */
+.notif-dropdown{position:fixed;top:56px;right:16px;width:320px;max-height:400px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);z-index:150;display:none;overflow:hidden;animation:dropIn .2s}
+.notif-dropdown.active{display:block}
+@keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.notif-dropdown-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-dropdown-header h4{font-size:14px;font-weight:700}
+.notif-dropdown-list{max-height:320px;overflow-y:auto}
+.notif-item{padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--bg2)}
+.notif-item-title{font-size:13px;font-weight:600;color:var(--text)}
+.notif-item-body{font-size:12px;color:var(--muted);margin-top:2px}
+.notif-item-time{font-size:10px;color:var(--muted);margin-top:4px}
+
+/* ════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .right-panel{width:260px;min-width:220px}
+}
+@media(max-width:900px){
+  .dashboard-main{flex-direction:column}
+  .left-panel,.right-panel{width:100%;min-width:unset;max-height:40vh;border:none;border-bottom:1px solid var(--border)}
+  .center-panel{min-height:50vh}
+  .left-panel{order:1}.center-panel{order:2}.right-panel{order:3}
+}
+@media(max-width:600px){
+  .top-title{display:none}
+  .detail-info-grid{grid-template-columns:1fr}
+  .login-box{padding:28px 20px}
+  .status-timeline{overflow-x:auto;padding-bottom:8px}
+}
+
+/* Loading spinner */
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.refresh-indicator{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;color:var(--muted)}
+
+/* Animations */
+.fade-in{animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.slide-up{animation:slideUp .3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ═══ SPLASH SCREEN ═══ -->
+<div id="splashScreen" class="splash-screen">
+  <div class="splash-bg"></div>
+  <div class="splash-surround" id="splashSurround"></div>
+  <div class="splash-content">
+    <div class="splash-letters" id="splashLetters"></div>
+    <div class="splash-subtitle">Customer Support</div>
+    <div class="splash-progress">
+      <svg viewBox="0 0 64 64">
+        <circle class="progress-bg" cx="32" cy="32" r="25"/>
+        <circle class="progress-fg" cx="32" cy="32" r="25"/>
+      </svg>
+      <div class="progress-percent" id="splashPercent">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="logo-icon">🎧</div>
+    <h2>Support Center</h2>
+    <p>Elyanivery Customer Support Dashboard</p>
+    <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="username">
+    <input type="password" id="loginPass" class="login-input" placeholder="Password" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">Sign In 🔐</button>
+    <div id="loginError" class="login-error">Invalid credentials or not a support account</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN DASHBOARD ═══ -->
+<div id="dashboard" class="dashboard">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-logo"><span>🎧</span> Elyanivery</div>
+    <div class="top-title">Customer Support</div>
+    <div class="top-spacer"></div>
+    <select class="top-select" id="themeSelect" onchange="changeTheme(this.value)">
+      <option value="midnight_dark">🌙 Midnight Dark</option>
+      <option value="ocean_blue">🌊 Ocean Blue</option>
+      <option value="emerald_forest">🌲 Emerald Forest</option>
+      <option value="sunset_warm">🌅 Sunset Warm</option>
+      <option value="royal_purple">👑 Royal Purple</option>
+      <option value="rose_gold">🌹 Rose Gold</option>
+      <option value="arctic_light">❄️ Arctic Light</option>
+      <option value="glassmorphism">🪟 Glassmorphism</option>
+    </select>
+    <button class="top-bell" onclick="toggleNotifDropdown()" id="bellBtn">🔔<span class="bell-badge" id="bellBadge" style="display:none">0</span></button>
+    <button class="top-logout" onclick="doLogout()">Logout 👋</button>
+  </div>
+
+  <!-- Dashboard Main -->
+  <div class="dashboard-main">
+    <!-- Left Panel: Active Orders -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <h3>📦 Active Orders</h3>
+        <span class="count-badge" id="ordersCount">0</span>
+      </div>
+      <div class="panel-search">
+        <input type="text" placeholder="🔍 Search orders..." id="ordersSearch" oninput="filterOrders()">
+      </div>
+      <div class="orders-list" id="ordersList">
+        <div class="refresh-indicator"><div class="spinner"></div> Loading orders...</div>
+      </div>
+    </div>
+
+    <!-- Center Panel: Order Detail -->
+    <div class="center-panel">
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-empty">
+          <span>📋</span>
+          <p>Select an order to view details</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Support Tickets -->
+    <div class="right-panel">
+      <div class="panel-header">
+        <h3>🎫 Tickets</h3>
+        <span class="count-badge" id="ticketsCount">0</span>
+      </div>
+      <button class="create-ticket-btn" onclick="toggleCreateTicket()">➕ New Ticket</button>
+      <div class="create-ticket-form" id="createTicketForm">
+        <input type="number" id="ticketOrderId" placeholder="Order ID">
+        <textarea id="ticketMessage" placeholder="Describe the issue..."></textarea>
+        <button onclick="createTicket()">Create Ticket</button>
+      </div>
+      <div class="orders-list" id="ticketsList">
+        <div class="refresh-indicator"><div class="spinner"></div> Loading tickets...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notification Dropdown -->
+<div class="notif-dropdown" id="notifDropdown">
+  <div class="notif-dropdown-header">
+    <h4>🔔 Notifications</h4>
+    <button style="background:none;color:var(--pri);font-size:12px" onclick="clearNotifications()">Clear all</button>
+  </div>
+  <div class="notif-dropdown-list" id="notifList">
+    <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No notifications yet</div>
+  </div>
+</div>
+
+<!-- In-App Message Popup -->
+<div class="notif-popup" id="msgPopup">
+  <div class="notif-popup-smiley" id="msgPopupSmiley">😊</div>
+  <div class="notif-popup-title" id="msgPopupTitle">New Message!</div>
+  <div class="notif-popup-msg" id="msgPopupMsg">You have a new message</div>
+  <button class="notif-popup-close" onclick="closeMsgPopup()">Got it!</button>
+</div>
+
+<!-- Ticket Conversation Modal -->
+<div class="ticket-modal-overlay" id="ticketModal">
+  <div class="ticket-modal">
+    <div class="ticket-modal-header">
+      <h3 id="ticketModalTitle">🎫 Ticket Conversation</h3>
+      <button class="ticket-modal-close" onclick="closeTicketModal()">✕</button>
+    </div>
+    <div class="ticket-modal-messages" id="ticketModalMessages">
+      <div style="text-align:center;color:var(--muted);padding:20px">Loading...</div>
+    </div>
+    <div class="ticket-modal-input">
+      <input type="text" id="ticketMsgInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter')sendTicketMsg()">
+      <button onclick="sendTicketMsg()">Send ➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════
+const API = '';
+let token = localStorage.getItem('support_token') || '';
+let currentUser = null;
+let orders = [];
+let tickets = [];
+let notifications = [];
+let selectedOrderId = null;
+let selectedTicketId = null;
+let pollIntervals = [];
+let lastMsgIds = {};
+
+// ════════════════════════════════════════════════════════════════════
+// SPLASH SCREEN - 3D letter animation + support items
+// ════════════════════════════════════════════════════════════════════
+(function initSplash() {
+  const word = 'Elyanivery';
+  const container = document.getElementById('splashLetters');
+  const surroundEl = document.getElementById('splashSurround');
+
+  // 3D letter animation
+  word.split('').forEach((ch, i) => {
+    const span = document.createElement('span');
+    span.className = 'splash-letter';
+    span.textContent = ch;
+    span.style.animationDelay = (i * 0.08) + 's';
+    container.appendChild(span);
+  });
+
+  // Support/communication items surrounding the word
+  const items = [
+    {emoji:'💬',top:'14%',left:'8%'},
+    {emoji:'🎧',top:'10%',right:'10%'},
+    {emoji:'📞',bottom:'18%',left:'6%'},
+    {emoji:'🎯',bottom:'14%',right:'8%'}
+  ];
+  items.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'splash-item';
+    el.textContent = item.emoji;
+    if(item.top) el.style.top = item.top;
+    if(item.bottom) el.style.bottom = item.bottom;
+    if(item.left) el.style.left = item.left;
+    if(item.right) el.style.right = item.right;
+    el.style.animationDelay = (i * 0.3 + 0.5) + 's';
+    el.style.animationDuration = (2.5 + Math.random()) + 's';
+    surroundEl.appendChild(el);
+  });
+
+  // Percentage counter
+  const pctEl = document.getElementById('splashPercent');
+  let pct = 0;
+  const pctInterval = setInterval(() => {
+    pct += 2;
+    if (pct > 100) { pct = 100; clearInterval(pctInterval); }
+    pctEl.textContent = pct + '%';
+  }, 42);
+
+  // Fade out after 2.5s
+  setTimeout(() => {
+    const splash = document.getElementById('splashScreen');
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+      splash.style.display = 'none';
+      initApp();
+    }, 700);
+  }, 2500);
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════════════════════
+function changeTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('support_theme', theme);
+}
+// Restore saved theme
+(function() {
+  const saved = localStorage.getItem('support_theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    const sel = document.getElementById('themeSelect');
+    if (sel) sel.value = saved;
+  }
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════════════════════
+function initApp() {
+  if (token) {
+    // Verify token
+    api('GET', '/api/me').then(data => {
+      if (data.success && (data.data.role === 'support' || data.data.role === 'admin')) {
+        currentUser = data.data;
+        showDashboard();
+      } else {
+        token = '';
+        localStorage.removeItem('support_token');
+        showLogin();
+      }
+    }).catch(() => {
+      token = '';
+      localStorage.removeItem('support_token');
+      showLogin();
+    });
+  } else {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('dashboard').style.display = 'none';
+}
+
+function showDashboard() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+  document.getElementById('dashboard').style.display = 'flex';
+  loadOrders();
+  loadTickets();
+  startPolling();
+}
+
+function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  if (!username || !password) return;
+  fetch(API + '/api/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username, password})
+  }).then(r => r.json()).then(data => {
+    if (data.success && (data.data.role === 'support' || data.data.role === 'admin')) {
+      token = data.data.token;
+      currentUser = data.data;
+      localStorage.setItem('support_token', token);
+      document.getElementById('loginError').style.display = 'none';
+      showDashboard();
+      toast('Welcome back, ' + (currentUser.display_name || currentUser.username) + '! 🎉', 'success');
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+      if (data.data && data.data.role && data.data.role !== 'support' && data.data.role !== 'admin') {
+        document.getElementById('loginError').textContent = 'Access denied: Support role required';
+      } else {
+        document.getElementById('loginError').textContent = 'Invalid credentials or not a support account';
+      }
+    }
+  }).catch(() => {
+    document.getElementById('loginError').textContent = 'Connection error. Please try again.';
+    document.getElementById('loginError').style.display = 'block';
+  });
+}
+
+function doLogout() {
+  token = '';
+  currentUser = null;
+  localStorage.removeItem('support_token');
+  pollIntervals.forEach(id => clearInterval(id));
+  pollIntervals = [];
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = '';
+  document.getElementById('loginScreen').classList.add('active');
+  selectedOrderId = null;
+  selectedTicketId = null;
+  toast('Logged out successfully 👋', 'info');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// API HELPER
+// ════════════════════════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const resp = await fetch(API + path, opts);
+  return resp.json();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ORDERS
+// ════════════════════════════════════════════════════════════════════
+const ACTIVE_STATUSES = ['pending','accepted','ready_for_pickup','courier_assigned',
+  'heading_to_restaurant','arrived_at_restaurant','order_picked_up',
+  'heading_to_customer','arrived_at_customer'];
+
+async function loadOrders() {
+  try {
+    const data = await api('GET', '/api/admin/orders');
+    if (data.success) {
+      const prevCount = orders.length;
+      orders = (data.data || []).filter(o => ACTIVE_STATUSES.includes(o.status));
+      renderOrders();
+      document.getElementById('ordersCount').textContent = orders.length;
+      // If there are new orders, notify
+      if (orders.length > prevCount && prevCount > 0) {
+        const diff = orders.length - prevCount;
+        addNotification('📦 New Order', `${diff} new order(s) received`, 'order');
+      }
+      // Refresh detail if selected
+      if (selectedOrderId) loadOrderDetail(selectedOrderId);
+    }
+  } catch(e) { console.error('Orders error:', e); }
+}
+
+function renderOrders() {
+  const list = document.getElementById('ordersList');
+  const search = (document.getElementById('ordersSearch').value || '').toLowerCase();
+  let filtered = orders;
+  if (search) {
+    filtered = orders.filter(o =>
+      (o.order_number||'').toLowerCase().includes(search) ||
+      (o.customer_name||'').toLowerCase().includes(search) ||
+      (o.restaurant_name||'').toLowerCase().includes(search)
+    );
+  }
+  if (!filtered.length) {
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">No active orders 🎉</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(o => {
+    const sc = getStatusClass(o.status);
+    return `<div class="order-card${selectedOrderId===o.id?' selected':''}" onclick="selectOrder(${o.id})">
+      <div class="order-card-top">
+        <span class="order-number">#${o.order_number||('Ely-'+String(o.id).padStart(5,'0'))}</span>
+        <span class="status-badge ${sc}">${formatStatus(o.status)}</span>
+      </div>
+      <div class="order-customer">👤 ${o.customer_name||'Unknown'}</div>
+      <div class="order-restaurant">🏪 ${o.restaurant_name||'Unknown'}</div>
+      <div class="order-footer">
+        <span class="order-items-summary">🍽️ Order #${o.id}</span>
+        <span class="order-total">€${parseFloat(o.total||0).toFixed(2)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterOrders() { renderOrders(); }
+
+function getStatusClass(status) {
+  const map = {
+    'pending':'status-pending','accepted':'status-accepted',
+    'ready_for_pickup':'status-ready_for_pickup','courier_assigned':'status-courier_assigned',
+    'heading_to_restaurant':'status-heading_to_restaurant','arrived_at_restaurant':'status-arrived_at_restaurant',
+    'order_picked_up':'status-order_picked_up','heading_to_customer':'status-heading_to_customer',
+    'arrived_at_customer':'status-arrived_at_customer','delivering':'status-delivering'
+  };
+  return map[status] || 'status-pending';
+}
+
+function formatStatus(s) {
+  return (s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ORDER DETAIL
+// ════════════════════════════════════════════════════════════════════
+async function selectOrder(id) {
+  selectedOrderId = id;
+  renderOrders();
+  await loadOrderDetail(id);
+}
+
+async function loadOrderDetail(id) {
+  const panel = document.getElementById('detailPanel');
+  try {
+    // Get full order info
+    const orderData = await api('GET', `/api/orders/${id}`);
+    if (!orderData.success) {
+      panel.innerHTML = '<div class="detail-empty"><span>⚠️</span><p>Could not load order details</p></div>';
+      return;
+    }
+    const order = orderData.data;
+    // Get chat messages
+    let chatHtml = '';
+    try {
+      const chatData = await api('GET', `/api/chat/messages/${id}`);
+      if (chatData.success && chatData.data) {
+        lastMsgIds[id] = chatData.data.length ? Math.max(...chatData.data.map(m=>m.id)) : 0;
+        chatHtml = renderChatSection(chatData.data || [], id);
+      } else {
+        chatHtml = renderChatSection([], id);
+      }
+    } catch(e) {
+      chatHtml = renderChatSection([], id);
+    }
+
+    const sc = getStatusClass(order.status);
+    const statusSteps = ['pending','accepted','ready_for_pickup','courier_assigned',
+      'heading_to_restaurant','arrived_at_restaurant','order_picked_up',
+      'heading_to_customer','arrived_at_customer','delivered'];
+    const currentStep = statusSteps.indexOf(order.status);
+    const stepLabels = ['Pending','Accepted','Ready','Assigned','To Rest.','Arrived','Picked Up','Delivering','At Customer','Delivered'];
+    const stepIcons = ['📋','✅','📦','🏍️','🚴','📍','🛍️','🚀','🏠','✨'];
+
+    let timelineHtml = '<div class="status-timeline">';
+    statusSteps.forEach((step, i) => {
+      const isDone = i < currentStep;
+      const isCurrent = i === currentStep;
+      const cls = isDone ? 'done' : (isCurrent ? 'current' : '');
+      if (i > 0) {
+        timelineHtml += `<div class="timeline-line${i <= currentStep ? ' done' : ''}"></div>`;
+      }
+      timelineHtml += `<div class="timeline-step ${cls}">
+        <div class="timeline-dot ${cls}">${isDone ? '✓' : (isCurrent ? stepIcons[i] : '')}</div>
+        <div class="timeline-label">${stepLabels[i]}</div>
+      </div>`;
+    });
+    timelineHtml += '</div>';
+
+    panel.innerHTML = `
+      <div class="detail-header fade-in">
+        <div class="detail-header-top">
+          <span class="detail-order-num">#${order.order_number||('Ely-'+String(order.id).padStart(5,'0'))}</span>
+          <span class="detail-status-badge status-badge ${sc}">${formatStatus(order.status)}</span>
+        </div>
+        ${timelineHtml}
+      </div>
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">👥 People</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-card">
+            <div class="label">👤 Customer</div>
+            <div class="value">${order.customer_name||'N/A'}</div>
+          </div>
+          <div class="detail-info-card">
+            <div class="label">🏪 Restaurant</div>
+            <div class="value">${order.restaurant_name||'N/A'}</div>
+          </div>
+          <div class="detail-info-card">
+            <div class="label">🏍️ Courier</div>
+            <div class="value">${order.courier_name||'Not assigned'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">🧾 Order Info</div>
+        <div class="detail-info-grid">
+          <div class="detail-info-card">
+            <div class="label">💰 Total</div>
+            <div class="value" style="color:var(--pri)">€${parseFloat(order.total||0).toFixed(2)}</div>
+          </div>
+          <div class="detail-info-card">
+            <div class="label">📦 Subtotal</div>
+            <div class="value">€${parseFloat(order.subtotal||0).toFixed(2)}</div>
+          </div>
+          <div class="detail-info-card">
+            <div class="label">🚚 Delivery</div>
+            <div class="value">€${parseFloat(order.delivery_fee||0).toFixed(2)}</div>
+          </div>
+        </div>
+      </div>
+      ${order.items && order.items.length ? `
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">🍽️ Items</div>
+        <ul class="detail-items-list">
+          ${order.items.map(it => `<li class="detail-item">
+            <span class="name">${it.item_name} × ${it.quantity||1}</span>
+            <span class="price">€${parseFloat(it.item_price||0).toFixed(2)}</span>
+          </li>`).join('')}
+        </ul>
+      </div>` : ''}
+      ${order.delivery_address ? `
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">📍 Delivery Address</div>
+        <div style="font-size:13px;color:var(--text2)">${order.delivery_address}</div>
+      </div>` : ''}
+      ${chatHtml}
+    `;
+  } catch(e) {
+    panel.innerHTML = '<div class="detail-empty"><span>❌</span><p>Error loading details</p></div>';
+    console.error(e);
+  }
+}
+
+function renderChatSection(messages, orderId) {
+  // Sort messages by time
+  const sorted = [...messages].sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0));
+  
+  // Group consecutive messages and add status indicators
+  let lastStatusInserted = '';
+  const msgsHtml = sorted.map(m => {
+    const isSent = m.sender_id === (currentUser ? currentUser.id : 0);
+    const role = m.sender_role || '';
+    
+    // Sender identification with icon
+    let senderIcon = '👤';
+    let senderClass = 'sender-customer';
+    if (role === 'partner' || role === 'restaurant') {
+      senderIcon = '🏪';
+      senderClass = 'sender-partner';
+    } else if (role === 'courier') {
+      senderIcon = '🛵';
+      senderClass = 'sender-courier';
+    } else if (role === 'support' || role === 'admin') {
+      senderIcon = '🎧';
+      senderClass = 'sender-support';
+    }
+    
+    // Message type indicator - show order status context
+    let statusIndicator = '';
+    if (m.order_status) {
+      const statusIcons = {
+        'pending': '📋', 'accepted': '✅', 'ready_for_pickup': '📦',
+        'courier_assigned': '🏍️', 'order_picked_up': '🛍️',
+        'heading_to_customer': '🚀', 'delivered': '✨'
+      };
+      const statusLabels = {
+        'pending': 'Order placed', 'accepted': 'Order accepted',
+        'ready_for_pickup': 'Ready for pickup', 'courier_assigned': 'Courier assigned',
+        'order_picked_up': 'Order picked up', 'heading_to_customer': 'On the way',
+        'delivered': 'Delivered'
+      };
+      statusIndicator = `<div class="msg-status-indicator">${statusIcons[m.order_status]||'📌'} ${statusLabels[m.order_status]||m.order_status}</div>`;
+    }
+    
+    const senderLabel = isSent ? '🎧 You (Support)' : `${senderIcon} ${m.sender_name||'User'}`;
+    
+    return `<div class="msg-bubble ${isSent ? 'sent' : 'received'}">
+      ${!isSent ? `<div class="msg-sender ${senderClass}"><span class="msg-sender-icon">${senderIcon}</span> ${escapeHtml(m.sender_name||'User')}</div>` : `<div class="msg-sender sender-support"><span class="msg-sender-icon">🎧</span> You</div>`}
+      <div>${escapeHtml(m.message||'')}</div>
+      ${statusIndicator}
+      <div class="msg-time">${formatTime(m.created_at)}</div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">No messages yet for this order 💬</div>';
+
+  return `<div class="chat-section slide-up">
+    <div class="chat-header">
+      <h4>💬 Order Chat</h4>
+      <div class="chat-channel-info"><div class="chat-live-dot"></div> Live · All participants</div>
+    </div>
+    <div class="emoji-row">
+      <button class="emoji-btn" onclick="addEmoji('👍')" title="Thumbs up">👍</button>
+      <button class="emoji-btn" onclick="addEmoji('😊')" title="Smile">😊</button>
+      <button class="emoji-btn" onclick="addEmoji('✅')" title="Confirmed">✅</button>
+      <button class="emoji-btn" onclick="addEmoji('⏳')" title="Waiting">⏳</button>
+      <button class="emoji-btn" onclick="addEmoji('❌')" title="No/Cancel">❌</button>
+      <button class="emoji-btn" onclick="addEmoji('🙏')" title="Please/Thanks">🙏</button>
+      <button class="emoji-btn" onclick="addEmoji('📞')" title="Call needed">📞</button>
+      <button class="emoji-btn" onclick="addEmoji('💡')" title="Idea/Suggestion">💡</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">${msgsHtml}</div>
+    <div class="chat-input-area">
+      <select id="chatRecipient" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;max-width:100px">
+        <option value="0">📢 All</option>
+        <option value="customer">👤 Customer</option>
+        <option value="partner">🏪 Restaurant</option>
+        <option value="courier">🛵 Courier</option>
+      </select>
+      <input type="text" id="chatInput" placeholder="Type a message to this order..." onkeydown="if(event.key==='Enter')sendChatMsg(${orderId})">
+      <button class="chat-send-btn" onclick="sendChatMsg(${orderId})">Send ➤</button>
+    </div>
+  </div>`;
+}
+
+function addEmoji(emoji) {
+  const input = document.getElementById('chatInput');
+  if (input) { input.value += emoji; input.focus(); }
+}
+
+async function sendChatMsg(orderId) {
+  const input = document.getElementById('chatInput');
+  if (!input || !input.value.trim()) return;
+  const msg = input.value.trim();
+  input.value = '';
+  try {
+    // Get recipient from dropdown
+    const recipientSelect = document.getElementById('chatRecipient');
+    let receiverId = null;
+    if (recipientSelect) {
+      const val = recipientSelect.value;
+      if (val !== '0' && val) {
+        // Find the order to get participant IDs
+        const order = orders.find(o => o.id === orderId);
+        if (order) {
+          if (val === 'customer' && order.customer_id) receiverId = order.customer_id;
+          else if (val === 'partner' && order.restaurant_id) receiverId = order.restaurant_id;
+          else if (val === 'courier' && order.courier_id) receiverId = order.courier_id;
+        }
+      }
+    }
+    const payload = {order_id: orderId, message: msg, message_type: 'text'};
+    if (receiverId) payload.receiver_id = receiverId;
+    const data = await api('POST', '/api/chat/send', payload);
+    if (data.success) {
+      // Reload detail to show new message
+      await loadOrderDetail(orderId);
+      scrollChatBottom();
+    } else {
+      toast(data.message || 'Failed to send message', 'error');
+    }
+  } catch(e) {
+    toast('Error sending message', 'error');
+  }
+}
+
+function scrollChatBottom() {
+  const el = document.getElementById('chatMessages');
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TICKETS
+// ════════════════════════════════════════════════════════════════════
+async function loadTickets() {
+  try {
+    const data = await api('GET', '/api/support/tickets');
+    if (data.success) {
+      tickets = data.data || [];
+      renderTickets();
+      document.getElementById('ticketsCount').textContent = tickets.filter(t=>t.status!=='closed').length;
+    }
+  } catch(e) { console.error('Tickets error:', e); }
+}
+
+function renderTickets() {
+  const list = document.getElementById('ticketsList');
+  if (!tickets.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No support tickets 🎫</div>';
+    return;
+  }
+  list.innerHTML = tickets.map(t => {
+    const sc = t.status === 'open' ? 'ticket-open' : (t.status === 'in_progress' ? 'ticket-in_progress' : 'ticket-closed');
+    return `<div class="ticket-card${selectedTicketId===t.id?' selected':''}" onclick="openTicketModal(${t.id})">
+      <div class="ticket-card-top">
+        <span class="ticket-order">#${t.order_number||('Ely-'+String(t.order_id).padStart(5,'0'))}</span>
+        <span class="ticket-status ${sc}">${formatStatus(t.status)}</span>
+      </div>
+      <div class="ticket-customer">👤 ${t.user_name||'Unknown'}</div>
+      <div class="ticket-preview">🎫 Ticket #${t.id}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCreateTicket() {
+  const form = document.getElementById('createTicketForm');
+  form.classList.toggle('active');
+}
+
+async function createTicket() {
+  const orderId = document.getElementById('ticketOrderId').value;
+  const message = document.getElementById('ticketMessage').value.trim();
+  if (!orderId) { toast('Please enter an order ID', 'error'); return; }
+  try {
+    const data = await api('POST', '/api/support/tickets', {order_id: parseInt(orderId)});
+    if (data.success) {
+      toast('Ticket created! 🎫', 'success');
+      document.getElementById('ticketOrderId').value = '';
+      document.getElementById('ticketMessage').value = '';
+      document.getElementById('createTicketForm').classList.remove('active');
+      loadTickets();
+    } else {
+      toast(data.message || 'Failed to create ticket', 'error');
+    }
+  } catch(e) {
+    toast('Error creating ticket', 'error');
+  }
+}
+
+// Ticket Modal
+async function openTicketModal(ticketId) {
+  selectedTicketId = ticketId;
+  renderTickets();
+  document.getElementById('ticketModal').classList.add('active');
+  document.getElementById('ticketModalTitle').textContent = '🎫 Ticket #' + ticketId;
+  await loadTicketMessages(ticketId);
+}
+
+function closeTicketModal() {
+  document.getElementById('ticketModal').classList.remove('active');
+  selectedTicketId = null;
+  renderTickets();
+}
+
+async function loadTicketMessages(ticketId) {
+  const container = document.getElementById('ticketModalMessages');
+  container.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner"></div></div>';
+  try {
+    const data = await api('GET', `/api/support/tickets/${ticketId}/messages`);
+    if (data.success && data.data) {
+      const msgs = data.data;
+      if (!msgs.length) {
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">No messages yet. Start the conversation! 💬</div>';
+        return;
+      }
+      container.innerHTML = msgs.map(m => {
+        const isSent = m.sender_id === (currentUser ? currentUser.id : 0);
+        return `<div class="msg-bubble ${isSent ? 'sent' : 'received'}" style="max-width:90%">
+          <div class="msg-sender">${m.sender_name||'User'} (${m.sender_role||''})</div>
+          <div>${escapeHtml(m.message||'')}</div>
+          <div class="msg-time">${formatTime(m.created_at)}</div>
+        </div>`;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;color:var(--red);padding:20px">Error loading messages</div>';
+  }
+}
+
+async function sendTicketMsg() {
+  const input = document.getElementById('ticketMsgInput');
+  if (!input || !input.value.trim() || !selectedTicketId) return;
+  const msg = input.value.trim();
+  input.value = '';
+  try {
+    const data = await api('POST', `/api/support/tickets/${selectedTicketId}/messages`, {
+      ticket_id: selectedTicketId, message: msg
+    });
+    if (data.success) {
+      await loadTicketMessages(selectedTicketId);
+    } else {
+      toast(data.message || 'Failed to send', 'error');
+    }
+  } catch(e) {
+    toast('Error sending message', 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// POLLING
+// ════════════════════════════════════════════════════════════════════
+function startPolling() {
+  pollIntervals.forEach(id => clearInterval(id));
+  pollIntervals = [];
+  // Orders every 5s
+  pollIntervals.push(setInterval(loadOrders, 5000));
+  // Tickets every 8s
+  pollIntervals.push(setInterval(loadTickets, 8000));
+  // Chat messages for selected order every 3s (real-time)
+  pollIntervals.push(setInterval(pollChatMessages, 3000));
+}
+
+async function pollChatMessages() {
+  if (!selectedOrderId) return;
+  try {
+    const data = await api('GET', `/api/chat/messages/${selectedOrderId}?after_id=${lastMsgIds[selectedOrderId]||0}`);
+    if (data.success && data.data && data.data.length) {
+      const newMsgs = data.data;
+      lastMsgIds[selectedOrderId] = Math.max(...newMsgs.map(m=>m.id));
+      // Show in-app popup for new messages
+      const fromOthers = newMsgs.filter(m => m.sender_id !== (currentUser ? currentUser.id : 0));
+      if (fromOthers.length) {
+        const latest = fromOthers[fromOthers.length - 1];
+        showMsgPopup(
+          `New message from ${latest.sender_name||'User'}`,
+          latest.message ? (latest.message.substring(0, 80) + (latest.message.length > 80 ? '...' : '')) : '',
+          '😊'
+        );
+        addNotification('💬 New Message', `${latest.sender_name}: ${(latest.message||'').substring(0,50)}`, 'chat');
+      }
+      // Reload detail
+      await loadOrderDetail(selectedOrderId);
+      scrollChatBottom();
+    }
+  } catch(e) { /* silent */ }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// IN-APP NOTIFICATION POPUP
+// ════════════════════════════════════════════════════════════════════
+let msgPopupTimeout = null;
+function showMsgPopup(title, msg, smiley) {
+  const popup = document.getElementById('msgPopup');
+  document.getElementById('msgPopupSmiley').textContent = smiley || '😊';
+  document.getElementById('msgPopupTitle').textContent = title;
+  document.getElementById('msgPopupMsg').textContent = msg;
+  popup.classList.add('active');
+  if (msgPopupTimeout) clearTimeout(msgPopupTimeout);
+  msgPopupTimeout = setTimeout(() => { popup.classList.remove('active'); }, 4000);
+}
+
+function closeMsgPopup() {
+  document.getElementById('msgPopup').classList.remove('active');
+  if (msgPopupTimeout) clearTimeout(msgPopupTimeout);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS (in-app)
+// ════════════════════════════════════════════════════════════════════
+function addNotification(title, body, type) {
+  notifications.unshift({title, body, type, time: new Date()});
+  if (notifications.length > 30) notifications.pop();
+  updateBellBadge();
+  renderNotifDropdown();
+}
+
+function updateBellBadge() {
+  const badge = document.getElementById('bellBadge');
+  if (notifications.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = Math.min(notifications.length, 9);
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function toggleNotifDropdown() {
+  document.getElementById('notifDropdown').classList.toggle('active');
+  updateBellBadge();
+}
+
+function renderNotifDropdown() {
+  const list = document.getElementById('notifList');
+  if (!notifications.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No notifications 🎉</div>';
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item">
+      <div class="notif-item-title">${escapeHtml(n.title)}</div>
+      <div class="notif-item-body">${escapeHtml(n.body)}</div>
+      <div class="notif-item-time">${formatTime(n.time)}</div>
+    </div>
+  `).join('');
+}
+
+function clearNotifications() {
+  notifications = [];
+  updateBellBadge();
+  renderNotifDropdown();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  const dropdown = document.getElementById('notifDropdown');
+  const bell = document.getElementById('bellBtn');
+  if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
+    dropdown.classList.remove('active');
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════════
+function toast(msg, type) {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || 'info');
+  const icons = {success: '✅', error: '❌', info: 'ℹ️'};
+  el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${escapeHtml(msg)}</span>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════════
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function formatTime(t) {
+  if (!t) return '';
+  try {
+    const d = new Date(t);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  } catch { return ''; }
+}
+
+// Handle Enter on login
+document.getElementById('loginPass').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('loginUser').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>

@@ -3609,6 +3609,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', ct)
             self.send_header('Content-Length', str(len(content)))
+            # Prevent aggressive caching of HTML files so updates appear immediately
+            if ext in ('.html', '.css', '.js', '.json'):
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Pragma', 'no-cache')
+                self.send_header('Expires', '0')
             self._cors()
             self.end_headers()
             self.wfile.write(content)

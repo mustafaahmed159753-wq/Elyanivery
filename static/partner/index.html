@@ -411,6 +411,29 @@ input,textarea,select{font-family:inherit}
   .prep-modal .prep-options{grid-template-columns:repeat(3,1fr)}
   .theme-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ════════ LANGUAGE SELECTOR ════════ */
+.lang-select-wrap{position:relative;flex-shrink:0}
+.lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;min-width:68px;text-align:center;transition:border .2s}
+.lang-select:hover,.lang-select:focus{border-color:var(--pri)}
+.lang-select option{background:var(--card);color:var(--text)}
+.lang-arrow{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--muted);pointer-events:none}
+
+/* ════════ BROADCAST BANNER ════════ */
+.broadcast-container{padding:0 20px;max-width:1200px;margin:0 auto;width:100%}
+.broadcast-banner{background:linear-gradient(135deg,rgba(255,107,0,.12),rgba(255,140,51,.08));border:1px solid rgba(255,107,0,.25);border-radius:var(--radius);padding:14px 18px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;animation:fadeIn .4s;position:relative;backdrop-filter:blur(var(--card-blur))}
+.broadcast-banner .bc-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.broadcast-banner .bc-body{flex:1;min-width:0}
+.broadcast-banner .bc-body h4{font-size:14px;font-weight:700;margin-bottom:3px;color:var(--pri)}
+.broadcast-banner .bc-body p{font-size:13px;color:var(--text);line-height:1.4;white-space:pre-wrap}
+.broadcast-banner .bc-time{font-size:10px;color:var(--muted);margin-top:4px}
+.broadcast-banner .bc-close{background:none;color:var(--muted);font-size:16px;cursor:pointer;flex-shrink:0;padding:2px;opacity:.6;transition:opacity .2s}
+.broadcast-banner .bc-close:hover{opacity:1;color:var(--red)}
+@media(max-width:768px){
+  .lang-select{padding:6px 8px;font-size:11px;min-width:56px}
+  .broadcast-container{padding:0 12px}
+  .broadcast-banner{padding:12px 14px}
+}
 </style>
 </head>
 <body>
@@ -421,7 +444,7 @@ input,textarea,select{font-family:inherit}
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
     <div class="splash-letters" id="splashLetters"></div>
-    <div class="splash-subtitle">Restaurant Partner</div>
+    <div class="splash-subtitle" data-lang="partnerApp">Restaurant Partner</div>
     <div class="splash-progress">
       <svg viewBox="0 0 64 64">
         <circle class="progress-bg" cx="32" cy="32" r="25"/>
@@ -446,17 +469,17 @@ input,textarea,select{font-family:inherit}
   <div class="login-box">
     <div class="login-logo">&#127869;</div>
     <h1>Elyanivery</h1>
-    <p>Restaurant Partner Dashboard</p>
+    <p data-lang="partnerApp">Restaurant Partner Dashboard</p>
     <div class="login-form">
       <div class="input-wrap">
         <span class="input-icon">&#128100;</span>
-        <input id="loginUser" placeholder="Username" autocomplete="off">
+        <input id="loginUser" data-placeholder="username" placeholder="Username" autocomplete="off">
       </div>
       <div class="input-wrap">
         <span class="input-icon">&#128274;</span>
-        <input id="loginPass" type="password" placeholder="Password" onkeypress="if(event.key==='Enter')doLogin()">
+        <input id="loginPass" type="password" data-placeholder="password" placeholder="Password" onkeypress="if(event.key==='Enter')doLogin()">
       </div>
-      <button class="btn-pri" onclick="doLogin()">Sign In</button>
+      <button class="btn-pri" onclick="doLogin()" data-lang="login">Sign In</button>
       <div class="login-error" id="loginError"></div>
     </div>
   </div>
@@ -476,6 +499,14 @@ input,textarea,select{font-family:inherit}
       <div class="switch" id="openSwitch" onclick="toggleRestaurantOpen()"></div>
     </div>
     <div class="topbar-actions">
+      <div class="lang-select-wrap">
+        <select class="lang-select" id="langSelect" onchange="changeLang(this.value)" title="Language">
+          <option value="en">EN</option>
+          <option value="ru">РУ</option>
+          <option value="ro">RO</option>
+        </select>
+        <span class="lang-arrow">&#9660;</span>
+      </div>
       <div style="position:relative">
         <button class="notif-btn" id="notifBtn" onclick="toggleNotifDropdown()">
           &#128276;
@@ -483,27 +514,30 @@ input,textarea,select{font-family:inherit}
         </button>
         <div class="notif-dropdown" id="notifDropdown">
           <div class="notif-header">
-            <h4>Notifications</h4>
-            <button onclick="markAllNotifRead()">Mark all read</button>
+            <h4 data-lang="notifications">Notifications</h4>
+            <button onclick="markAllNotifRead()" data-lang="markAllRead">Mark all read</button>
           </div>
           <div class="notif-body" id="notifBody"></div>
         </div>
       </div>
       <button class="settings-btn" onclick="switchSection('settings',document.querySelector('.nav-tab[data-sec=settings]'))" title="Settings">&#9881;</button>
       <button class="logout-btn" onclick="doLogout()">
-        <span>&#128682;</span> Logout
+        <span>&#128682;</span> <span data-lang="logout">Logout</span>
       </button>
     </div>
   </header>
+
+  <!-- ════════ BROADCAST BANNERS ════════ -->
+  <div class="broadcast-container" id="broadcastContainer"></div>
 
   <!-- ════════ MAIN ════════ -->
   <main class="main-content">
     <!-- Nav tabs -->
     <div class="nav-tabs">
-      <button class="nav-tab active" data-sec="dashboard" onclick="switchSection('dashboard',this)">&#128202; Dashboard</button>
-      <button class="nav-tab" data-sec="orders" onclick="switchSection('orders',this)">&#128230; Orders</button>
-      <button class="nav-tab" data-sec="menu" onclick="switchSection('menu',this)">&#127858; Menu</button>
-      <button class="nav-tab" data-sec="settings" onclick="switchSection('settings',this)">&#9881; Settings</button>
+      <button class="nav-tab active" data-sec="dashboard" onclick="switchSection('dashboard',this)">&#128202; <span data-lang="stats">Dashboard</span></button>
+      <button class="nav-tab" data-sec="orders" onclick="switchSection('orders',this)">&#128230; <span data-lang="orders">Orders</span></button>
+      <button class="nav-tab" data-sec="menu" onclick="switchSection('menu',this)">&#127858; <span data-lang="menu">Menu</span></button>
+      <button class="nav-tab" data-sec="settings" onclick="switchSection('settings',this)">&#9881; <span data-lang="settings">Settings</span></button>
     </div>
 
     <!-- ════════ DASHBOARD SECTION ════════ -->
@@ -512,25 +546,25 @@ input,textarea,select{font-family:inherit}
         <div class="stat-card orders">
           <div class="stat-icon">&#128230;</div>
           <div class="stat-val" id="statTodayOrders">0</div>
-          <div class="stat-label">Today's Orders</div>
+          <div class="stat-label" data-lang="todayOrders">Today Orders</div>
           <div class="stat-glow"></div>
         </div>
         <div class="stat-card revenue">
           <div class="stat-icon">&#128176;</div>
           <div class="stat-val" id="statTodayRevenue">&#8364;0</div>
-          <div class="stat-label">Today's Revenue</div>
+          <div class="stat-label" data-lang="todayRevenue">Today Revenue</div>
           <div class="stat-glow"></div>
         </div>
         <div class="stat-card pending">
           <div class="stat-icon">&#9203;</div>
           <div class="stat-val" id="statPending">0</div>
-          <div class="stat-label">Pending Orders</div>
+          <div class="stat-label" data-lang="pending">Pending</div>
           <div class="stat-glow"></div>
         </div>
         <div class="stat-card rating">
           <div class="stat-icon">&#11088;</div>
           <div class="stat-val" id="statRating">-</div>
-          <div class="stat-label">Avg Rating</div>
+          <div class="stat-label" data-lang="avgRating">Avg Rating</div>
           <div class="stat-glow"></div>
         </div>
       </div>
@@ -539,14 +573,14 @@ input,textarea,select{font-family:inherit}
           <div class="wk-icon">&#128197;</div>
           <div class="wk-info">
             <h4 id="statWeekOrders">0</h4>
-            <p>Weekly Orders</p>
+            <p data-lang="weeklyOrders">Weekly Orders</p>
           </div>
         </div>
         <div class="weekly-card wk-revenue">
           <div class="wk-icon">&#128178;</div>
           <div class="wk-info">
             <h4 id="statWeekRevenue">&#8364;0</h4>
-            <p>Weekly Revenue</p>
+            <p data-lang="weeklyRevenue">Weekly Revenue</p>
           </div>
         </div>
       </div>
@@ -555,11 +589,11 @@ input,textarea,select{font-family:inherit}
     <!-- ════════ ORDERS SECTION ════════ -->
     <div class="section-panel" id="sec-orders">
       <div class="order-tabs" id="orderTabs">
-        <button class="order-tab active" data-filter="pending" onclick="filterOrders('pending',this)">New Orders <span class="tab-count" id="countPending">0</span></button>
-        <button class="order-tab" data-filter="in_progress" onclick="filterOrders('in_progress',this)">In Progress <span class="tab-count" id="countInProgress">0</span></button>
-        <button class="order-tab" data-filter="ready" onclick="filterOrders('ready',this)">Ready <span class="tab-count" id="countReady">0</span></button>
-        <button class="order-tab" data-filter="completed" onclick="filterOrders('completed',this)">Completed <span class="tab-count" id="countCompleted">0</span></button>
-        <button class="order-tab" data-filter="all" onclick="filterOrders('all',this)">All</button>
+        <button class="order-tab active" data-filter="pending" onclick="filterOrders('pending',this)" data-lang="newOrders">New Orders <span class="tab-count" id="countPending">0</span></button>
+        <button class="order-tab" data-filter="in_progress" onclick="filterOrders('in_progress',this)" data-lang="inProgress">In Progress <span class="tab-count" id="countInProgress">0</span></button>
+        <button class="order-tab" data-filter="ready" onclick="filterOrders('ready',this)" data-lang="ready">Ready <span class="tab-count" id="countReady">0</span></button>
+        <button class="order-tab" data-filter="completed" onclick="filterOrders('completed',this)" data-lang="completed">Completed <span class="tab-count" id="countCompleted">0</span></button>
+        <button class="order-tab" data-filter="all" onclick="filterOrders('all',this)" data-lang="all">All</button>
       </div>
       <div class="orders-grid" id="ordersGrid"></div>
     </div>
@@ -567,32 +601,32 @@ input,textarea,select{font-family:inherit}
     <!-- ════════ MENU SECTION ════════ -->
     <div class="section-panel" id="sec-menu">
       <div class="menu-toolbar">
-        <h3>Menu Items</h3>
+        <h3 data-lang="menu">Menu</h3>
         <button class="btn-add" id="addMenuBtn" onclick="toggleAddForm()">
-          <span>+</span> Add Item
+          <span>+</span> <span data-lang="addItem">Add Item</span>
         </button>
       </div>
 
       <!-- Add form -->
       <div class="add-form" id="addMenuForm">
-        <h4>Add New Menu Item</h4>
+        <h4 data-lang="addItem">Add New Menu Item</h4>
         <div class="form-group">
-          <label>Name</label>
-          <input id="addName" placeholder="Item name">
+          <label data-lang="itemName">Name</label>
+          <input id="addName" data-placeholder="itemName" placeholder="Item name">
         </div>
         <div class="form-group">
-          <label>Description</label>
-          <textarea id="addDesc" placeholder="Item description"></textarea>
+          <label data-lang="description">Description</label>
+          <textarea id="addDesc" data-placeholder="itemDescPlaceholder" placeholder="Item description"></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Price ($)</label>
+            <label data-lang="price">Price ($)</label>
             <input id="addPrice" type="number" step="0.01" min="0" placeholder="0.00">
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn-cancel" onclick="toggleAddForm()">Cancel</button>
-          <button class="btn-save" onclick="addMenuItem()">Add Item</button>
+          <button class="btn-cancel" onclick="toggleAddForm()" data-lang="cancel">Cancel</button>
+          <button class="btn-save" onclick="addMenuItem()" data-lang="addItem">Add Item</button>
         </div>
       </div>
 
@@ -603,7 +637,7 @@ input,textarea,select{font-family:inherit}
     <div class="section-panel" id="sec-settings">
       <div class="settings-section">
         <div class="settings-group">
-          <h4>&#128100; Profile</h4>
+          <h4>&#128100; <span data-lang="profile">Profile</span></h4>
           <div class="profile-info">
             <div class="profile-avatar" id="profileAvatar">&#127869;</div>
             <div class="profile-details">
@@ -614,14 +648,23 @@ input,textarea,select{font-family:inherit}
         </div>
 
         <div class="settings-group">
-          <h4>&#127912; Theme</h4>
+          <h4>&#127760; <span data-lang="language">Language</span></h4>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="lang-option-btn" onclick="changeLang('en')" data-langcode="en" style="padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s">&#127468;&#127463; English</button>
+            <button class="lang-option-btn" onclick="changeLang('ru')" data-langcode="ru" style="padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s">&#127479;&#127482; Русский</button>
+            <button class="lang-option-btn" onclick="changeLang('ro')" data-langcode="ro" style="padding:10px 20px;border-radius:10px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s">&#127474;&#127486; Română</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h4>&#127912; <span data-lang="theme">Theme</span></h4>
           <div class="theme-grid" id="themeGrid"></div>
         </div>
 
         <div class="settings-group">
-          <h4>&#128276; Notifications</h4>
+          <h4>&#128276; <span data-lang="notifications">Notifications</span></h4>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
-            <span style="font-size:14px">Order notification sound</span>
+            <span style="font-size:14px" data-lang="orderNotifSound">Order notification sound</span>
             <div class="avail-toggle">
               <div class="mini-switch on" id="soundToggle" onclick="toggleSound(this)"></div>
               <span id="soundLabel">On</span>
@@ -636,29 +679,29 @@ input,textarea,select{font-family:inherit}
 <!-- ════════ EDIT MENU ITEM MODAL ════════ -->
 <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEditModal()">
   <div class="modal-box">
-    <h3>Edit Menu Item</h3>
+    <h3 data-lang="editItem">Edit Menu Item</h3>
     <input type="hidden" id="editId">
     <div class="form-group">
-      <label>Name</label>
+      <label data-lang="itemName">Name</label>
       <input id="editName" placeholder="Item name">
     </div>
     <div class="form-group">
-      <label>Description</label>
+      <label data-lang="description">Description</label>
       <textarea id="editDesc" placeholder="Item description"></textarea>
     </div>
     <div class="form-group">
-      <label>Price ($)</label>
+      <label data-lang="price">Price ($)</label>
       <input id="editPrice" type="number" step="0.01" min="0" placeholder="0.00">
     </div>
     <div class="form-group" style="display:flex;align-items:center;gap:10px">
-      <label style="margin:0">Available</label>
+      <label style="margin:0" data-lang="available">Available</label>
       <div class="avail-toggle">
         <div class="mini-switch on" id="editAvailSwitch" onclick="this.classList.toggle('on')"></div>
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-      <button class="btn-save" onclick="saveEditItem()">Save Changes</button>
+      <button class="btn-cancel" onclick="closeEditModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-save" onclick="saveEditItem()" data-lang="save">Save Changes</button>
     </div>
   </div>
 </div>
@@ -667,12 +710,12 @@ input,textarea,select{font-family:inherit}
 <div class="modal-overlay" id="deleteModal" onclick="if(event.target===this)closeDeleteModal()">
   <div class="modal-box confirm-box">
     <div class="confirm-icon">&#128465;</div>
-    <h3>Delete Item?</h3>
-    <p>This action cannot be undone. The item will be permanently removed from your menu.</p>
+    <h3 data-lang="deleteItem">Delete Item?</h3>
+    <p id="deleteMsg">This action cannot be undone. The item will be permanently removed from your menu.</p>
     <input type="hidden" id="deleteId">
     <div class="form-actions">
-      <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-      <button class="btn-confirm-delete" onclick="confirmDeleteItem()">Delete</button>
+      <button class="btn-cancel" onclick="closeDeleteModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-confirm-delete" onclick="confirmDeleteItem()" data-lang="deleteItem">Delete</button>
     </div>
   </div>
 </div>
@@ -680,9 +723,9 @@ input,textarea,select{font-family:inherit}
 <!-- ════════ PREP TIME MODAL ════════ -->
 <div class="modal-overlay" id="prepModal" onclick="if(event.target===this)closePrepModal()">
   <div class="modal-box prep-modal">
-    <h3>&#9203; Estimated Prep Time</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:4px">How long will this order take to prepare?</p>
-    <p style="font-size:12px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:4px">&#128232; The courier will be notified when the order is expected to be ready</p>
+    <h3>&#9203; <span data-lang="prepTime">Estimated Prep Time</span></h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:4px" data-lang="prepTimeQuestion">How long will this order take to prepare?</p>
+    <p style="font-size:12px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:4px">&#128232; <span data-lang="courierNotified">The courier will be notified when the order is expected to be ready</span></p>
     <input type="hidden" id="prepOrderId">
     <input type="hidden" id="prepMode" value="accept">
     <div class="prep-options" id="prepOptions">
@@ -699,9 +742,9 @@ input,textarea,select{font-family:inherit}
       </div>
     </div>
     <div class="form-actions">
-      <button class="btn-cancel" onclick="closePrepModal()">Cancel</button>
-      <button class="btn-save" id="confirmAcceptBtn" onclick="confirmAcceptWithPrep()" disabled style="opacity:.5">&#9989; Accept Order</button>
-      <button class="btn-save" id="confirmUpdateBtn" onclick="confirmUpdatePrep()" disabled style="opacity:.5;display:none">&#9203; Update Prep Time</button>
+      <button class="btn-cancel" onclick="closePrepModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-save" id="confirmAcceptBtn" onclick="confirmAcceptWithPrep()" disabled style="opacity:.5">&#9989; <span data-lang="acceptOrder">Accept Order</span></button>
+      <button class="btn-save" id="confirmUpdateBtn" onclick="confirmUpdatePrep()" disabled style="opacity:.5;display:none">&#9203; <span data-lang="updatePrepTime">Update Prep Time</span></button>
     </div>
   </div>
 </div>
@@ -817,6 +860,231 @@ const STATUS_LABELS={
   delivered:'Delivered',cancelled:'Cancelled',rejected:'Rejected'
 };
 
+// ════════════════════════════════════════════════════════
+//  MULTI-LANGUAGE SUPPORT
+// ════════════════════════════════════════════════════════
+const LANG={
+  en:{
+    partnerApp:'Partner Dashboard',orders:'Orders',menu:'Menu',
+    stats:'Dashboard',settings:'Settings',logout:'Logout',
+    login:'Sign In',username:'Username',password:'Password',
+    pending:'Pending',accepted:'Accepted',preparing:'Preparing',
+    readyForPickup:'Ready for Pickup',delivered:'Delivered',
+    cancelled:'Cancelled',rejected:'Rejected',
+    acceptOrder:'Accept Order',rejectOrder:'Reject Order',
+    markReady:'Mark Ready',prepTime:'Prep Time (minutes)',
+    addItem:'Add Item',editItem:'Edit Item',deleteItem:'Delete Item',
+    itemName:'Item Name',description:'Description',price:'Price',
+    available:'Available',unavailable:'Unavailable',
+    toggleOpen:'Toggle Open/Closed',restaurantInfo:'Restaurant Info',
+    todayOrders:'Today Orders',todayRevenue:'Today Revenue',
+    weeklyOrders:'Weekly Orders',weeklyRevenue:'Weekly Revenue',
+    cancel:'Cancel',save:'Save',confirm:'Confirm',
+    orderNumber:'Order #',customer:'Customer',total:'Total',
+    notifications:'Notifications',markAllRead:'Mark all read',
+    profile:'Profile',theme:'Theme',language:'Language',
+    orderNotifSound:'Order notification sound',on:'On',off:'Off',
+    open:'Open',closed:'Closed',
+    newOrders:'New Orders',inProgress:'In Progress',ready:'Ready',
+    completed:'Completed',all:'All',
+    noNewOrders:'No new orders',noNewOrdersDesc:'New orders will appear here when customers place them.',
+    noInProgress:'No orders in progress',noInProgressDesc:'Accept a new order to start preparing.',
+    noReady:'No orders ready',noReadyDesc:'Orders ready for pickup will appear here.',
+    noCompleted:'No completed orders',noCompletedDesc:'Delivered orders will appear here.',
+    noOrdersYet:'No orders yet',noOrdersYetDesc:'Orders will appear here once placed.',
+    noMenuItems:'No menu items',noMenuItemsDesc:'Add your first menu item to start receiving orders.',
+    addNewItem:'Add New Menu Item',itemDescPlaceholder:'Item description',
+    prepTimeQuestion:'How long will this order take to prepare?',
+    courierNotified:'The courier will be notified when the order is expected to be ready',
+    updatePrepTime:'Update Prep Time',waitingForCourier:'Waiting for courier pickup',
+    courierWaiting:'Courier is waiting!',courierAtRestaurant:'is waiting at restaurant',
+    deleteConfirm:'This action cannot be undone. The item will be permanently removed from your menu.',
+    avgRating:'Avg Rating',sessionExpired:'Session expired. Please login again.',
+    pleaseEnterCredentials:'Please enter username and password',
+    accessDenied:'Access denied. This dashboard is for restaurant partners only.',
+    orderAccepted:'Order accepted! Prep time:',orderRejected:'Order rejected',
+    orderMarkedReady:'Order marked as ready for pickup!',
+    prepTimeUpdated:'Prep time updated to',menuItemAdded:'Menu item added!',
+    itemNowAvailable:'Item now available',itemMarkedUnavailable:'Item marked unavailable',
+    itemUpdated:'Item updated!',itemDeleted:'Item deleted',
+    failedToAccept:'Failed to accept order',failedToReject:'Failed to reject order',
+    failedToMarkReady:'Failed to mark order ready',failedToUpdatePrep:'Failed to update prep time',
+    failedToAdd:'Failed to add item',failedToUpdate:'Failed to update item',
+    failedToDelete:'Failed to delete item',failedToToggle:'Failed to toggle',
+    failedToLoad:'Failed to load',itemNameRequired:'Item name is required',
+    validPriceRequired:'Valid price is required',selectPrepTime:'Please select a prep time',
+    restaurantNowOpen:'Restaurant is now OPEN',restaurantNowClosed:'Restaurant is now CLOSED',
+    allNotifRead:'All notifications marked as read',noNotifications:'No notifications',
+    justNow:'Just now',minAgo:'m ago',hrAgo:'h ago',dayAgo:'d ago',
+    prepCountdownLabel:'Prep:',estLabel:'min est.',doneLabel:'Done!',
+    markReadyConfirm:'Prep time still has','minRemaining':'min remaining. Mark as ready anyway? (Cancel to update prep time first)',
+    loginFailed:'Login failed',networkError:'Network error'
+  },
+  ru:{
+    partnerApp:'Панель Партнёра',orders:'Заказы',menu:'Меню',
+    stats:'Статистика',settings:'Настройки',logout:'Выйти',
+    login:'Вход',username:'Имя пользователя',password:'Пароль',
+    pending:'Ожидает',accepted:'Принят',preparing:'Готовится',
+    readyForPickup:'Готов к Выдаче',delivered:'Доставлен',
+    cancelled:'Отменён',rejected:'Отклонён',
+    acceptOrder:'Принять Заказ',rejectOrder:'Отклонить Заказ',
+    markReady:'Отметить Готовым',prepTime:'Время Приготовления (мин)',
+    addItem:'Добавить Позицию',editItem:'Редактировать',deleteItem:'Удалить',
+    itemName:'Название',description:'Описание',price:'Цена',
+    available:'Доступно',unavailable:'Недоступно',
+    toggleOpen:'Открыть/Закрыть',restaurantInfo:'Информация о Ресторане',
+    todayOrders:'Заказы Сегодня',todayRevenue:'Выручка Сегодня',
+    weeklyOrders:'Заказы за Неделю',weeklyRevenue:'Выручка за Неделю',
+    cancel:'Отмена',save:'Сохранить',confirm:'Подтвердить',
+    orderNumber:'Заказ №',customer:'Клиент',total:'Итого',
+    notifications:'Уведомления',markAllRead:'Прочитать все',
+    profile:'Профиль',theme:'Тема',language:'Язык',
+    orderNotifSound:'Звук уведомления о заказе',on:'Вкл',off:'Выкл',
+    open:'Открыто',closed:'Закрыто',
+    newOrders:'Новые Заказы',inProgress:'В Процессе',ready:'Готовы',
+    completed:'Завершены',all:'Все',
+    noNewOrders:'Нет новых заказов',noNewOrdersDesc:'Новые заказы появятся здесь, когда клиенты их разместят.',
+    noInProgress:'Нет заказов в процессе',noInProgressDesc:'Примите новый заказ, чтобы начать приготовление.',
+    noReady:'Нет готовых заказов',noReadyDesc:'Готовые к выдаче заказы появятся здесь.',
+    noCompleted:'Нет завершённых заказов',noCompletedDesc:'Доставленные заказы появятся здесь.',
+    noOrdersYet:'Пока нет заказов',noOrdersYetDesc:'Заказы появятся здесь после размещения.',
+    noMenuItems:'Нет позиций меню',noMenuItemsDesc:'Добавьте первую позицию меню, чтобы начать получать заказы.',
+    addNewItem:'Добавить Новую Позицию',itemDescPlaceholder:'Описание позиции',
+    prepTimeQuestion:'Сколько времени потребуется на приготовление?',
+    courierNotified:'Курьер будет уведомлён о ожидаемом времени готовности',
+    updatePrepTime:'Обновить Время',waitingForCourier:'Ожидание курьера',
+    courierWaiting:'Курьер ждёт!',courierAtRestaurant:'ждёт в ресторане',
+    deleteConfirm:'Это действие нельзя отменить. Позиция будет навсегда удалена из меню.',
+    avgRating:'Средний Рейтинг',sessionExpired:'Сессия истекла. Пожалуйста, войдите снова.',
+    pleaseEnterCredentials:'Введите имя пользователя и пароль',
+    accessDenied:'Доступ запрещён. Эта панель только для партнёров ресторанов.',
+    orderAccepted:'Заказ принят! Время:',orderRejected:'Заказ отклонён',
+    orderMarkedReady:'Заказ готов к выдаче!',
+    prepTimeUpdated:'Время приготовления обновлено:',menuItemAdded:'Позиция меню добавлена!',
+    itemNowAvailable:'Позиция доступна',itemMarkedUnavailable:'Позиция недоступна',
+    itemUpdated:'Позиция обновлена!',itemDeleted:'Позиция удалена',
+    failedToAccept:'Не удалось принять заказ',failedToReject:'Не удалось отклонить заказ',
+    failedToMarkReady:'Не удалось отметить заказ готовым',failedToUpdatePrep:'Не удалось обновить время',
+    failedToAdd:'Не удалось добавить позицию',failedToUpdate:'Не удалось обновить позицию',
+    failedToDelete:'Не удалось удалить позицию',failedToToggle:'Не удалось переключить',
+    failedToLoad:'Не удалось загрузить',itemNameRequired:'Название позиции обязательно',
+    validPriceRequired:'Укажите корректную цену',selectPrepTime:'Выберите время приготовления',
+    restaurantNowOpen:'Ресторан теперь ОТКРЫТ',restaurantNowClosed:'Ресторан теперь ЗАКРЫТ',
+    allNotifRead:'Все уведомления прочитаны',noNotifications:'Нет уведомлений',
+    justNow:'Только что',minAgo:' мин назад',hrAgo:' ч назад',dayAgo:' д назад',
+    prepCountdownLabel:'Приг:',estLabel:'мин расч.',doneLabel:'Готово!',
+    markReadyConfirm:'До конца приготовления ещё','minRemaining':'мин. Отметить готовым? (Отмена для обновления времени)',
+    loginFailed:'Ошибка входа',networkError:'Ошибка сети'
+  },
+  ro:{
+    partnerApp:'Panou Partener',orders:'Comenzi',menu:'Meniu',
+    stats:'Statistici',settings:'Setari',logout:'Deconectare',
+    login:'Autentificare',username:'Nume utilizator',password:'Parola',
+    pending:'In asteptare',accepted:'Acceptat',preparing:'Se pregateste',
+    readyForPickup:'Gata de Ridicare',delivered:'Livat',
+    cancelled:'Anulat',rejected:'Respins',
+    acceptOrder:'Accepta Comanda',rejectOrder:'Respinge Comanda',
+    markReady:'Marcheaza Gata',prepTime:'Timp Preparare (minute)',
+    addItem:'Adauga Articol',editItem:'Editeaza',deleteItem:'Sterge',
+    itemName:'Nume Articol',description:'Descriere',price:'Pret',
+    available:'Disponibil',unavailable:'Indisponibil',
+    toggleOpen:'Deschide/Inchide',restaurantInfo:'Informatii Restaurant',
+    todayOrders:'Comenzi Astazi',todayRevenue:'Venit Astazi',
+    weeklyOrders:'Comenzi Saptamana',weeklyRevenue:'Venit Saptamana',
+    cancel:'Anuleaza',save:'Salveaza',confirm:'Confirma',
+    orderNumber:'Comanda Nr',customer:'Client',total:'Total',
+    notifications:'Notificari',markAllRead:'Marcheaza toate citite',
+    profile:'Profil',theme:'Tema',language:'Limba',
+    orderNotifSound:'Sunet notificare comanda',on:'On',off:'Off',
+    open:'Deschis',closed:'Inchis',
+    newOrders:'Comenzi Noi',inProgress:'In Desfasurare',ready:'Gata',
+    completed:'Finalizate',all:'Toate',
+    noNewOrders:'Nicio comanda noua',noNewOrdersDesc:'Comenzile noi vor aparea aici cand clientii le plaseaza.',
+    noInProgress:'Nicio comanda in lucru',noInProgressDesc:'Acceptati o comanda noua pentru a incepe pregatirea.',
+    noReady:'Nicio comanda gata',noReadyDesc:'Comenzile gata de ridicare vor aparea aici.',
+    noCompleted:'Nicio comanda finalizata',noCompletedDesc:'Comenzile livrate vor aparea aici.',
+    noOrdersYet:'Nicio comanda',noOrdersYetDesc:'Comenzile vor aparea aici odata plasate.',
+    noMenuItems:'Niciun articol in meniu',noMenuItemsDesc:'Adaugati primul articol in meniu pentru a incepe sa primiti comenzi.',
+    addNewItem:'Adauga Articol Nou',itemDescPlaceholder:'Descriere articol',
+    prepTimeQuestion:'Cat timp va dura pregatirea acestei comenzi?',
+    courierNotified:'Curierul va fi notificat cand comanda este estimata a fi gata',
+    updatePrepTime:'Actualizeaza Timp',waitingForCourier:'Se asteapta curierul',
+    courierWaiting:'Curierul asteapta!',courierAtRestaurant:'asteapta la restaurant',
+    deleteConfirm:'Aceasta actiune nu poate fi anulata. Articolul va fi sters permanent din meniu.',
+    avgRating:'Rating Mediu',sessionExpired:'Sesiune expirata. Va rugam reconectati-va.',
+    pleaseEnterCredentials:'Introduceti numele de utilizator si parola',
+    accessDenied:'Acces refuzat. Acest panou este doar pentru partenerii restaurantelor.',
+    orderAccepted:'Comanda acceptata! Timp:',orderRejected:'Comanda respinsa',
+    orderMarkedReady:'Comanda marcata ca gata de ridicare!',
+    prepTimeUpdated:'Timpul de preparare actualizat:',menuItemAdded:'Articol adaugat in meniu!',
+    itemNowAvailable:'Articol disponibil',itemMarkedUnavailable:'Articol indisponibil',
+    itemUpdated:'Articol actualizat!',itemDeleted:'Articol sters',
+    failedToAccept:'Nu s-a putut accepta comanda',failedToReject:'Nu s-a putut respinge comanda',
+    failedToMarkReady:'Nu s-a putut marca comanda ca gata',failedToUpdatePrep:'Nu s-a putut actualiza timpul',
+    failedToAdd:'Nu s-a putut adauga articolul',failedToUpdate:'Nu s-a putut actualiza articolul',
+    failedToDelete:'Nu s-a putut sterge articolul',failedToToggle:'Nu s-a putut comuta',
+    failedToLoad:'Nu s-a putut incarca',itemNameRequired:'Numele articolului este obligatoriu',
+    validPriceRequired:'Pretul trebuie sa fie valid',selectPrepTime:'Selectati timpul de preparare',
+    restaurantNowOpen:'Restaurantul este acum DESCHIS',restaurantNowClosed:'Restaurantul este acum INCHIS',
+    allNotifRead:'Toate notificarile marcate ca citite',noNotifications:'Nicio notificare',
+    justNow:'Chiar acum',minAgo:' min',hrAgo:' h',dayAgo:' z',
+    prepCountdownLabel:'Prep:',estLabel:'min est.',doneLabel:'Gata!',
+    markReadyConfirm:'Timpul de preparare mai are','minRemaining':'min. Marcheaza ca gata? (Anuleaza pentru a actualiza timpul)',
+    loginFailed:'Autentificare esuata',networkError:'Eroare de retea'
+  }
+};
+
+let currentLang=localStorage.getItem('partner_lang')||'en';
+
+function t(key){
+  return (LANG[currentLang]&&LANG[currentLang][key])||(LANG.en[key])||key;
+}
+
+function changeLang(lang){
+  if(!LANG[lang])lang='en';
+  currentLang=lang;
+  localStorage.setItem('partner_lang',lang);
+  applyLang();
+  // Re-render dynamic content
+  if(token&&user&&user.role==='partner'){
+    renderOrders();
+    loadMenu();
+    updateOpenToggle();
+  }
+}
+
+function applyLang(){
+  // Update data-lang elements
+  document.querySelectorAll('[data-lang]').forEach(el=>{
+    const key=el.getAttribute('data-lang');
+    const val=t(key);
+    if(val!==key)el.textContent=val;
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-placeholder]').forEach(el=>{
+    const key=el.getAttribute('data-placeholder');
+    const val=t(key);
+    if(val!==key)el.placeholder=val;
+  });
+  // Update language selector
+  const sel=document.getElementById('langSelect');
+  if(sel)sel.value=currentLang;
+  // Update language option buttons in settings
+  document.querySelectorAll('.lang-option-btn').forEach(btn=>{
+    const code=btn.getAttribute('data-langcode');
+    if(code===currentLang){
+      btn.style.borderColor='var(--pri)';
+      btn.style.boxShadow='0 0 0 3px rgba(255,107,0,.2)';
+    }else{
+      btn.style.borderColor='var(--border)';
+      btn.style.boxShadow='none';
+    }
+  });
+  // Update sound label
+  const soundLbl=document.getElementById('soundLabel');
+  if(soundLbl)soundLbl.textContent=soundEnabled?t('on'):t('off');
+}
+
 const VEHICLE_LABELS={bicycle:'Bicycle',motorcycle:'Motorcycle',car:'Car',scooter:'Scooter',on_foot:'On Foot'};
 const VEHICLE_EMOJIS={bicycle:'🚲',motorcycle:'🏍️',car:'🚗',scooter:'🛴',on_foot:'🚶'};
 
@@ -826,6 +1094,7 @@ let allOrders=[];
 let currentFilter='pending';
 let orderPollTimer=null;
 let notifPollTimer=null;
+let broadcastPollTimer=null;
 let lastOrderIds=[];
 let isRestaurantOpen=false;
 let selectedPrepTime=null;
@@ -837,6 +1106,7 @@ let countdownTimer=null;
 // ════════════════════════════════════════════════════════
 function init(){
   initThemeGrid();
+  applyLang();
   if(token&&user&&user.role==='partner'){
     enterApp();
   }else{
@@ -860,8 +1130,10 @@ function enterApp(){
   loadOrders();
   loadMenu();
   loadNotifications();
+  loadBroadcasts();
   startPolling();
   startCountdownTimer();
+  applyLang();
 }
 
 async function loadRestaurantInfo(){
@@ -887,13 +1159,13 @@ async function api(method,path,body){
       localStorage.removeItem('partner_token');localStorage.removeItem('partner_user');
       stopPolling();
       showLogin();
-      toast('Session expired. Please login again.','error');
+      toast(t('sessionExpired'),'error');
       return{success:false,message:'Session expired'};
     }
     return await r.json();
   }catch(e){
     console.error('API error',e);
-    return{success:false,message:'Network error'};
+    return{success:false,message:t('networkError')};
   }
 }
 
@@ -905,12 +1177,12 @@ async function doLogin(){
   const password=document.getElementById('loginPass').value;
   const errEl=document.getElementById('loginError');
   errEl.textContent='';
-  if(!username||!password){errEl.textContent='Please enter username and password';return}
+  if(!username||!password){errEl.textContent=t('pleaseEnterCredentials');return}
   
   const res=await api('POST','/api/auth/login',{username,password});
   if(res.success){
     if(res.data.role!=='partner'){
-      errEl.textContent='Access denied. This dashboard is for restaurant partners only.';
+      errEl.textContent=t('accessDenied');
       return;
     }
     token=res.data.token;
@@ -919,7 +1191,7 @@ async function doLogin(){
     localStorage.setItem('partner_user',JSON.stringify(user));
     enterApp();
   }else{
-    errEl.textContent=res.message||'Login failed';
+    errEl.textContent=res.message||t('loginFailed');
   }
 }
 
@@ -972,11 +1244,11 @@ function updateOpenToggle(){
   const lbl=document.getElementById('openLabel');
   if(isRestaurantOpen){
     sw.classList.add('on');
-    lbl.textContent='Open';
+    lbl.textContent=t('open');
     lbl.style.color='var(--green)';
   }else{
     sw.classList.remove('on');
-    lbl.textContent='Closed';
+    lbl.textContent=t('closed');
     lbl.style.color='var(--muted)';
   }
 }
@@ -986,7 +1258,7 @@ async function toggleRestaurantOpen(){
   if(res.success){
     isRestaurantOpen=!isRestaurantOpen;
     updateOpenToggle();
-    toast(isRestaurantOpen?'Restaurant is now OPEN':'Restaurant is now CLOSED',isRestaurantOpen?'success':'warning');
+    toast(isRestaurantOpen?t('restaurantNowOpen'):t('restaurantNowClosed'),isRestaurantOpen?'success':'warning');
   }else{
     toast(res.message||'Failed to toggle','error');
   }
@@ -998,7 +1270,7 @@ async function toggleRestaurantOpen(){
 function toggleSound(el){
   el.classList.toggle('on');
   soundEnabled=el.classList.contains('on');
-  document.getElementById('soundLabel').textContent=soundEnabled?'On':'Off';
+  document.getElementById('soundLabel').textContent=soundEnabled?t('on'):t('off');
 }
 
 // ════════════════════════════════════════════════════════
@@ -1025,7 +1297,7 @@ function updateCountdowns(){
     if(remaining<=0){
       el.classList.remove('cd-urgent');
       el.classList.add('cd-done');
-      el.querySelector('.cd-time').textContent='Done!';
+      el.querySelector('.cd-time').textContent=t('doneLabel');
       el.querySelector('.cd-icon').textContent='✅';
     }else{
       const min=Math.floor(remaining/60);
@@ -1101,11 +1373,11 @@ function renderOrders(){
   const grid=document.getElementById('ordersGrid');
   if(!orders.length){
     const msgs={
-      pending:{icon:'&#128230;',title:'No new orders',desc:'New orders will appear here when customers place them.'},
-      in_progress:{icon:'&#128736;',title:'No orders in progress',desc:'Accept a new order to start preparing.'},
-      ready:{icon:'&#128230;',title:'No orders ready',desc:'Orders ready for pickup will appear here.'},
-      completed:{icon:'&#9989;',title:'No completed orders',desc:'Delivered orders will appear here.'},
-      all:{icon:'&#128230;',title:'No orders yet',desc:'Orders will appear here once placed.'}
+      pending:{icon:'&#128230;',title:t('noNewOrders'),desc:t('noNewOrdersDesc')},
+      in_progress:{icon:'&#128736;',title:t('noInProgress'),desc:t('noInProgressDesc')},
+      ready:{icon:'&#128230;',title:t('noReady'),desc:t('noReadyDesc')},
+      completed:{icon:'&#9989;',title:t('noCompleted'),desc:t('noCompletedDesc')},
+      all:{icon:'&#128230;',title:t('noOrdersYet'),desc:t('noOrdersYetDesc')}
     };
     const m=msgs[currentFilter]||msgs.all;
     grid.innerHTML=`<div class="orders-empty"><div class="icon">${m.icon}</div><h4>${m.title}</h4><p>${m.desc}</p></div>`;
@@ -1135,27 +1407,27 @@ function renderOrders(){
       const remaining=endTs?Math.max(0,Math.floor((endTs-now)/1000)):0;
       const min=Math.floor(remaining/60);
       const sec=remaining%60;
-      const timeStr=remaining>0?min+':'+String(sec).padStart(2,'0'):'Done!';
+      const timeStr=remaining>0?min+':'+String(sec).padStart(2,'0'):t('doneLabel');
       const isUrgent=remaining>0&&remaining<=300;
       const isDone=remaining<=0;
-      statusExtra+=`<div class="prep-countdown${isUrgent?' cd-urgent':''}${isDone?' cd-done':''}" data-end="${endTs||''}"><span class="cd-icon">${isDone?'✅':'⏱️'}</span><span>Prep: </span><span class="cd-time">${timeStr}</span><span style="font-size:11px;color:var(--muted);margin-left:4px">(${o.estimated_prep_minutes}min est.)</span></div>`;
+      statusExtra+=`<div class="prep-countdown${isUrgent?' cd-urgent':''}${isDone?' cd-done':''}" data-end="${endTs||''}"><span class="cd-icon">${isDone?'✅':'⏱️'}</span><span>${t('prepCountdownLabel')} </span><span class="cd-time">${timeStr}</span><span style="font-size:11px;color:var(--muted);margin-left:4px">(${o.estimated_prep_minutes}${t('estLabel')})</span></div>`;
     }
     
     if(o.status==='pending'){
       actionsHtml=`
-        <button class="btn-accept" onclick="event.stopPropagation();openPrepModal(${o.id},'accept')">&#9989; Accept</button>
-        <button class="btn-reject" onclick="event.stopPropagation();rejectOrder(${o.id})">&#10060; Reject</button>`;
+        <button class="btn-accept" onclick="event.stopPropagation();openPrepModal(${o.id},'accept')">&#9989; ${t('acceptOrder')}</button>
+        <button class="btn-reject" onclick="event.stopPropagation();rejectOrder(${o.id})">&#10060; ${t('rejectOrder')}</button>`;
     }else if(o.status==='accepted'){
-      actionsHtml=`<button class="btn-ready" onclick="event.stopPropagation();markReady(${o.id})">&#128230; Mark Ready</button><button class="btn-update-prep" onclick="event.stopPropagation();openPrepModal(${o.id},'update')" style="background:var(--card2);color:var(--blue);border:1px solid rgba(52,152,219,.3)">&#9203; Update Prep</button>`;
+      actionsHtml=`<button class="btn-ready" onclick="event.stopPropagation();markReady(${o.id})">&#128230; ${t('markReady')}</button><button class="btn-update-prep" onclick="event.stopPropagation();openPrepModal(${o.id},'update')" style="background:var(--card2);color:var(--blue);border:1px solid rgba(52,152,219,.3)">&#9203; ${t('updatePrepTime')}</button>`;
     }else if(o.status==='ready_for_pickup'){
-      statusExtra+=`<div class="waiting-badge">&#9203; Waiting for courier pickup</div>`;
+      statusExtra+=`<div class="waiting-badge">&#9203; ${t('waitingForCourier')}</div>`;
     }else if(o.status==='arrived_at_restaurant'){
       const cName=o.courier_name||'Courier';
       const cVehicle=o.courier_vehicle_type||'';
       const vEmoji=VEHICLE_EMOJIS[cVehicle]||'🏍️';
       const vLabel=VEHICLE_LABELS[cVehicle]||'';
-      statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${cName.charAt(0)}</div><div>${vEmoji} ${esc(cName)} is <strong>waiting at restaurant</strong></div></div>`;
-      statusExtra+=`<div class="waiting-badge">&#128657; Courier is waiting!</div>`;
+      statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${cName.charAt(0)}</div><div>${vEmoji} ${esc(cName)} <strong>${t('courierAtRestaurant')}</strong></div></div>`;
+      statusExtra+=`<div class="waiting-badge">&#128657; ${t('courierWaiting')}</div>`;
     }else if(['courier_assigned','heading_to_restaurant'].includes(o.status)){
       const cName=o.courier_name||'Courier';
       const cVehicle=o.courier_vehicle_type||'';
@@ -1168,7 +1440,7 @@ function renderOrders(){
       const vEmoji=VEHICLE_EMOJIS[cVehicle]||'🏍️';
       statusExtra+=`<div class="courier-badge"><div class="cb-avatar">${vEmoji}</div><div>${vEmoji} ${esc(cName)} &mdash; ${label}</div></div>`;
     }else if(o.status==='delivered'){
-      statusExtra+=`<div class="delivered-badge">&#9989; Delivered</div>`;
+      statusExtra+=`<div class="delivered-badge">&#9989; ${t('delivered')}</div>`;
     }else if(o.status==='rejected'||o.status==='cancelled'){
       statusExtra+=`<div class="rejected-badge">&#10060; ${label}</div>`;
     }
@@ -1277,43 +1549,43 @@ function selectPrepTime(mins,el){
 
 async function confirmAcceptWithPrep(){
   const oid=document.getElementById('prepOrderId').value;
-  if(!selectedPrepTime){toast('Please select a prep time','error');return}
+  if(!selectedPrepTime){toast(t('selectPrepTime'),'error');return}
   
   const res=await api('POST',`/api/partner/order/${oid}/accept`,{estimated_prep_minutes:selectedPrepTime});
   if(res.success){
     closePrepModal();
-    toast('Order accepted! Prep time: '+selectedPrepTime+'min','success');
+    toast(t('orderAccepted')+' '+selectedPrepTime+'min','success');
     showInAppNotif('🎉','Order Accepted!','Estimated prep: '+selectedPrepTime+' minutes — courier will be notified');
     loadOrders();
     loadStats();
   }else{
-    toast(res.message||'Failed to accept order','error');
+    toast(res.message||t('failedToAccept'),'error');
   }
 }
 
 async function confirmUpdatePrep(){
   const oid=document.getElementById('prepOrderId').value;
-  if(!selectedPrepTime){toast('Please select a prep time','error');return}
+  if(!selectedPrepTime){toast(t('selectPrepTime'),'error');return}
   
   const res=await api('POST',`/api/partner/order/${oid}/accept`,{estimated_prep_minutes:selectedPrepTime});
   if(res.success){
     closePrepModal();
-    toast('Prep time updated to '+selectedPrepTime+'min','success');
+    toast(t('prepTimeUpdated')+' '+selectedPrepTime+'min','success');
     showInAppNotif('⏱️','Prep Time Updated','New estimate: '+selectedPrepTime+' minutes — courier will be notified');
     loadOrders();
   }else{
-    toast(res.message||'Failed to update prep time','error');
+    toast(res.message||t('failedToUpdatePrep'),'error');
   }
 }
 
 async function rejectOrder(oid){
   const res=await api('POST',`/api/partner/order/${oid}/reject`);
   if(res.success){
-    toast('Order rejected','warning');
+    toast(t('orderRejected'),'warning');
     loadOrders();
     loadStats();
   }else{
-    toast(res.message||'Failed to reject order','error');
+    toast(res.message||t('failedToReject'),'error');
   }
 }
 
@@ -1326,17 +1598,17 @@ async function markReady(oid){
     if(remaining>60){
       // Still have more than 1 min left - ask if they want to update prep time
       const minLeft=Math.floor(remaining/60);
-      if(!confirm(`Prep time still has ${minLeft} min remaining. Mark as ready anyway? (Cancel to update prep time first)`))return;
+      if(!confirm(t('markReadyConfirm')+' '+minLeft+' '+t('minRemaining')))return;
     }
   }
   const res=await api('POST',`/api/partner/order/${oid}/ready`);
   if(res.success){
-    toast('Order marked as ready for pickup!','success');
+    toast(t('orderMarkedReady'),'success');
     showInAppNotif('👍','Ready for Pickup!','Courier will be notified');
     loadOrders();
     loadStats();
   }else{
-    toast(res.message||'Failed to mark order ready','error');
+    toast(res.message||t('failedToMarkReady'),'error');
   }
 }
 
@@ -1353,7 +1625,7 @@ async function loadMenu(){
 function renderMenu(items){
   const el=document.getElementById('menuItemsList');
   if(!items.length){
-    el.innerHTML='<div class="orders-empty"><div class="icon">&#127858;</div><h4>No menu items</h4><p>Add your first menu item to start receiving orders.</p></div>';
+    el.innerHTML='<div class="orders-empty"><div class="icon">&#127858;</div><h4>'+t('noMenuItems')+'</h4><p>'+t('noMenuItemsDesc')+'</p></div>';
     return;
   }
   el.innerHTML=items.map(item=>`
@@ -1362,15 +1634,15 @@ function renderMenu(items){
         <h4>${esc(item.name)}</h4>
         <div class="mi-price">$${parseFloat(item.price).toFixed(2)}</div>
       </div>
-      <div class="mi-desc">${esc(item.description||'No description')}</div>
+      <div class="mi-desc">${esc(item.description||t('description'))}</div>
       <div class="mi-footer">
         <div class="avail-toggle">
           <div class="mini-switch${item.is_available?' on':''}" onclick="toggleItemAvail(${item.id},${item.is_available},this)"></div>
-          <span>${item.is_available?'Available':'Unavailable'}</span>
+          <span>${item.is_available?t('available'):t('unavailable')}</span>
         </div>
         <div class="mi-actions">
-          <button class="mi-edit" onclick="openEditModal(${item.id},'${esc(item.name)}','${esc(item.description||'')}',${item.price},${item.is_available})" title="Edit">&#9998;</button>
-          <button class="mi-delete" onclick="openDeleteModal(${item.id},'${esc(item.name)}')" title="Delete">&#128465;</button>
+          <button class="mi-edit" onclick="openEditModal(${item.id},'${esc(item.name)}','${esc(item.description||'')}',${item.price},${item.is_available})" title="${t('editItem')}">&#9998;</button>
+          <button class="mi-delete" onclick="openDeleteModal(${item.id},'${esc(item.name)}')" title="${t('deleteItem')}">&#128465;</button>
         </div>
       </div>
     </div>
@@ -1391,19 +1663,19 @@ async function addMenuItem(){
   const name=document.getElementById('addName').value.trim();
   const description=document.getElementById('addDesc').value.trim();
   const price=parseFloat(document.getElementById('addPrice').value);
-  if(!name){toast('Item name is required','error');return}
-  if(isNaN(price)||price<=0){toast('Valid price is required','error');return}
+  if(!name){toast(t('itemNameRequired'),'error');return}
+  if(isNaN(price)||price<=0){toast(t('validPriceRequired'),'error');return}
   
   const res=await api('POST','/api/partner/menu',{name,description,price});
   if(res.success){
-    toast('Menu item added!','success');
+    toast(t('menuItemAdded'),'success');
     document.getElementById('addMenuForm').classList.remove('open');
     document.getElementById('addName').value='';
     document.getElementById('addDesc').value='';
     document.getElementById('addPrice').value='';
     loadMenu();
   }else{
-    toast(res.message||'Failed to add item','error');
+    toast(res.message||t('failedToAdd'),'error');
   }
 }
 
@@ -1413,10 +1685,10 @@ async function toggleItemAvail(id,current,el){
     el.classList.toggle('on');
     const card=el.closest('.menu-item-card');
     card.classList.toggle('unavailable');
-    el.nextElementSibling.textContent=!current?'Available':'Unavailable';
-    toast(!current?'Item now available':'Item marked unavailable',!current?'success':'warning');
+    el.nextElementSibling.textContent=!current?t('available'):t('unavailable');
+    toast(!current?t('itemNowAvailable'):t('itemMarkedUnavailable'),!current?'success':'warning');
   }else{
-    toast(res.message||'Failed to update','error');
+    toast(res.message||t('failedToToggle'),'error');
   }
 }
 
@@ -1442,23 +1714,23 @@ async function saveEditItem(){
   const price=parseFloat(document.getElementById('editPrice').value);
   const is_available=document.getElementById('editAvailSwitch').classList.contains('on');
   
-  if(!name){toast('Item name is required','error');return}
-  if(isNaN(price)||price<=0){toast('Valid price is required','error');return}
+  if(!name){toast(t('itemNameRequired'),'error');return}
+  if(isNaN(price)||price<=0){toast(t('validPriceRequired'),'error');return}
   
   const res=await api('PUT',`/api/partner/menu/items/${id}`,{name,description,price,is_available});
   if(res.success){
-    toast('Item updated!','success');
+    toast(t('itemUpdated'),'success');
     closeEditModal();
     loadMenu();
   }else{
-    toast(res.message||'Failed to update item','error');
+    toast(res.message||t('failedToUpdate'),'error');
   }
 }
 
 // Delete modal
 function openDeleteModal(id,name){
   document.getElementById('deleteId').value=id;
-  document.querySelector('#deleteModal p').textContent=`Are you sure you want to delete "${name}"? This action cannot be undone.`;
+  document.getElementById('deleteMsg').textContent=`${t('deleteConfirm')}`;
   document.getElementById('deleteModal').classList.add('active');
 }
 
@@ -1470,11 +1742,11 @@ async function confirmDeleteItem(){
   const id=document.getElementById('deleteId').value;
   const res=await api('DELETE',`/api/partner/menu/items/${id}`);
   if(res.success){
-    toast('Item deleted','success');
+    toast(t('itemDeleted'),'success');
     closeDeleteModal();
     loadMenu();
   }else{
-    toast(res.message||'Failed to delete item','error');
+    toast(res.message||t('failedToDelete'),'error');
   }
 }
 
@@ -1505,7 +1777,7 @@ async function loadUnreadCount(){
 function renderNotifications(notifs){
   const el=document.getElementById('notifBody');
   if(!notifs.length){
-    el.innerHTML='<div class="notif-empty">No notifications</div>';
+    el.innerHTML='<div class="notif-empty">'+t('noNotifications')+'</div>';
     return;
   }
   el.innerHTML=notifs.slice(0,20).map(n=>{
@@ -1547,7 +1819,7 @@ async function markNotifRead(id){
 async function markAllNotifRead(){
   await loadNotifications();
   document.getElementById('notifBadge').style.display='none';
-  toast('All notifications marked as read','success');
+  toast(t('allNotifRead'),'success');
 }
 
 // ════════════════════════════════════════════════════════
@@ -1579,6 +1851,76 @@ function dismissInAppNotif(el){
 }
 
 // ════════════════════════════════════════════════════════
+//  BROADCASTS
+// ════════════════════════════════════════════════════════
+let dismissedBroadcasts=JSON.parse(localStorage.getItem('partner_dismissed_broadcasts')||'[]');
+
+async function loadBroadcasts(){
+  try{
+    const res=await api('GET','/api/broadcasts');
+    if(res.success&&res.data){
+      const broadcasts=Array.isArray(res.data)?res.data:[];
+      // Filter out dismissed broadcasts and those not targeting partners
+      const activeBroadcasts=broadcasts.filter(b=>{
+        if(dismissedBroadcasts.includes(b.id))return false;
+        // Check if broadcast targets partners (target_roles includes 'partner' or 'all')
+        if(b.target_roles){
+          const targets=Array.isArray(b.target_roles)?b.target_roles:[];
+          if(!targets.includes('partner')&&!targets.includes('all')&&targets.length>0)return false;
+        }
+        // Check if broadcast is still active
+        if(b.expires_at&&new Date(b.expires_at)<new Date())return false;
+        return true;
+      });
+      renderBroadcasts(activeBroadcasts);
+    }
+  }catch(e){
+    // Silently fail - broadcasts are non-critical
+    console.warn('Failed to load broadcasts:',e);
+  }
+}
+
+function renderBroadcasts(broadcasts){
+  const container=document.getElementById('broadcastContainer');
+  if(!container)return;
+  if(!broadcasts||!broadcasts.length){
+    container.innerHTML='';
+    return;
+  }
+  container.innerHTML=broadcasts.map(b=>{
+    const emoji=b.emoji||b.icon||'📢';
+    const title=esc(b.title||'');
+    const message=esc(b.message||b.body||b.content||'');
+    const time=b.created_at?getTimeAgo(b.created_at):'';
+    return `<div class="broadcast-banner" data-broadcast-id="${b.id}">
+      <span class="bc-icon">${emoji}</span>
+      <div class="bc-body">
+        ${title?'<h4>'+title+'</h4>':''}
+        <p>${message}</p>
+        ${time?'<div class="bc-time">'+time+'</div>':''}
+      </div>
+      <button class="bc-close" onclick="dismissBroadcast(${b.id})" title="Dismiss">&#10005;</button>
+    </div>`;
+  }).join('');
+}
+
+function dismissBroadcast(id){
+  // Add to dismissed list
+  if(!dismissedBroadcasts.includes(id)){
+    dismissedBroadcasts.push(id);
+    localStorage.setItem('partner_dismissed_broadcasts',JSON.stringify(dismissedBroadcasts));
+  }
+  // Animate out
+  const banner=document.querySelector(`.broadcast-banner[data-broadcast-id="${id}"]`);
+  if(banner){
+    banner.style.opacity='0';
+    banner.style.transform='translateY(-10px)';
+    banner.style.transition='all .3s ease';
+    setTimeout(()=>banner.remove(),300);
+  }
+}
+
+// ════════════════════════════════════════════════════════
 //  POLLING
 // ════════════════════════════════════════════════════════
 function startPolling(){
@@ -1589,12 +1931,16 @@ function startPolling(){
   notifPollTimer=setInterval(()=>{
     loadUnreadCount();
   },15000);
+  broadcastPollTimer=setInterval(()=>{
+    loadBroadcasts();
+  },30000);
   loadUnreadCount();
 }
 
 function stopPolling(){
   if(orderPollTimer){clearInterval(orderPollTimer);orderPollTimer=null}
   if(notifPollTimer){clearInterval(notifPollTimer);notifPollTimer=null}
+  if(broadcastPollTimer){clearInterval(broadcastPollTimer);broadcastPollTimer=null}
 }
 
 // ════════════════════════════════════════════════════════
@@ -1684,10 +2030,10 @@ function getTimeAgo(dateStr){
   const d=new Date(dateStr);
   const now=new Date();
   const diff=Math.floor((now-d)/1000);
-  if(diff<60)return'Just now';
-  if(diff<3600)return Math.floor(diff/60)+'m ago';
-  if(diff<86400)return Math.floor(diff/3600)+'h ago';
-  return Math.floor(diff/86400)+'d ago';
+  if(diff<60)return t('justNow');
+  if(diff<3600)return Math.floor(diff/60)+t('minAgo');
+  if(diff<86400)return Math.floor(diff/3600)+t('hrAgo');
+  return Math.floor(diff/86400)+t('dayAgo');
 }
 
 // Close modals with Escape key

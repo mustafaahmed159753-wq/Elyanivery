@@ -398,6 +398,37 @@ input,textarea,select{font-family:inherit}
 .msg-popup-btn-row{display:flex;gap:10px;justify-content:center}
 .msg-popup-btn-cancel{background:rgba(255,255,255,.12);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 24px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s}
 .msg-popup-btn-cancel:active{transform:scale(.95)}
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE SELECTOR
+   ═══════════════════════════════════════════════ */
+.lang-selector{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted);cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--bg);border:1px solid var(--border);transition:all .2s}
+.lang-selector:hover{border-color:var(--pri);color:var(--pri)}
+.lang-selector select{background:transparent;border:none;color:var(--text);font-size:12px;font-weight:600;outline:none;cursor:pointer;-webkit-appearance:none;-moz-appearance:none;appearance:none;padding:0 2px;width:28px}
+.lang-selector select option{background:var(--card);color:var(--text);font-size:13px}
+
+/* ═══════════════════════════════════════════════
+   BROADCAST BANNER
+   ═══════════════════════════════════════════════ */
+.broadcast-banner{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;margin-bottom:12px;background:linear-gradient(135deg,rgba(77,166,255,.15),rgba(46,213,115,.1));border:1px solid rgba(77,166,255,.3);border-radius:var(--radius);position:relative;animation:notifIn .4s cubic-bezier(.16,1,.3,1)}
+.broadcast-banner .bb-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.broadcast-banner .bb-content{flex:1;min-width:0}
+.broadcast-banner .bb-content h4{font-size:14px;font-weight:700;margin-bottom:2px;color:var(--blue)}
+.broadcast-banner .bb-content p{font-size:12px;color:var(--text);line-height:1.4;word-wrap:break-word}
+.broadcast-banner .bb-close{background:rgba(255,255,255,.1);border:none;color:var(--muted);width:24px;height:24px;border-radius:50%;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.broadcast-banner .bb-close:hover{background:rgba(255,255,255,.2);color:var(--text)}
+
+/* ═══════════════════════════════════════════════
+   APPROVAL STATUS BADGE
+   ═══════════════════════════════════════════════ */
+.approval-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.approval-pending{background:rgba(243,156,18,.15);color:var(--orange)}
+.approval-approved{background:rgba(46,213,115,.15);color:var(--green)}
+.approval-suspended{background:rgba(255,71,87,.15);color:var(--red)}
+.approval-blocked{background:rgba(255,71,87,.2);color:var(--red)}
+
+/* Phone field style override for auth form */
+.auth-form input#authPhone{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238888a0' viewBox='0 0 16 16'%3E%3Cpath d='M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.48 8.341A1.745 1.745 0 0 1 5.022 6.684l.547-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:16px center;padding-left:40px}
 </style>
 </head>
 <body>
@@ -432,7 +463,8 @@ input,textarea,select{font-family:inherit}
   <div class="auth-form">
     <input id="authUser" placeholder="Username" autocomplete="off">
     <input id="authPass" type="password" placeholder="Password">
-    <input id="authName" placeholder="Display Name (optional)" style="display:none">
+    <input id="authName" placeholder="Display Name" style="display:none">
+    <input id="authPhone" type="tel" placeholder="Phone" style="display:none">
     <div id="authRoleWrap" style="display:none;margin-bottom:12px">
       <select id="authRole" style="width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);font-size:15px;background:var(--input-bg);color:var(--text)">
         <option value="courier" selected>Courier</option>
@@ -451,11 +483,21 @@ input,textarea,select{font-family:inherit}
 <div id="dashScreen" class="screen">
   <div class="dash-header">
     <h2 id="dashGreeting">Hello!</h2>
-    <div class="online-toggle">
-      <span id="onlineLabel">Offline</span>
-      <div class="switch" id="onlineSwitch" onclick="toggleOnline()"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="lang-selector" id="langSelectorDash">
+        🌐<select id="langSelectDash" onchange="setLang(this.value)">
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+          <option value="ro">RO</option>
+        </select>
+      </div>
+      <div class="online-toggle">
+        <span id="onlineLabel">Offline</span>
+        <div class="switch" id="onlineSwitch" onclick="toggleOnline()"></div>
+      </div>
     </div>
   </div>
+  <div id="broadcastContainer"></div>
   <div class="stats-row">
     <div class="stat-card"><div class="val" id="statActive">0</div><div class="label">Active</div></div>
     <div class="stat-card"><div class="val" id="statDelivered">0</div><div class="label">Delivered</div></div>
@@ -513,6 +555,7 @@ input,textarea,select{font-family:inherit}
   <div class="menu-list">
     <button onclick="openVehicleSelector()"><span class="icon">🛵</span> Change Vehicle <span class="arrow">&#8250;</span></button>
     <button onclick="openThemePicker()"><span class="icon">&#127912;</span> Change Theme <span class="arrow">&#8250;</span></button>
+    <button onclick="openLangPicker()"><span class="icon">🌐</span> Language <span class="arrow" id="langArrowLabel">&#8250;</span></button>
     <button onclick="logout()"><span class="icon">&#128682;</span> Logout <span class="arrow">&#8250;</span></button>
   </div>
 </div>
@@ -668,6 +711,28 @@ input,textarea,select{font-family:inherit}
   </div>
 </div>
 
+<!-- ════════ LANGUAGE PICKER MODAL ════════ -->
+<div class="theme-picker-overlay" id="langPickerOverlay" onclick="if(event.target===this)closeLangPicker()">
+  <div class="theme-picker-box">
+    <h3>🌐 Language</h3>
+    <div id="langPickerList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <button class="vehicle-option" data-lang="en" onclick="setLang('en');closeLangPicker()" style="flex-direction:row;justify-content:flex-start;padding:16px;gap:12px;cursor:pointer">
+        <span style="font-size:24px">🇬🇧</span>
+        <span style="font-size:15px;font-weight:600">English</span>
+      </button>
+      <button class="vehicle-option" data-lang="ru" onclick="setLang('ru');closeLangPicker()" style="flex-direction:row;justify-content:flex-start;padding:16px;gap:12px;cursor:pointer">
+        <span style="font-size:24px">🇷🇺</span>
+        <span style="font-size:15px;font-weight:600">Русский</span>
+      </button>
+      <button class="vehicle-option" data-lang="ro" onclick="setLang('ro');closeLangPicker()" style="flex-direction:row;justify-content:flex-start;padding:16px;gap:12px;cursor:pointer">
+        <span style="font-size:24px">🇲🇩</span>
+        <span style="font-size:15px;font-weight:600">Română</span>
+      </button>
+    </div>
+    <button class="theme-picker-close" onclick="closeLangPicker()">Done</button>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -759,6 +824,342 @@ const VEHICLE_EMOJIS = { walking: '🚶', bicycle: '🚲', scooter: '🛵', car:
 const VEHICLE_LABELS = { walking: 'Walking', bicycle: 'Bicycle', scooter: 'Scooter', car: 'Car' };
 
 // ═══════════════════════════════════════════════════════
+//  MULTI-LANGUAGE SUPPORT
+// ═══════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    courierApp: 'Courier App', goOnline: 'Go Online', goOffline: 'Go Offline',
+    vehicleType: 'Vehicle Type', walking: 'Walking', bicycle: 'Bicycle',
+    scooter: 'Scooter', car: 'Car', earnings: 'Earnings',
+    todayEarnings: 'Today Earnings', totalDeliveries: 'Total Deliveries',
+    currentOrder: 'Current Order', noOrder: 'No active order',
+    navigateToRestaurant: 'Navigate to Restaurant', arrivedAtRestaurant: 'Arrived at Restaurant',
+    pickUpOrder: 'Pick Up Order', deliverToCustomer: 'Deliver to Customer',
+    completeDelivery: 'Complete Delivery', orderPickedUp: 'Order Picked Up',
+    waitingTime: 'Waiting Time', orderDetails: 'Order Details',
+    logout: 'Logout', login: 'Login', register: 'Register',
+    username: 'Username', password: 'Password', displayName: 'Display Name',
+    phone: 'Phone', pendingApproval: 'Pending Approval',
+    approvalMessage: 'Your account is pending admin approval. Please wait for an admin to approve your account.',
+    suspendedMessage: 'Your account has been suspended. Please contact support.',
+    blockedMessage: 'Your account has been blocked. Please contact support.',
+    registrationSuccess: 'Registration successful! Your account is pending admin approval. You will be notified once approved.',
+    activeOrders: 'Active Orders', noActiveOrders: 'No active orders. Go online to receive orders!',
+    online: 'Online', offline: 'Offline', waitingForOrders: 'Waiting for orders...',
+    noNewOrders: 'No new orders will be assigned', changeVehicle: 'Change Vehicle',
+    changeTheme: 'Change Theme', language: 'Language', courierPartner: 'Courier Partner',
+    totalEarnings: 'Total Earnings (All Time)', today: 'Today', thisWeek: 'This Week',
+    recentEarnings: 'Recent Earnings', noEarnings: 'No earnings yet. Start delivering!',
+    messages: 'Messages', noConversations: 'No conversations yet',
+    chat: 'Chat', typeMessage: 'Type a message...', profile: 'Profile',
+    noVehicleSet: 'No vehicle set', selectVehicle: 'Select Your Vehicle',
+    vehicleSubtitle: 'This affects which orders you can receive', confirmVehicle: 'Confirm Vehicle',
+    anyDistance: 'Any distance', only3km: '<3km only', newOrder: 'New Order!',
+    accept: 'Accept', reject: 'Reject', reassign: 'Reassign', startTrip: 'Start Trip',
+    arrivedAtRestaurantLabel: 'Arrived at Restaurant', pickedUpOrder: 'Picked Up Order',
+    headingToCustomer: 'Heading to Customer', arrivedAtCustomer: 'Arrived at Customer',
+    delivered: 'Delivered', deliveryFlow: 'Delivery Flow', step1GoToRestaurant: 'Step 1: Go to Restaurant',
+    step2AtRestaurant: 'Step 2: At Restaurant', step3DeliverToCustomer: 'Step 3: Deliver to Customer',
+    step4CompleteDelivery: 'Step 4: Complete Delivery', deliveryComplete: 'Delivery Complete',
+    navigateToRestaurantBtn: 'Navigate to Restaurant', arrivedAtRestaurantBtn: 'Arrived at Restaurant',
+    pickUpOrderBtn: 'Pick Up Order', navigateToCustomer: 'Navigate to Customer',
+    arrivedAtCustomerBtn: 'Arrived at Customer', markAsDelivered: 'Mark as Delivered',
+    forceArrive: "I'm here (manual override)", forceArriveTitle: 'Force Arrive?',
+    forceArriveMsg: 'Mark as arrived? (Use if GPS is inaccurate)',
+    getCloseRestaurant: 'Get closer to restaurant (< 400m) to enable this button',
+    getCloseCustomer: 'Get closer to customer location (< 400m)',
+    waitingAtRestaurant: 'Waiting at restaurant', sinceArrival: 'since arrival',
+    waitingEarnings: 'Waiting earnings', freeWaiting: 'Free waiting',
+    minRemaining: 'min remaining', yourEarnings: 'Your Earnings', deliveryFee: 'Delivery Fee',
+    waitingBonus: 'Waiting Bonus', orderDelivered: 'Order Delivered!',
+    orderDeliveredSuccess: 'Order Delivered Successfully!', rejectOrder: 'Reject Order?',
+    rejectOrderMsg: 'This order will be reassigned to another courier.',
+    reassignOrder: 'Reassign Order?', reassignOrderMsg: 'Are you sure you want to reassign this order?',
+    orderRejected: 'Order Rejected', orderReassigned: 'Order Reassigned',
+    orderAccepted: 'Order Accepted!', headingToRestaurantNotif: 'Heading to restaurant',
+    statusUpdated: 'Status Updated', deliveredNotif: 'Delivered!',
+    orderCompleted: 'Order completed successfully', missingInfo: 'Missing Info',
+    enterUsernamePassword: 'Enter username and password', authFailed: 'Auth Failed',
+    authenticationFailed: 'Authentication failed', updateFailed: 'Update Failed',
+    failedToUpdateStatus: 'Failed to update status', noOrder: 'No active order to call',
+    noOrderTitle: 'No Order', microphoneRequired: 'Microphone Required',
+    microphoneAccessRequired: 'Microphone access required for voice calls',
+    callFailed: 'Call Failed', failedToInitiateCall: 'Failed to initiate call',
+    callRejected: 'Call Rejected', customerDeclined: 'Customer declined the call',
+    incomingCall: 'Incoming Call', voiceCallFromCustomer: 'Voice call from customer',
+    selectVehicleTitle: 'Select Vehicle', pleaseSelectVehicle: 'Please select a vehicle type',
+    vehicleSet: 'Vehicle Set', yourVehicle: 'Your vehicle',
+    youreOnline: "You're Online!", youreOffline: "You're Offline",
+    dashboard: 'Dashboard', home: 'Home', locationError: 'Location Error',
+    locationNotAvailable: 'Location not available', sendFailed: 'Send Failed',
+    failedToSendMessage: 'Failed to send message', justNow: 'Just now',
+    orderPreparing: 'Order preparing', minRemainingPrep: 'min remaining',
+    orderShouldBeReady: 'Order should be ready!', estPrep: 'Est. prep',
+    orderItems: 'Order Items', total: 'Total', distance: 'Distance',
+    customer: 'Customer', restaurant: 'Restaurant', address: 'Address',
+    deliveryLocation: 'Delivery location', deliveryCompleteNotif: 'Delivery Complete!',
+    greatJobEarnings: 'Great job! Earnings updated.', dontHaveAccount: "Don't have an account?",
+    alreadyHaveAccount: 'Already have an account?', displayOptional: 'Display Name (optional)',
+    selectVehicleEmoji: '🚗 Select Your Vehicle'
+  },
+  ru: {
+    courierApp: 'Приложение Курьера', goOnline: 'Онлайн', goOffline: 'Оффлайн',
+    vehicleType: 'Тип Транспорта', walking: 'Пешком', bicycle: 'Велосипед',
+    scooter: 'Скутер', car: 'Автомобиль', earnings: 'Заработок',
+    todayEarnings: 'Заработок Сегодня', totalDeliveries: 'Всего Доставок',
+    currentOrder: 'Текущий Заказ', noOrder: 'Нет активного заказа',
+    navigateToRestaurant: 'К Ресторану', arrivedAtRestaurant: 'В Ресторане',
+    pickUpOrder: 'Забрать Заказ', deliverToCustomer: 'Доставить Клиенту',
+    completeDelivery: 'Завершить Доставку', orderPickedUp: 'Заказ Забран',
+    waitingTime: 'Время Ожидания', orderDetails: 'Детали Заказа',
+    logout: 'Выйти', login: 'Вход', register: 'Регистрация',
+    username: 'Имя пользователя', password: 'Пароль', displayName: 'Имя',
+    phone: 'Телефон', pendingApproval: 'Ожидает Одобрения',
+    approvalMessage: 'Ваш аккаунт ожидает одобрения администратора. Пожалуйста, дождитесь одобрения.',
+    suspendedMessage: 'Ваш аккаунт приостановлен. Свяжитесь с поддержкой.',
+    blockedMessage: 'Ваш аккаунт заблокирован. Свяжитесь с поддержкой.',
+    registrationSuccess: 'Регистрация успешна! Ваш аккаунт ожидает одобрения администратора. Вы будете уведомлены после одобрения.',
+    activeOrders: 'Активные Заказы', noActiveOrders: 'Нет активных заказов. Выйдите в онлайн для получения заказов!',
+    online: 'Онлайн', offline: 'Оффлайн', waitingForOrders: 'Ожидание заказов...',
+    noNewOrders: 'Новые заказы не будут назначаться', changeVehicle: 'Сменить Транспорт',
+    changeTheme: 'Сменить Тему', language: 'Язык', courierPartner: 'Курьер',
+    totalEarnings: 'Общий Заработок', today: 'Сегодня', thisWeek: 'На Этой Неделе',
+    recentEarnings: 'Последние Заработки', noEarnings: 'Нет заработков. Начните доставку!',
+    messages: 'Сообщения', noConversations: 'Нет диалогов',
+    chat: 'Чат', typeMessage: 'Введите сообщение...', profile: 'Профиль',
+    noVehicleSet: 'Транспорт не выбран', selectVehicle: 'Выберите Транспорт',
+    vehicleSubtitle: 'Это влияет на получение заказов', confirmVehicle: 'Подтвердить',
+    anyDistance: 'Любое расстояние', only3km: '<3 км', newOrder: 'Новый Заказ!',
+    accept: 'Принять', reject: 'Отклонить', reassign: 'Переназначить', startTrip: 'Начать Поездку',
+    arrivedAtRestaurantLabel: 'В Ресторане', pickedUpOrder: 'Заказ Забран',
+    headingToCustomer: 'К Клиенту', arrivedAtCustomer: 'У Клиента',
+    delivered: 'Доставлено', deliveryFlow: 'Процесс Доставки', step1GoToRestaurant: 'Шаг 1: К Ресторану',
+    step2AtRestaurant: 'Шаг 2: В Ресторане', step3DeliverToCustomer: 'Шаг 3: Доставка Клиенту',
+    step4CompleteDelivery: 'Шаг 4: Завершение Доставки', deliveryComplete: 'Доставка Завершена',
+    navigateToRestaurantBtn: 'К Ресторану', arrivedAtRestaurantBtn: 'В Ресторане',
+    pickUpOrderBtn: 'Забрать Заказ', navigateToCustomer: 'К Клиенту',
+    arrivedAtCustomerBtn: 'У Клиента', markAsDelivered: 'Отметить как Доставлено',
+    forceArrive: 'Я здесь (ручной ввод)', forceArriveTitle: 'Подтвердить Прибытие?',
+    forceArriveMsg: 'Отметить прибытие? (Используйте при неточном GPS)',
+    getCloseRestaurant: 'Подойдите ближе к ресторану (< 400 м)',
+    getCloseCustomer: 'Подойдите ближе к клиенту (< 400 м)',
+    waitingAtRestaurant: 'Ожидание в ресторане', sinceArrival: 'с момента прибытия',
+    waitingEarnings: 'Заработок за ожидание', freeWaiting: 'Бесплатное ожидание',
+    minRemaining: 'мин осталось', yourEarnings: 'Ваш Заработок', deliveryFee: 'Стоимость Доставки',
+    waitingBonus: 'Бонус за Ожидание', orderDelivered: 'Заказ Доставлен!',
+    orderDeliveredSuccess: 'Заказ Успешно Доставлен!', rejectOrder: 'Отклонить Заказ?',
+    rejectOrderMsg: 'Этот заказ будет переназначен другому курьеру.',
+    reassignOrder: 'Переназначить Заказ?', reassignOrderMsg: 'Вы уверены, что хотите переназначить этот заказ?',
+    orderRejected: 'Заказ Отклонён', orderReassigned: 'Заказ Переназначен',
+    orderAccepted: 'Заказ Принят!', headingToRestaurantNotif: 'Направляетесь в ресторан',
+    statusUpdated: 'Статус Обновлён', deliveredNotif: 'Доставлено!',
+    orderCompleted: 'Заказ успешно завершён', missingInfo: 'Не enough данных',
+    enterUsernamePassword: 'Введите имя пользователя и пароль', authFailed: 'Ошибка Авторизации',
+    authenticationFailed: 'Авторизация не удалась', updateFailed: 'Ошибка Обновления',
+    failedToUpdateStatus: 'Не удалось обновить статус', noOrder: 'Нет активного заказа для звонка',
+    noOrderTitle: 'Нет Заказа', microphoneRequired: 'Требуется Микрофон',
+    microphoneAccessRequired: 'Для звонков необходим доступ к микрофону',
+    callFailed: 'Звонок Не Удался', failedToInitiateCall: 'Не удалось начать звонок',
+    callRejected: 'Звонок Отклонён', customerDeclined: 'Клиент отклонил звонок',
+    incomingCall: 'Входящий Звонок', voiceCallFromCustomer: 'Звонок от клиента',
+    selectVehicleTitle: 'Выберите Транспорт', pleaseSelectVehicle: 'Пожалуйста, выберите тип транспорта',
+    vehicleSet: 'Транспорт Выбран', yourVehicle: 'Ваш транспорт',
+    youreOnline: 'Вы Онлайн!', youreOffline: 'Вы Оффлайн',
+    dashboard: 'Главная', home: 'Главная', locationError: 'Ошибка Локации',
+    locationNotAvailable: 'Локация недоступна', sendFailed: 'Ошибка Отправки',
+    failedToSendMessage: 'Не удалось отправить сообщение', justNow: 'Только что',
+    orderPreparing: 'Заказ готовится', minRemainingPrep: 'мин осталось',
+    orderShouldBeReady: 'Заказ должен быть готов!', estPrep: 'Время готовки',
+    orderItems: 'Позиции Заказа', total: 'Итого', distance: 'Расстояние',
+    customer: 'Клиент', restaurant: 'Ресторан', address: 'Адрес',
+    deliveryLocation: 'Адрес доставки', deliveryCompleteNotif: 'Доставка Завершена!',
+    greatJobEarnings: 'Отличная работа! Заработок обновлён.', dontHaveAccount: 'Нет аккаунта?',
+    alreadyHaveAccount: 'Уже есть аккаунт?', displayOptional: 'Имя (необязательно)',
+    selectVehicleEmoji: '🚗 Выберите Транспорт'
+  },
+  ro: {
+    courierApp: 'Aplicatie Curier', goOnline: 'Online', goOffline: 'Offline',
+    vehicleType: 'Tip Vehicul', walking: 'Pe Jos', bicycle: 'Bicicleta',
+    scooter: 'Scuter', car: 'Masina', earnings: 'Câstiguri',
+    todayEarnings: 'Câstiguri Astazi', totalDeliveries: 'Total Livrari',
+    currentOrder: 'Comanda Curenta', noOrder: 'Nicio comanda activa',
+    navigateToRestaurant: 'La Restaurant', arrivedAtRestaurant: 'Ajuns la Restaurant',
+    pickUpOrder: 'Ridica Comanda', deliverToCustomer: 'Livreaza Clientului',
+    completeDelivery: 'Finalizeaza Livrarea', orderPickedUp: 'Comanda Ridicata',
+    waitingTime: 'Timp Asteptare', orderDetails: 'Detalii Comanda',
+    logout: 'Deconectare', login: 'Autentificare', register: 'Inregistrare',
+    username: 'Nume utilizator', password: 'Parola', displayName: 'Nume',
+    phone: 'Telefon', pendingApproval: 'In Asteptare',
+    approvalMessage: 'Contul dumneavoastra asteapta aprobarea administratorului. Va rugam asteptati aprobarea.',
+    suspendedMessage: 'Contul a fost suspendat. Contactati suportul.',
+    blockedMessage: 'Contul a fost blocat. Contactati suportul.',
+    registrationSuccess: 'Inregistrare reusita! Contul asteapta aprobarea administratorului. Veti fi notificat dupa aprobare.',
+    activeOrders: 'Comenzi Active', noActiveOrders: 'Nicio comanda activa. Mergeti online pentru a primi comenzi!',
+    online: 'Online', offline: 'Offline', waitingForOrders: 'Asteptare comenzi...',
+    noNewOrders: 'Nu vor fi atribuite comenzi noi', changeVehicle: 'Schimba Vehicul',
+    changeTheme: 'Schimba Tema', language: 'Limba', courierPartner: 'Curier',
+    totalEarnings: 'Câstiguri Totale', today: 'Astazi', thisWeek: 'Aceasta Saptamâna',
+    recentEarnings: 'Câstiguri Recente', noEarnings: 'Niciun câstig. Începeti livrarile!',
+    messages: 'Mesaje', noConversations: 'Nicio conversatie',
+    chat: 'Chat', typeMessage: 'Scrieti un mesaj...', profile: 'Profil',
+    noVehicleSet: 'Niciun vehicul setat', selectVehicle: 'Selectati Vehicul',
+    vehicleSubtitle: 'Acesta afecteaza ce comenzi primiti', confirmVehicle: 'Confirmati Vehicul',
+    anyDistance: 'Orice distanta', only3km: '<3km', newOrder: 'Comanda Noua!',
+    accept: 'Accepta', reject: 'Respinge', reassign: 'Reasigneaza', startTrip: 'Începe Calatoria',
+    arrivedAtRestaurantLabel: 'Ajuns la Restaurant', pickedUpOrder: 'Comanda Ridicata',
+    headingToCustomer: 'Catre Client', arrivedAtCustomer: 'Ajuns la Client',
+    delivered: 'Livrata', deliveryFlow: 'Flux Livrare', step1GoToRestaurant: 'Pas 1: La Restaurant',
+    step2AtRestaurant: 'Pas 2: La Restaurant', step3DeliverToCustomer: 'Pas 3: Livreaza Clientului',
+    step4CompleteDelivery: 'Pas 4: Finalizeaza Livrarea', deliveryComplete: 'Livrare Completa',
+    navigateToRestaurantBtn: 'La Restaurant', arrivedAtRestaurantBtn: 'Ajuns la Restaurant',
+    pickUpOrderBtn: 'Ridica Comanda', navigateToCustomer: 'Catre Client',
+    arrivedAtCustomerBtn: 'Ajuns la Client', markAsDelivered: 'Marcheaza ca Livrata',
+    forceArrive: 'Sunt aici (manual)', forceArriveTitle: 'Confirmati Sosirea?',
+    forceArriveMsg: 'Marchati ca ati ajuns? (Folositi daca GPS-ul e inexact)',
+    getCloseRestaurant: 'Apropiati-va de restaurant (< 400m)',
+    getCloseCustomer: 'Apropiati-va de locatia clientului (< 400m)',
+    waitingAtRestaurant: 'Asteptare la restaurant', sinceArrival: 'de la sosire',
+    waitingEarnings: 'Câstig asteptare', freeWaiting: 'Asteptare gratuita',
+    minRemaining: 'min ramase', yourEarnings: 'Câstigul Dumneavoastra', deliveryFee: 'Taxa Livrare',
+    waitingBonus: 'Bonus Asteptare', orderDelivered: 'Comanda Livrata!',
+    orderDeliveredSuccess: 'Comanda Livrata cu Succes!', rejectOrder: 'Respingeti Comanda?',
+    rejectOrderMsg: 'Aceasta comanda va fi reasignata altui curier.',
+    reassignOrder: 'Reasignati Comanda?', reassignOrderMsg: 'Sunteti sigur ca doriti sa reasignati aceasta comanda?',
+    orderRejected: 'Comanda Respinsa', orderReassigned: 'Comanda Reasignata',
+    orderAccepted: 'Comanda Acceptata!', headingToRestaurantNotif: 'Catre restaurant',
+    statusUpdated: 'Status Actualizat', deliveredNotif: 'Livrata!',
+    orderCompleted: 'Comanda finalizata cu succes', missingInfo: 'Informatii Lipsa',
+    enterUsernamePassword: 'Introduceti nume si parola', authFailed: 'Autentificare Esuata',
+    authenticationFailed: 'Autentificarea a esuat', updateFailed: 'Actualizare Esuata',
+    failedToUpdateStatus: 'Nu s-a putut actualiza statusul', noOrder: 'Nicio comanda activa pentru apel',
+    noOrderTitle: 'Nicio Comanda', microphoneRequired: 'Microfon Necesar',
+    microphoneAccessRequired: 'Accesul la microfon este necesar pentru apeluri',
+    callFailed: 'Apel Esuat', failedToInitiateCall: 'Nu s-a putut initia apelul',
+    callRejected: 'Apel Respins', customerDeclined: 'Clientul a respins apelul',
+    incomingCall: 'Apel Intrant', voiceCallFromCustomer: 'Apel vocal de la client',
+    selectVehicleTitle: 'Selectati Vehicul', pleaseSelectVehicle: 'Va rugam selectati un tip de vehicul',
+    vehicleSet: 'Vehicul Setat', yourVehicle: 'Vehiculul dumneavoastra',
+    youreOnline: 'Sunteti Online!', youreOffline: 'Sunteti Offline',
+    dashboard: 'Panou', home: 'Acasa', locationError: 'Eroare Locatie',
+    locationNotAvailable: 'Locatie indisponibila', sendFailed: 'Trimitere Esuata',
+    failedToSendMessage: 'Nu s-a putut trimite mesajul', justNow: 'Chiar acum',
+    orderPreparing: 'Comanda în preparare', minRemainingPrep: 'min ramase',
+    orderShouldBeReady: 'Comanda ar trebui sa fie gata!', estPrep: 'Timp prep.',
+    orderItems: 'Articole Comanda', total: 'Total', distance: 'Distanta',
+    customer: 'Client', restaurant: 'Restaurant', address: 'Adresa',
+    deliveryLocation: 'Locatie livrare', deliveryCompleteNotif: 'Livrare Completa!',
+    greatJobEarnings: 'Buna treaba! Câstiguri actualizate.', dontHaveAccount: 'Nu aveti cont?',
+    alreadyHaveAccount: 'Aveti deja cont?', displayOptional: 'Nume (optional)',
+    selectVehicleEmoji: '🚗 Selectati Vehicul'
+  }
+};
+
+let currentLang = localStorage.getItem('courier_lang') || 'en';
+function t(key) { return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.en[key]) || key; }
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('courier_lang', lang);
+  // Update language selector dropdowns
+  const dashSelect = document.getElementById('langSelectDash');
+  if (dashSelect) dashSelect.value = lang;
+  // Update language picker active states
+  document.querySelectorAll('#langPickerList .vehicle-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.lang === lang);
+  });
+  applyLang();
+}
+function applyLang() {
+  // Auth screen
+  const authH1 = document.querySelector('#authScreen h1');
+  if (authH1) authH1.textContent = 'Elyanivery';
+  const authP = document.querySelector('#authScreen > p');
+  if (authP) authP.textContent = t('courierPartner');
+  const authUserEl = document.getElementById('authUser');
+  if (authUserEl) authUserEl.placeholder = t('username');
+  const authPassEl = document.getElementById('authPass');
+  if (authPassEl) authPassEl.placeholder = t('password');
+  const authNameEl = document.getElementById('authName');
+  if (authNameEl) authNameEl.placeholder = t('displayName');
+  const authPhoneEl = document.getElementById('authPhone');
+  if (authPhoneEl) authPhoneEl.placeholder = t('phone');
+  const authSubmitEl = document.getElementById('authSubmit');
+  if (authSubmitEl) authSubmitEl.textContent = isRegister ? t('register') : t('login');
+  const authToggleTextEl = document.getElementById('authToggleText');
+  if (authToggleTextEl) authToggleTextEl.textContent = isRegister ? t('alreadyHaveAccount') : t('dontHaveAccount');
+  const authToggleLinkEl = document.getElementById('authToggleLink');
+  if (authToggleLinkEl) authToggleLinkEl.textContent = isRegister ? t('login') : t('register');
+  // Dashboard
+  const onlineLabel = document.getElementById('onlineLabel');
+  if (onlineLabel) onlineLabel.textContent = isOnline ? t('online') : t('offline');
+  // Stats labels
+  const statLabels = document.querySelectorAll('#dashScreen .stat-card .label');
+  if (statLabels.length >= 3) {
+    statLabels[0].textContent = t('activeOrders');
+    statLabels[1].textContent = t('totalDeliveries');
+    statLabels[2].textContent = t('earnings');
+  }
+  const sectionTitle = document.querySelector('#dashScreen .section-title');
+  if (sectionTitle) sectionTitle.textContent = '📋 ' + t('activeOrders');
+  // Earnings screen
+  const earnHeroLabel = document.querySelector('.eh-label');
+  if (earnHeroLabel) earnHeroLabel.textContent = t('totalEarnings');
+  const earnLabels = document.querySelectorAll('.ec-label');
+  if (earnLabels.length >= 2) { earnLabels[0].textContent = t('today'); earnLabels[1].textContent = t('thisWeek'); }
+  const earnListTitle = document.querySelector('.earn-list-title');
+  if (earnListTitle) earnListTitle.textContent = t('recentEarnings');
+  // Chat
+  const chatInput = document.getElementById('chatInput');
+  if (chatInput) chatInput.placeholder = t('typeMessage');
+  // Profile menu buttons
+  const menuButtons = document.querySelectorAll('#profileScreen .menu-list button');
+  if (menuButtons.length >= 4) {
+    menuButtons[0].innerHTML = '<span class="icon">🛵</span> ' + t('changeVehicle') + ' <span class="arrow">&#8250;</span>';
+    menuButtons[1].innerHTML = '<span class="icon">&#127912;</span> ' + t('changeTheme') + ' <span class="arrow">&#8250;</span>';
+    menuButtons[2].innerHTML = '<span class="icon">🌐</span> ' + t('language') + ' <span class="arrow">&#8250;</span>';
+    menuButtons[3].innerHTML = '<span class="icon">&#128682;</span> ' + t('logout') + ' <span class="arrow">&#8250;</span>';
+  }
+  // Vehicle overlay
+  const vehicleTitle = document.querySelector('.vehicle-box h3');
+  if (vehicleTitle) vehicleTitle.textContent = t('selectVehicleEmoji');
+  const vehicleSubtitle = document.querySelector('.vehicle-subtitle');
+  if (vehicleSubtitle) vehicleSubtitle.textContent = t('vehicleSubtitle');
+  const vehicleConfirm = document.querySelector('.vehicle-confirm');
+  if (vehicleConfirm) vehicleConfirm.textContent = t('confirmVehicle');
+  // Update vehicle labels
+  const vOptions = document.querySelectorAll('.vehicle-option');
+  vOptions.forEach(opt => {
+    const v = opt.dataset.vehicle;
+    if (v) {
+      const label = opt.querySelector('.v-label');
+      if (label) label.textContent = t(v);
+      const range = opt.querySelector('.v-range');
+      if (range) range.textContent = (v === 'scooter' || v === 'car') ? t('anyDistance') : t('only3km');
+    }
+  });
+  // Nav labels
+  const navItems = document.querySelectorAll('.nav-item');
+  if (navItems.length >= 4) {
+    navItems[0].querySelector('span') || (navItems[0].lastChild.textContent = '\n    ' + t('home') + '\n  ');
+    navItems[1].lastChild.textContent = '\n    ' + t('earnings') + '\n  ';
+    navItems[2].lastChild.textContent = '\n    ' + t('messages') + '\n  ';
+    navItems[3].lastChild.textContent = '\n    ' + t('profile') + '\n  ';
+  }
+  // Profile
+  const profileRole = document.getElementById('profileRole');
+  if (profileRole) profileRole.textContent = t('courierPartner');
+}
+function openLangPicker() {
+  // Update active states
+  document.querySelectorAll('#langPickerList .vehicle-option').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.lang === currentLang);
+  });
+  document.getElementById('langPickerOverlay').classList.add('active');
+}
+function closeLangPicker() {
+  document.getElementById('langPickerOverlay').classList.remove('active');
+}
+
+// ═══════════════════════════════════════════════════════
 //  IN-APP NOTIFICATIONS
 // ═══════════════════════════════════════════════════════
 function showNotif(emoji, title, message, duration) {
@@ -840,6 +1241,14 @@ async function api(method, path, body) {
       document.getElementById('bottomNav').style.display = 'none';
       return { success: false, message: 'Session expired' };
     }
+    if (r.status === 403) {
+      // Approval flow: parse the body for approval_status
+      let data = {};
+      try { data = await r.json(); } catch(e) {}
+      data._status = 403;
+      data.success = false;
+      return data;
+    }
     return await r.json();
   } catch(e) {
     console.error('API error', e);
@@ -863,22 +1272,37 @@ function formatOrderNum(order) {
 // ═══════════════════════════════════════════════════════
 function toggleAuthMode() {
   isRegister = !isRegister;
-  document.getElementById('authSubmit').textContent = isRegister ? 'Register' : 'Login';
-  document.getElementById('authToggleText').textContent = isRegister ? 'Already have an account?' : "Don't have an account?";
-  document.getElementById('authToggleLink').textContent = isRegister ? 'Login' : 'Register';
+  document.getElementById('authSubmit').textContent = isRegister ? t('register') : t('login');
+  document.getElementById('authToggleText').textContent = isRegister ? t('alreadyHaveAccount') : t('dontHaveAccount');
+  document.getElementById('authToggleLink').textContent = isRegister ? t('login') : t('register');
   document.getElementById('authName').style.display = isRegister ? '' : 'none';
+  document.getElementById('authPhone').style.display = isRegister ? '' : 'none';
   document.getElementById('authRoleWrap').style.display = isRegister ? '' : 'none';
 }
 
 async function doAuth() {
   const username = document.getElementById('authUser').value.trim();
   const password = document.getElementById('authPass').value;
-  if (!username || !password) return showMessagePopup('Missing Info', 'Enter username and password', '⚠️🤔', 'warning');
+  if (!username || !password) return showMessagePopup(t('missingInfo'), t('enterUsernamePassword'), '⚠️🤔', 'warning');
   let res;
   if (isRegister) {
     const display_name = document.getElementById('authName').value.trim() || username;
+    const phone = document.getElementById('authPhone').value.trim();
     const role = document.getElementById('authRole').value;
-    res = await api('POST', '/api/auth/register', { username, password, display_name, role });
+    res = await api('POST', '/api/auth/register', { username, password, display_name, phone, role });
+    if (res.success) {
+      // Registration successful - show approval message
+      showMessagePopup(t('courierApp'), t('registrationSuccess'), '😊', 'success');
+      // Switch back to login mode
+      isRegister = false;
+      document.getElementById('authSubmit').textContent = t('login');
+      document.getElementById('authToggleText').textContent = t('dontHaveAccount');
+      document.getElementById('authToggleLink').textContent = t('register');
+      document.getElementById('authName').style.display = 'none';
+      document.getElementById('authPhone').style.display = 'none';
+      document.getElementById('authRoleWrap').style.display = 'none';
+      return;
+    }
   } else {
     res = await api('POST', '/api/auth/login', { username, password });
   }
@@ -889,7 +1313,21 @@ async function doAuth() {
     localStorage.setItem('courier_user', JSON.stringify(user));
     enterApp();
   } else {
-    showMessagePopup('Auth Failed', res.message || 'Authentication failed', '❌😣', 'error');
+    // Handle approval flow for 403 responses
+    if (res._status === 403 || res.approval_status) {
+      const approvalStatus = res.approval_status || 'pending';
+      if (approvalStatus === 'pending') {
+        showMessagePopup(t('pendingApproval'), t('approvalMessage'), '😊', 'warning');
+      } else if (approvalStatus === 'suspended') {
+        showMessagePopup(t('suspendedMessage').split('.')[0], t('suspendedMessage'), '🚫', 'error');
+      } else if (approvalStatus === 'blocked') {
+        showMessagePopup(t('blockedMessage').split('.')[0], t('blockedMessage'), '⛔', 'error');
+      } else {
+        showMessagePopup(t('authFailed'), res.message || t('authenticationFailed'), '❌😣', 'error');
+      }
+    } else {
+      showMessagePopup(t('authFailed'), res.message || t('authenticationFailed'), '❌😣', 'error');
+    }
   }
 }
 
@@ -914,6 +1352,7 @@ function enterApp() {
   if (!vehicleType) {
     setTimeout(() => openVehicleSelector(), 800);
   }
+  applyLang();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -938,7 +1377,7 @@ function selectVehicle(el) {
 }
 
 async function confirmVehicle() {
-  if (!selectedVehicleTemp) return showMessagePopup('Select Vehicle', 'Please select a vehicle type', '⚠️🤔', 'warning');
+  if (!selectedVehicleTemp) return showMessagePopup(t('selectVehicleTitle'), t('pleaseSelectVehicle'), '⚠️🤔', 'warning');
   vehicleType = selectedVehicleTemp;
   localStorage.setItem('courier_vehicle', vehicleType);
   // Save to server
@@ -948,7 +1387,7 @@ async function confirmVehicle() {
     await api('POST', '/api/courier/online', { is_online: true, vehicle_type: vehicleType });
   }
   closeVehicleSelector();
-  showNotif(VEHICLE_EMOJIS[vehicleType], 'Vehicle Set', 'Your vehicle: ' + VEHICLE_LABELS[vehicleType]);
+  showNotif(VEHICLE_EMOJIS[vehicleType], t('vehicleSet'), t('yourVehicle') + ': ' + t(vehicleType));
   updateVehicleBadge();
 }
 
@@ -1006,7 +1445,7 @@ async function loadOrders() {
     document.getElementById('statActive').textContent = orders.length;
     const el = document.getElementById('activeOrdersList');
     if (!orders.length) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No active orders. Go online to receive orders!</p></div>';
+      el.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>' + t('noActiveOrders') + '</p></div>';
       return;
     }
     el.innerHTML = orders.map(o => {
@@ -1041,7 +1480,7 @@ async function loadOrders() {
     const newOrders = orders.filter(o => !lastKnownOrderIds.includes(o.id) && o.status === 'courier_assigned');
     if (lastKnownOrderIds.length > 0 && newOrders.length > 0) {
       showOrderOverlayWithData(newOrders[0]);
-      showNotif('📦', 'New Order!', formatOrderNum(newOrders[0]) + ' - ' + (newOrders[0].restaurant_name || 'Restaurant'));
+      showNotif('📦', t('newOrder'), formatOrderNum(newOrders[0]) + ' - ' + (newOrders[0].restaurant_name || 'Restaurant'));
     }
     lastKnownOrderIds = currentIds;
   }
@@ -1129,12 +1568,12 @@ async function acceptOrder() {
   closeOrderOrderOverlay();
   const res = await api('POST', `/api/courier/order/${o.id}/status`, { status: 'heading_to_restaurant' });
   if (res.success) {
-    showNotif('🚀', 'Order Accepted!', formatOrderNum(o) + ' - Heading to restaurant');
+    showNotif('🚀', t('orderAccepted'), formatOrderNum(o) + ' - ' + t('headingToRestaurantNotif'));
     loadOrders();
     // Open delivery flow
     setTimeout(() => openDeliveryFlow(o.id), 500);
   } else {
-    showMessagePopup('Failed', res.message || 'Failed to accept order', '❌😣', 'error');
+    showMessagePopup(t('updateFailed'), res.message || 'Failed to accept order', '❌😣', 'error');
   }
 }
 
@@ -1146,14 +1585,14 @@ function closeOrderOrderOverlay() {
 async function rejectOrder() {
   if (!pendingOverlayOrder) return;
   const o = pendingOverlayOrder;
-  showConfirmPopup('Reject Order?', 'This order will be reassigned to another courier.', '⚠️🤔', async function() {
+  showConfirmPopup(t('rejectOrder'), t('rejectOrderMsg'), '⚠️🤔', async function() {
     closeOrderOrderOverlay();
     const res = await api('POST', `/api/courier/order/${o.id}/reject`);
     if (res.success) {
-      showNotif('❌', 'Order Rejected', formatOrderNum(o));
+      showNotif('❌', t('orderRejected'), formatOrderNum(o));
       loadOrders();
     } else {
-      showMessagePopup('Failed', res.message || 'Failed to reject', '❌😣', 'error');
+      showMessagePopup(t('updateFailed'), res.message || 'Failed to reject', '❌😣', 'error');
     }
   });
 }
@@ -1161,31 +1600,31 @@ async function rejectOrder() {
 async function reassignOrder() {
   if (!pendingOverlayOrder) return;
   const o = pendingOverlayOrder;
-  showConfirmPopup('Reassign Order?', 'Are you sure you want to reassign this order?', '⚠️🤔', async function() {
+  showConfirmPopup(t('reassignOrder'), t('reassignOrderMsg'), '⚠️🤔', async function() {
     closeOrderOrderOverlay();
     const res = await api('POST', `/api/courier/order/${o.id}/reassign`);
     if (res.success) {
-      showNotif('🔄', 'Order Reassigned', formatOrderNum(o));
+      showNotif('🔄', t('orderReassigned'), formatOrderNum(o));
       loadOrders();
     } else {
-      showMessagePopup('Failed', res.message || 'Failed to reassign', '❌😣', 'error');
+      showMessagePopup(t('updateFailed'), res.message || 'Failed to reassign', '❌😣', 'error');
     }
   });
 }
 
 async function rejectOrderFromCard(oid) {
-  showConfirmPopup('Reject Order?', 'Are you sure you want to reject this order?', '⚠️🤔', async function() {
+  showConfirmPopup(t('rejectOrder'), t('rejectOrderMsg'), '⚠️🤔', async function() {
     const res = await api('POST', `/api/courier/order/${oid}/reject`);
-    if (res.success) { showNotif('❌', 'Rejected', 'Order rejected'); loadOrders(); }
-    else showMessagePopup('Failed', res.message || 'Failed', '❌😣', 'error');
+    if (res.success) { showNotif('❌', t('orderRejected'), 'Order rejected'); loadOrders(); }
+    else showMessagePopup(t('updateFailed'), res.message || 'Failed', '❌😣', 'error');
   });
 }
 
 async function reassignOrderFromCard(oid) {
-  showConfirmPopup('Reassign Order?', 'Are you sure you want to reassign this order?', '⚠️🤔', async function() {
+  showConfirmPopup(t('reassignOrder'), t('reassignOrderMsg'), '⚠️🤔', async function() {
     const res = await api('POST', `/api/courier/order/${oid}/reassign`);
-    if (res.success) { showNotif('🔄', 'Reassigned', 'Order reassigned'); loadOrders(); }
-    else showMessagePopup('Failed', res.message || 'Failed', '❌😣', 'error');
+    if (res.success) { showNotif('🔄', t('orderReassigned'), 'Order reassigned'); loadOrders(); }
+    else showMessagePopup(t('updateFailed'), res.message || 'Failed', '❌😣', 'error');
   });
 }
 
@@ -1470,7 +1909,7 @@ async function refreshDeliveryFlow() {
 }
 
 async function completeDeliveryFlow() {
-  showNotif('🎉', 'Delivery Complete!', 'Great job! Earnings updated.');
+  showNotif('🎉', t('deliveryCompleteNotif'), t('greatJobEarnings'));
   setTimeout(() => {
     closeDeliveryOverlay();
     loadOrders();
@@ -1503,14 +1942,14 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function forceArriveRestaurant(orderId) {
-  showConfirmPopup('Force Arrive?', 'Mark as arrived at restaurant? (Use if GPS is inaccurate)', '⚠️🤔', async function() {
+  showConfirmPopup(t('forceArriveTitle'), t('forceArriveMsg'), '⚠️🤔', async function() {
     await updateStatus(orderId, 'arrived_at_restaurant');
     refreshDeliveryFlow();
   });
 }
 
 async function forceArriveCustomer(orderId) {
-  showConfirmPopup('Force Arrive?', 'Mark as arrived at customer? (Use if GPS is inaccurate)', '⚠️🤔', async function() {
+  showConfirmPopup(t('forceArriveTitle'), t('forceArriveMsg'), '⚠️🤔', async function() {
     await updateStatus(orderId, 'arrived_at_customer');
     refreshDeliveryFlow();
   });
@@ -1522,7 +1961,7 @@ function stopWaitingAndRefresh() {
 }
 
 function navigateTo(lat, lng) {
-  if (!lat || !lng) return showMessagePopup('Location Error', 'Location not available', '❌😣', 'error');
+  if (!lat || !lng) return showMessagePopup(t('locationError'), t('locationNotAvailable'), '❌😣', 'error');
   const origin = (currentLat && currentLng) ? `&origin=${currentLat},${currentLng}` : '';
   window.open(`https://www.google.com/maps/dir/?api=1${origin}&destination=${lat},${lng}&travelmode=driving`, '_blank');
 }
@@ -1550,21 +1989,21 @@ async function updateStatus(oid, newStatus) {
   const res = await api('POST', `/api/courier/order/${oid}/status`, { status: newStatus, latitude: lat, longitude: lng });
   if (res.success) {
     const statusLabels = {
-      heading_to_restaurant: 'Heading to restaurant',
-      arrived_at_restaurant: 'Arrived at restaurant',
-      order_picked_up: 'Order picked up',
-      heading_to_customer: 'Heading to customer',
-      arrived_at_customer: 'Arrived at customer',
-      delivered: 'Order delivered!'
+      heading_to_restaurant: t('headingToRestaurantNotif'),
+      arrived_at_restaurant: t('arrivedAtRestaurantLabel'),
+      order_picked_up: t('pickedUpOrder'),
+      heading_to_customer: t('headingToCustomer'),
+      arrived_at_customer: t('arrivedAtCustomer'),
+      delivered: t('deliveredNotif')
     };
     if (newStatus === 'delivered') {
-      showNotif('🎉', 'Delivered!', 'Order completed successfully');
+      showNotif('🎉', t('deliveredNotif'), t('orderCompleted'));
     } else {
-      showNotif('🚀', 'Status Updated', statusLabels[newStatus] || newStatus);
+      showNotif('🚀', t('statusUpdated'), statusLabels[newStatus] || newStatus);
     }
     loadOrders();
   } else {
-    showMessagePopup('Update Failed', res.message || 'Failed to update status', '❌😣', 'error');
+    showMessagePopup(t('updateFailed'), res.message || t('failedToUpdateStatus'), '❌😣', 'error');
   }
 }
 
@@ -1575,13 +2014,14 @@ async function toggleOnline() {
   isOnline = !isOnline;
   const sw = document.getElementById('onlineSwitch');
   sw.classList.toggle('on', isOnline);
-  document.getElementById('onlineLabel').textContent = isOnline ? 'Online' : 'Offline';
+  document.getElementById('onlineLabel').textContent = isOnline ? t('online') : t('offline');
   await api('POST', '/api/courier/online', { is_online: isOnline, vehicle_type: vehicleType || undefined });
   if (isOnline) {
     sendLocation();
-    showNotif('😊', 'You\'re Online!', 'Waiting for orders...');
+    showNotif('😊', t('youreOnline'), t('waitingForOrders'));
+    loadBroadcasts();
   } else {
-    showNotif('😴', 'You\'re Offline', 'No new orders will be assigned');
+    showNotif('😴', t('youreOffline'), t('noNewOrders'));
   }
 }
 
@@ -1660,7 +2100,7 @@ async function loadEarnings() {
 
     const el = document.getElementById('earnList');
     if (!entries.length) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>No earnings yet. Start delivering!</p></div>';
+      el.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>' + t('noEarnings') + '</p></div>';
       return;
     }
     el.innerHTML = entries.map(e => `
@@ -1723,7 +2163,7 @@ async function sendChat() {
     container.scrollTop = container.scrollHeight;
     chatLastId = Math.max(chatLastId, res.data.id || chatLastId);
   } else {
-    showMessagePopup('Send Failed', res.message || 'Failed to send message', '❌😣', 'error');
+    showMessagePopup(t('sendFailed'), res.message || t('failedToSendMessage'), '❌😣', 'error');
   }
 }
 
@@ -1747,7 +2187,7 @@ async function loadConversations() {
   const res = await api('GET', '/api/chat/conversations');
   const el = document.getElementById('convList');
   if (!res.success || !res.data.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>No conversations yet</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>' + t('noConversations') + '</p></div>';
     return;
   }
   el.innerHTML = res.data.map(c => `
@@ -1798,11 +2238,11 @@ function callFromOrder(orderId) {
 }
 
 async function startCall() {
-  if (!currentOrder) return showMessagePopup('No Order', 'No active order to call', '❌😣', 'error');
+  if (!currentOrder) return showMessagePopup(t('noOrderTitle'), t('noOrder'), '❌😣', 'error');
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch(e) {
-    return showMessagePopup('Microphone Required', 'Microphone access required for voice calls', '❌😣', 'error');
+    return showMessagePopup(t('microphoneRequired'), t('microphoneAccessRequired'), '❌😣', 'error');
   }
   peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
   localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
@@ -1830,7 +2270,7 @@ async function startCall() {
     pollCallAnswer();
     pollIceCandidates();
   } else {
-    showMessagePopup('Call Failed', res.message || 'Failed to initiate call', '❌😣', 'error');
+    showMessagePopup(t('callFailed'), res.message || t('failedToInitiateCall'), '❌😣', 'error');
     cleanupCall();
   }
 }
@@ -1848,7 +2288,7 @@ async function pollCallAnswer() {
         startCallTimer();
       } else if (res.data.status === 'rejected') {
         stopCallPoll();
-        showNotif('📞', 'Call Rejected', 'Customer declined the call');
+        showNotif('📞', t('callRejected'), t('customerDeclined'));
         cleanupCall();
       } else if (res.data.status === 'ended') {
         stopCallPoll();
@@ -1929,7 +2369,7 @@ function startIncomingCallPolling() {
         document.getElementById('incomingCallName').textContent = call.caller_name || 'Customer';
         document.getElementById('incomingCallBanner').classList.add('active');
         window._incomingCall = call;
-        showNotif('📞', 'Incoming Call', call.caller_name || 'Customer is calling');
+        showNotif('📞', t('incomingCall'), call.caller_name || 'Customer is calling');
       }
     }
   }, 5000);
@@ -1945,7 +2385,7 @@ async function acceptIncomingCall() {
   document.getElementById('incomingCallBanner').classList.remove('active');
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  } catch(e) { return showMessagePopup('Microphone Required', 'Microphone access is required', '❌😣', 'error'); }
+  } catch(e) { return showMessagePopup(t('microphoneRequired'), t('microphoneAccessRequired'), '❌😣', 'error'); }
   peerConnection = new RTCPeerConnection({ iceServers: ICE_SERVERS });
   localStream.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
   peerConnection.onicecandidate = (e) => {
@@ -1984,7 +2424,7 @@ function loadProfile() {
     document.getElementById('profileAvatar').textContent = (user.display_name || user.username || '?')[0].toUpperCase();
     document.getElementById('profileName').textContent = user.display_name || user.username;
     document.getElementById('profileRole').textContent = 'Courier Partner';
-    document.getElementById('profileVehicle').textContent = vehicleType ? VEHICLE_EMOJIS[vehicleType] + ' ' + VEHICLE_LABELS[vehicleType] : 'No vehicle set';
+    document.getElementById('profileVehicle').textContent = vehicleType ? VEHICLE_EMOJIS[vehicleType] + ' ' + t(vehicleType) : t('noVehicleSet');
   }
 }
 
@@ -2035,6 +2475,45 @@ function closeThemePicker() {
 }
 
 // ═══════════════════════════════════════════════════════
+//  BROADCASTS
+// ═══════════════════════════════════════════════════════
+let shownBroadcastIds = JSON.parse(localStorage.getItem('courier_shown_broadcasts') || '[]');
+
+async function loadBroadcasts() {
+  const res = await api('GET', '/api/broadcasts');
+  if (res.success && res.data && res.data.length) {
+    const container = document.getElementById('broadcastContainer');
+    const newBroadcasts = res.data.filter(b => !shownBroadcastIds.includes(b.id));
+    newBroadcasts.forEach(b => {
+      const banner = document.createElement('div');
+      banner.className = 'broadcast-banner';
+      banner.id = 'broadcast-' + b.id;
+      banner.innerHTML = `
+        <div class="bb-icon">📢</div>
+        <div class="bb-content">
+          <h4>${esc(b.title || 'Announcement')}</h4>
+          <p>${esc(b.message || b.content || '')}</p>
+        </div>
+        <button class="bb-close" onclick="dismissBroadcast(${b.id})">&times;</button>
+      `;
+      container.prepend(banner);
+      shownBroadcastIds.push(b.id);
+    });
+    localStorage.setItem('courier_shown_broadcasts', JSON.stringify(shownBroadcastIds));
+  }
+}
+
+function dismissBroadcast(id) {
+  const banner = document.getElementById('broadcast-' + id);
+  if (banner) {
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-10px)';
+    banner.style.transition = 'all .3s ease';
+    setTimeout(() => banner.remove(), 300);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 //  UTILITIES
 // ═══════════════════════════════════════════════════════
 function esc(s) {
@@ -2071,10 +2550,12 @@ function stopAllPolling() {
 //  INIT
 // ═══════════════════════════════════════════════════════
 initTheme();
+setLang(currentLang);
 if (token && user) {
   enterApp();
 } else {
   showScreen('authScreen');
+  applyLang();
 }
 </script>
 </body>

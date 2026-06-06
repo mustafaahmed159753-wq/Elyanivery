@@ -35,6 +35,9 @@ html[data-theme="glassmorphism"] table tr:hover{background:rgba(255,255,255,.08)
 html[data-theme="glassmorphism"] .in-app-notif{background:rgba(15,12,41,.9)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.15)!important}
 html[data-theme="glassmorphism"] select{background:rgba(255,255,255,.1)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important}
 html[data-theme="glassmorphism"] .modal-box{background:rgba(20,15,45,.95)!important;backdrop-filter:blur(20px)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .tab-nav-bar,html[data-theme="glassmorphism"] .section-card,html[data-theme="glassmorphism"] .broadcast-card{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.12)!important}
+html[data-theme="glassmorphism"] .filter-bar select,html[data-theme="glassmorphism"] .filter-bar input{background:rgba(255,255,255,.1)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important}
+html[data-theme="glassmorphism"] .modal-field input,html[data-theme="glassmorphism"] .modal-field select,html[data-theme="glassmorphism"] .modal-field textarea{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.2)!important;color:#fff!important}
 
 /* ══════════════════════════════════════════════════════════
    RESET & BASE
@@ -123,6 +126,11 @@ input,textarea,select{font-family:inherit}
 .theme-select:focus{border-color:var(--pri)}
 .theme-select option{background:var(--card);color:var(--text)}
 
+/* Language selector */
+.lang-select{padding:8px 10px;border-radius:10px;font-size:13px;font-weight:600;background:var(--card);color:var(--text);border:1px solid var(--border);cursor:pointer;outline:none;transition:border .2s}
+.lang-select:focus{border-color:var(--pri)}
+.lang-select option{background:var(--card);color:var(--text)}
+
 .top-bar-btn{position:relative;background:var(--card);border:1px solid var(--border);width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text);transition:background .2s}
 .top-bar-btn:hover{background:var(--card2)}
 .notif-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;animation:badgePop .3s}
@@ -134,6 +142,19 @@ input,textarea,select{font-family:inherit}
    MAIN CONTENT
    ══════════════════════════════════════════════════════════ */
 .main-content{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
+
+/* ══════════════════════════════════════════════════════════
+   TAB NAVIGATION
+   ══════════════════════════════════════════════════════════ */
+.tab-nav-bar{display:flex;gap:4px;margin-bottom:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:6px;overflow-x:auto}
+.tab-nav-bar::-webkit-scrollbar{height:3px}
+.tab-nav-bar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.tab-btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;color:var(--muted);background:transparent;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.tab-btn:hover{color:var(--text);background:var(--bg2)}
+.tab-btn.active{color:#fff;background:linear-gradient(135deg,var(--pri),var(--pri2));box-shadow:0 2px 10px rgba(255,107,0,.25)}
+.tab-btn .tab-icon{margin-right:6px}
+.tab-section{display:none}
+.tab-section.active{display:block}
 
 /* ══════════════════════════════════════════════════════════
    STATS ROW
@@ -293,6 +314,83 @@ tr:hover{background:var(--card2);transition:background .15s}
 .sound-toggle .mini-switch.on::after{left:18px}
 
 /* ══════════════════════════════════════════════════════════
+   SECTION CARD (Users / Broadcasts)
+   ══════════════════════════════════════════════════════════ */
+.section-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.section-card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.section-card-header h3{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.section-card-body{padding:0}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center}
+.filter-bar select,.filter-bar input{padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;background:var(--bg2);color:var(--text);border:1px solid var(--border);outline:none;transition:border .2s}
+.filter-bar select:focus,.filter-bar input:focus{border-color:var(--pri)}
+.filter-bar select option{background:var(--card);color:var(--text)}
+
+/* Approval status badges */
+.approval-pending{background:rgba(240,165,0,.15);color:var(--amber);font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+.approval-approved{background:rgba(46,204,113,.15);color:var(--green);font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+.approval-suspended{background:rgba(230,126,34,.15);color:var(--amber);font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+.approval-blocked{background:rgba(231,76,60,.15);color:var(--red);font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+
+/* Action buttons */
+.btn-approve{background:rgba(46,204,113,.15);color:var(--green);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-approve:hover{background:rgba(46,204,113,.25)}
+.btn-approve:active{transform:scale(.95)}
+.btn-suspend{background:rgba(240,165,0,.15);color:var(--amber);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-suspend:hover{background:rgba(240,165,0,.25)}
+.btn-suspend:active{transform:scale(.95)}
+.btn-block{background:rgba(231,76,60,.15);color:var(--red);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-block:hover{background:rgba(231,76,60,.25)}
+.btn-block:active{transform:scale(.95)}
+.btn-delete{background:rgba(231,76,60,.1);color:var(--red);padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;transition:transform .15s,background .2s;white-space:nowrap}
+.btn-delete:hover{background:rgba(231,76,60,.2)}
+.btn-delete:active{transform:scale(.95)}
+.btn-action{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;transition:transform .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.btn-action:hover{transform:translateY(-1px)}
+.btn-action:active{transform:translateY(0)}
+
+/* Modal form fields */
+.modal-field{margin-bottom:14px}
+.modal-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;padding:12px 14px;border-radius:10px;font-size:14px;background:var(--bg2);color:var(--text);border:1px solid var(--border);outline:none;transition:border .2s}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(255,107,0,.12)}
+.modal-field select option{background:var(--card);color:var(--text)}
+.modal-field textarea{min-height:80px;resize:vertical}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.modal-actions button{padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:transform .15s}
+.modal-actions .btn-cancel{background:var(--bg2);color:var(--muted);border:1px solid var(--border)}
+.modal-actions .btn-cancel:hover{color:var(--text);border-color:var(--muted)}
+.modal-actions .btn-submit{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;box-shadow:0 2px 10px rgba(255,107,0,.2)}
+.modal-actions .btn-submit:hover{transform:translateY(-1px)}
+
+/* Checkbox group for broadcast target roles */
+.checkbox-group{display:flex;flex-wrap:wrap;gap:10px}
+.checkbox-group label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;padding:6px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);transition:border .2s}
+.checkbox-group label:hover{border-color:var(--pri)}
+.checkbox-group input[type="checkbox"]{accent-color:var(--pri);width:16px;height:16px}
+
+/* Broadcast cards */
+.broadcast-list{display:flex;flex-direction:column;gap:12px;padding:20px;max-height:600px;overflow-y:auto}
+.broadcast-list::-webkit-scrollbar{width:4px}
+.broadcast-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.broadcast-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;transition:transform .15s,border-color .2s}
+.broadcast-card:hover{transform:translateY(-1px);border-color:var(--pri)}
+.broadcast-card h4{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.broadcast-card p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.broadcast-card .bc-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.broadcast-card .bc-target{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;background:rgba(52,152,219,.15);color:var(--blue);text-transform:uppercase;letter-spacing:.3px}
+.broadcast-card .bc-date{font-size:10px;color:var(--muted)}
+
+/* Role badge */
+.role-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.3px}
+.role-courier{background:rgba(52,152,219,.15);color:var(--blue)}
+.role-customer{background:rgba(26,188,156,.15);color:var(--teal)}
+.role-partner{background:rgba(155,89,182,.15);color:var(--purple)}
+.role-support{background:rgba(240,165,0,.15);color:var(--amber)}
+.role-admin{background:rgba(255,107,0,.15);color:var(--pri)}
+
+/* ══════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════ */
 @media(max-width:1024px){
@@ -304,6 +402,7 @@ tr:hover{background:var(--card2);transition:background .15s}
   .top-bar .brand h2{display:none}
   .top-bar .dashboard-title{font-size:14px}
   .theme-select{font-size:11px;padding:6px 8px}
+  .lang-select{font-size:11px;padding:6px 8px}
   .logout-btn span{display:none}
   .logout-btn{padding:8px 10px}
   .main-content{padding:16px}
@@ -316,12 +415,18 @@ tr:hover{background:var(--card2);transition:background .15s}
   .sound-toggle span{display:none}
   table{font-size:12px}
   th,td{padding:8px 10px}
+  .tab-btn{padding:8px 14px;font-size:12px}
+  .filter-bar{flex-direction:column}
+  .section-card-header{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:480px){
   .stats-row{grid-template-columns:1fr 1fr;gap:8px}
   .stat-card{padding:12px}
   .stat-card .stat-val{font-size:18px}
   .in-app-notif{right:12px;left:12px;min-width:auto}
+  .tab-nav-bar{gap:2px;padding:4px}
+  .tab-btn{padding:6px 10px;font-size:11px}
+  .tab-btn .tab-icon{display:none}
 }
 </style>
 </head>
@@ -333,7 +438,7 @@ tr:hover{background:var(--card2);transition:background .15s}
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
     <div class="splash-letters" id="splashLetters"></div>
-    <div class="splash-subtitle">Admin Dashboard</div>
+    <div class="splash-subtitle" data-lang="adminDashboard">Admin Dashboard</div>
     <div class="splash-progress">
       <svg viewBox="0 0 64 64">
         <circle class="progress-bg" cx="32" cy="32" r="25"/>
@@ -360,15 +465,15 @@ tr:hover{background:var(--card2);transition:background .15s}
   <div class="login-box">
     <div class="login-logo">&#128272;</div>
     <h1>Elyanivery</h1>
-    <div class="login-subtitle">Admin Dashboard</div>
+    <div class="login-subtitle" data-lang="adminDashboard">Admin Dashboard</div>
     <div class="login-form">
       <div class="input-wrap">
         <span class="input-icon">&#128100;</span>
-        <input id="loginUser" placeholder="Username" autocomplete="off">
+        <input id="loginUser" data-lang-placeholder="username" placeholder="Username" autocomplete="off">
       </div>
       <div class="input-wrap">
         <span class="input-icon">&#128274;</span>
-        <input id="loginPass" type="password" placeholder="Password" onkeypress="if(event.key==='Enter')doLogin()">
+        <input id="loginPass" type="password" data-lang-placeholder="password" placeholder="Password" onkeypress="if(event.key==='Enter')doLogin()">
       </div>
       <button class="btn-pri" onclick="doLogin()">Sign In</button>
       <div class="login-error" id="loginError"></div>
@@ -384,7 +489,12 @@ tr:hover{background:var(--card2);transition:background .15s}
       <div class="brand-icon">&#127829;</div>
       <h2>Elyanivery</h2>
     </div>
-    <div class="dashboard-title">Admin Dashboard</div>
+    <div class="dashboard-title" data-lang="adminDashboard">Admin Dashboard</div>
+    <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+      <option value="en">EN English</option>
+      <option value="ru">RU Русский</option>
+      <option value="ro">RO Română</option>
+    </select>
     <select class="theme-select" id="themeSelect" onchange="setTheme(this.value)">
       <option value="midnight_dark">&#127769; Midnight Dark</option>
       <option value="ocean_blue">&#127754; Ocean Blue</option>
@@ -402,7 +512,7 @@ tr:hover{background:var(--card2);transition:background .15s}
     <div style="position:relative">
       <button class="top-bar-btn" onclick="showNotifications()">&#128276;<span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
     </div>
-    <button class="logout-btn" onclick="doLogout()"><span>&#128682;</span> Logout</button>
+    <button class="logout-btn" onclick="doLogout()"><span>&#128682;</span> <span data-lang="logout">Logout</span></button>
   </header>
 
   <!-- Main Content -->
@@ -412,151 +522,219 @@ tr:hover{background:var(--card2);transition:background .15s}
       <div class="stat-card s-orders">
         <div class="stat-icon">&#128230;</div>
         <div class="stat-val" id="statOrdersToday">0</div>
-        <div class="stat-label">Orders Today</div>
+        <div class="stat-label" data-lang="ordersToday">Orders Today</div>
         <div class="stat-glow"></div>
       </div>
       <div class="stat-card s-revenue">
         <div class="stat-icon">&#128176;</div>
         <div class="stat-val" id="statRevenueToday">&euro;0</div>
-        <div class="stat-label">Revenue Today</div>
+        <div class="stat-label" data-lang="revenueToday">Revenue Today</div>
         <div class="stat-glow"></div>
       </div>
       <div class="stat-card s-couriers">
         <div class="stat-icon">&#128664;</div>
         <div class="stat-val" id="statActiveCouriers">0</div>
-        <div class="stat-label">Online Couriers</div>
+        <div class="stat-label" data-lang="onlineCouriers">Online Couriers</div>
         <div class="stat-glow"></div>
       </div>
       <div class="stat-card s-restaurants">
         <div class="stat-icon">&#127860;</div>
         <div class="stat-val" id="statOpenRestaurants">0</div>
-        <div class="stat-label">Open Restaurants</div>
+        <div class="stat-label" data-lang="openRestaurants">Open Restaurants</div>
         <div class="stat-glow"></div>
       </div>
       <div class="stat-card s-customers">
         <div class="stat-icon">&#128101;</div>
         <div class="stat-val" id="statCustomers">0</div>
-        <div class="stat-label">Customers</div>
+        <div class="stat-label" data-lang="customers">Customers</div>
         <div class="stat-glow"></div>
       </div>
       <div class="stat-card s-tickets">
         <div class="stat-icon">&#128172;</div>
         <div class="stat-val" id="statOpenTickets">0</div>
-        <div class="stat-label">Open Tickets</div>
+        <div class="stat-label" data-lang="openTickets">Open Tickets</div>
         <div class="stat-glow"></div>
       </div>
     </div>
 
-    <!-- 3 Feature Boxes -->
-    <div class="feature-grid">
-      <!-- Box 1: Couriers -->
-      <div class="feature-box f-couriers">
-        <div class="feature-header">
-          <div class="f-icon">&#128664;</div>
-          <h3>Couriers</h3>
-          <div class="f-count" id="courierCount">0 total</div>
-        </div>
-        <div class="feature-body">
-          <div class="feature-stats">
-            <div class="feature-stat">
-              <div class="fs-val" id="courierTotal">0</div>
-              <div class="fs-label">Total</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="courierOnline">0</div>
-              <div class="fs-label">Online</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="courierOffline">0</div>
-              <div class="fs-label">Offline</div>
-            </div>
+    <!-- Tab Navigation -->
+    <div class="tab-nav-bar">
+      <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')"><span class="tab-icon">&#128202;</span><span data-lang="adminDashboard">Dashboard</span></button>
+      <button class="tab-btn" data-tab="users" onclick="switchTab('users')"><span class="tab-icon">&#128101;</span><span data-lang="users">Users</span></button>
+      <button class="tab-btn" data-tab="broadcasts" onclick="switchTab('broadcasts')"><span class="tab-icon">&#128227;</span><span data-lang="broadcasts">Broadcasts</span></button>
+    </div>
+
+    <!-- ═══════════ TAB: DASHBOARD ═══════════ -->
+    <div class="tab-section active" id="tab-dashboard">
+      <!-- 3 Feature Boxes -->
+      <div class="feature-grid">
+        <!-- Box 1: Couriers -->
+        <div class="feature-box f-couriers">
+          <div class="feature-header">
+            <div class="f-icon">&#128664;</div>
+            <h3 data-lang="couriers">Couriers</h3>
+            <div class="f-count" id="courierCount">0 total</div>
           </div>
-          <div id="vehicleBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
-          <div class="feature-list" id="courierList"></div>
+          <div class="feature-body">
+            <div class="feature-stats">
+              <div class="feature-stat">
+                <div class="fs-val" id="courierTotal">0</div>
+                <div class="fs-label">Total</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="courierOnline">0</div>
+                <div class="fs-label">Online</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="courierOffline">0</div>
+                <div class="fs-label">Offline</div>
+              </div>
+            </div>
+            <div id="vehicleBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+            <div class="feature-list" id="courierList"></div>
+          </div>
+        </div>
+
+        <!-- Box 2: Partners -->
+        <div class="feature-box f-partners">
+          <div class="feature-header">
+            <div class="f-icon">&#127860;</div>
+            <h3 data-lang="partners">Partners</h3>
+            <div class="f-count" id="restaurantCount">0 total</div>
+          </div>
+          <div class="feature-body">
+            <div class="feature-stats">
+              <div class="feature-stat">
+                <div class="fs-val" id="restaurantTotal">0</div>
+                <div class="fs-label">Total</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="restaurantOpen">0</div>
+                <div class="fs-label">Open</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="restaurantClosed">0</div>
+                <div class="fs-label">Closed</div>
+              </div>
+            </div>
+            <div id="categoryBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
+            <div class="feature-list" id="restaurantList"></div>
+          </div>
+        </div>
+
+        <!-- Box 3: Customer Services -->
+        <div class="feature-box f-support">
+          <div class="feature-header">
+            <div class="f-icon">&#128172;</div>
+            <h3 data-lang="customerServices">Customer Services</h3>
+            <div class="f-count" id="ticketCount">0 total</div>
+          </div>
+          <div class="feature-body">
+            <div class="feature-stats">
+              <div class="feature-stat">
+                <div class="fs-val" id="ticketOpen">0</div>
+                <div class="fs-label">Open</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="ticketTotal">0</div>
+                <div class="fs-label">Total</div>
+              </div>
+              <div class="feature-stat">
+                <div class="fs-val" id="ticketAvgResp">-</div>
+                <div class="fs-label">Avg Response</div>
+              </div>
+            </div>
+            <div class="feature-list" id="ticketList"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Box 2: Partners -->
-      <div class="feature-box f-partners">
-        <div class="feature-header">
-          <div class="f-icon">&#127860;</div>
-          <h3>Partners</h3>
-          <div class="f-count" id="restaurantCount">0 total</div>
-        </div>
-        <div class="feature-body">
-          <div class="feature-stats">
-            <div class="feature-stat">
-              <div class="fs-val" id="restaurantTotal">0</div>
-              <div class="fs-label">Total</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="restaurantOpen">0</div>
-              <div class="fs-label">Open</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="restaurantClosed">0</div>
-              <div class="fs-label">Closed</div>
-            </div>
+      <!-- Bottom: Orders Table + Chart -->
+      <div class="bottom-grid">
+        <div class="orders-table-wrap">
+          <div class="orders-table-header">
+            <h3>&#128230; <span data-lang="recentOrders">Recent Orders</span></h3>
+            <span style="font-size:12px;color:var(--muted)" id="orderCount">0 orders</span>
           </div>
-          <div id="categoryBreakdown" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px"></div>
-          <div class="feature-list" id="restaurantList"></div>
-        </div>
-      </div>
-
-      <!-- Box 3: Customer Services -->
-      <div class="feature-box f-support">
-        <div class="feature-header">
-          <div class="f-icon">&#128172;</div>
-          <h3>Customer Services</h3>
-          <div class="f-count" id="ticketCount">0 total</div>
-        </div>
-        <div class="feature-body">
-          <div class="feature-stats">
-            <div class="feature-stat">
-              <div class="fs-val" id="ticketOpen">0</div>
-              <div class="fs-label">Open</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="ticketTotal">0</div>
-              <div class="fs-label">Total</div>
-            </div>
-            <div class="feature-stat">
-              <div class="fs-val" id="ticketAvgResp">-</div>
-              <div class="fs-label">Avg Response</div>
-            </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Restaurant</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
           </div>
-          <div class="feature-list" id="ticketList"></div>
+        </div>
+        <div class="chart-card">
+          <h3>&#128202; <span data-lang="orderStatusBreakdown">Order Status Breakdown</span></h3>
+          <div class="chart-bar-group" id="chartBars"></div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom: Orders Table + Chart -->
-    <div class="bottom-grid">
-      <div class="orders-table-wrap">
-        <div class="orders-table-header">
-          <h3>&#128230; Recent Orders</h3>
-          <span style="font-size:12px;color:var(--muted)" id="orderCount">0 orders</span>
+    <!-- ═══════════ TAB: USERS ═══════════ -->
+    <div class="tab-section" id="tab-users">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>&#128101; <span data-lang="users">Users</span> <span id="userCountBadge" style="font-size:12px;color:var(--muted);font-weight:400"></span></h3>
+          <button class="btn-action" onclick="showCreateUserModal()"><span>+</span> <span data-lang="createUser">Create User</span></button>
         </div>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Order #</th>
-                <th>Customer</th>
-                <th>Restaurant</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody id="ordersBody"></tbody>
-          </table>
+        <div class="filter-bar">
+          <select id="filterRole" onchange="renderUsers()">
+            <option value="all" data-lang-opt="all">All Roles</option>
+            <option value="courier">Courier</option>
+            <option value="customer">Customer</option>
+            <option value="partner">Partner</option>
+            <option value="support">Support</option>
+          </select>
+          <select id="filterApproval" onchange="renderUsers()">
+            <option value="all" data-lang-opt="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="suspended">Suspended</option>
+            <option value="blocked">Blocked</option>
+          </select>
+          <input type="text" id="filterUserSearch" placeholder="Search..." oninput="renderUsers()" style="max-width:200px">
+        </div>
+        <div class="section-card-body">
+          <div class="table-scroll" style="max-height:500px">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th data-lang="username">Username</th>
+                  <th data-lang="displayName">Display Name</th>
+                  <th data-lang="role">Role</th>
+                  <th data-lang="phone">Phone</th>
+                  <th>Status</th>
+                  <th data-lang="actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div class="chart-card">
-        <h3>&#128202; Order Status Breakdown</h3>
-        <div class="chart-bar-group" id="chartBars"></div>
+    </div>
+
+    <!-- ═══════════ TAB: BROADCASTS ═══════════ -->
+    <div class="tab-section" id="tab-broadcasts">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>&#128227; <span data-lang="broadcasts">Broadcasts</span></h3>
+          <button class="btn-action" onclick="showBroadcastModal()"><span>+</span> <span data-lang="newBroadcast">New Broadcast</span></button>
+        </div>
+        <div class="section-card-body">
+          <div class="broadcast-list" id="broadcastList"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -571,7 +749,172 @@ tr:hover{background:var(--card2);transition:background .15s}
   </div>
 </div>
 
+<!-- ═══════════════════ CREATE USER MODAL ═══════════════════ -->
+<div class="modal-overlay" id="createUserModal" onclick="if(event.target===this)closeCreateUserModal()">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeCreateUserModal()">&times;</button>
+    <h3 data-lang="createUser">Create User</h3>
+    <div class="modal-field">
+      <label data-lang="username">Username</label>
+      <input id="cuUsername" placeholder="Username">
+    </div>
+    <div class="modal-field">
+      <label data-lang="password">Password</label>
+      <input id="cuPassword" type="password" placeholder="Password">
+    </div>
+    <div class="modal-field">
+      <label data-lang="displayName">Display Name</label>
+      <input id="cuDisplayName" placeholder="Display Name">
+    </div>
+    <div class="modal-field">
+      <label data-lang="phone">Phone</label>
+      <input id="cuPhone" placeholder="+373...">
+    </div>
+    <div class="modal-field">
+      <label data-lang="role">Role</label>
+      <select id="cuRole">
+        <option value="support">Support</option>
+        <option value="courier">Courier</option>
+        <option value="partner">Partner</option>
+        <option value="customer">Customer</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCreateUserModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-submit" onclick="doCreateUser()" data-lang="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BROADCAST MODAL ═══════════════════ -->
+<div class="modal-overlay" id="broadcastModal" onclick="if(event.target===this)closeBroadcastModal()">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeBroadcastModal()">&times;</button>
+    <h3 data-lang="newBroadcast">New Broadcast</h3>
+    <div class="modal-field">
+      <label data-lang="title">Title</label>
+      <input id="bcTitle" placeholder="Broadcast title">
+    </div>
+    <div class="modal-field">
+      <label data-lang="message">Message</label>
+      <textarea id="bcMessage" placeholder="Broadcast message..."></textarea>
+    </div>
+    <div class="modal-field">
+      <label data-lang="targetRoles">Target Roles</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="bcAll" onchange="toggleBcAll()"> <span data-lang="all">All</span></label>
+        <label><input type="checkbox" class="bc-role-cb" value="courier"> <span data-lang="couriers">Courier</span></label>
+        <label><input type="checkbox" class="bc-role-cb" value="customer"> <span data-lang="customers">Customer</span></label>
+        <label><input type="checkbox" class="bc-role-cb" value="partner"> <span data-lang="partners">Partner</span></label>
+        <label><input type="checkbox" class="bc-role-cb" value="support"> <span data-lang="customerServices">Support</span></label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeBroadcastModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-submit" onclick="doCreateBroadcast()" data-lang="send">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REASON MODAL ═══════════════════ -->
+<div class="modal-overlay" id="reasonModal" onclick="if(event.target===this)closeReasonModal()">
+  <div class="modal-box" style="position:relative">
+    <button class="modal-close" onclick="closeReasonModal()">&times;</button>
+    <h3 id="reasonModalTitle">Reason</h3>
+    <div class="modal-field">
+      <label>Reason (optional)</label>
+      <textarea id="reasonInput" placeholder="Enter reason..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeReasonModal()" data-lang="cancel">Cancel</button>
+      <button class="btn-submit" id="reasonConfirmBtn" onclick="confirmReasonAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// ══════════════════════════════════════════════════════════
+//  LANGUAGE SYSTEM
+// ══════════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    adminDashboard: 'Admin Dashboard', users: 'Users', broadcasts: 'Broadcasts',
+    couriers: 'Couriers', partners: 'Partners', customerServices: 'Customer Services',
+    approve: 'Approve', suspend: 'Suspend', block: 'Block', delete: 'Delete',
+    createUser: 'Create User', newBroadcast: 'New Broadcast', logout: 'Logout',
+    pending: 'Pending', approved: 'Approved', suspended: 'Suspended', blocked: 'Blocked',
+    username: 'Username', password: 'Password', displayName: 'Display Name',
+    phone: 'Phone', role: 'Role', actions: 'Actions', title: 'Title', message: 'Message',
+    targetRoles: 'Target Roles', all: 'All', send: 'Send', save: 'Save', cancel: 'Cancel',
+    ordersToday: 'Orders Today', revenueToday: 'Revenue Today', onlineCouriers: 'Online Couriers',
+    openRestaurants: 'Open Restaurants', customers: 'Customers', openTickets: 'Open Tickets',
+    recentOrders: 'Recent Orders', orderStatusBreakdown: 'Order Status Breakdown',
+    confirm: 'Confirm', reason: 'Reason', noUsers: 'No users found',
+    noBroadcasts: 'No broadcasts yet', search: 'Search...'
+  },
+  ru: {
+    adminDashboard: 'Панель Администратора', users: 'Пользователи', broadcasts: 'Рассылка',
+    couriers: 'Курьеры', partners: 'Партнёры', customerServices: 'Служба Поддержки',
+    approve: 'Одобрить', suspend: 'Приостановить', block: 'Заблокировать', delete: 'Удалить',
+    createUser: 'Создать Пользователя', newBroadcast: 'Новая Рассылка', logout: 'Выйти',
+    pending: 'Ожидает', approved: 'Одобрен', suspended: 'Приостановлен', blocked: 'Заблокирован',
+    username: 'Имя пользователя', password: 'Пароль', displayName: 'Отображаемое имя',
+    phone: 'Телефон', role: 'Роль', actions: 'Действия', title: 'Заголовок', message: 'Сообщение',
+    targetRoles: 'Целевые роли', all: 'Все', send: 'Отправить', save: 'Сохранить', cancel: 'Отмена',
+    ordersToday: 'Заказы Сегодня', revenueToday: 'Выручка Сегодня', onlineCouriers: 'Курьеры Онлайн',
+    openRestaurants: 'Открытые Рестораны', customers: 'Клиенты', openTickets: 'Открытые Тикеты',
+    recentOrders: 'Последние Заказы', orderStatusBreakdown: 'Статусы Заказов',
+    confirm: 'Подтвердить', reason: 'Причина', noUsers: 'Пользователи не найдены',
+    noBroadcasts: 'Рассылок нет', search: 'Поиск...'
+  },
+  ro: {
+    adminDashboard: 'Panou Admin', users: 'Utilizatori', broadcasts: 'Difuzare',
+    couriers: 'Curieri', partners: 'Parteneri', customerServices: 'Servicii Clienți',
+    approve: 'Aproba', suspend: 'Suspenda', block: 'Bloca', delete: 'Sterge',
+    createUser: 'Creeaza Utilizator', newBroadcast: 'Difuzare Noua', logout: 'Deconectare',
+    pending: 'In asteptare', approved: 'Aprobat', suspended: 'Suspendat', blocked: 'Blocat',
+    username: 'Nume utilizator', password: 'Parola', displayName: 'Nume afisat',
+    phone: 'Telefon', role: 'Rol', actions: 'Actiuni', title: 'Titlu', message: 'Mesaj',
+    targetRoles: 'Roluri tinta', all: 'Toti', send: 'Trimite', save: 'Salveaza', cancel: 'Anuleaza',
+    ordersToday: 'Comenzi Astazi', revenueToday: 'Venit Astazi', onlineCouriers: 'Curieri Online',
+    openRestaurants: 'Restaurante Deschise', customers: 'Clienti', openTickets: 'Tichete Deschise',
+    recentOrders: 'Comenzi Recente', orderStatusBreakdown: 'Status Comenzi',
+    confirm: 'Confirma', reason: 'Motiv', noUsers: 'Niciun utilizator',
+    noBroadcasts: 'Nicio difuzare', search: 'Cautare...'
+  }
+};
+
+let currentLang = localStorage.getItem('admin_lang') || 'en';
+
+function L(key) {
+  return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.en[key]) || key;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('admin_lang', lang);
+  document.getElementById('langSelect').value = lang;
+  applyTranslations();
+}
+
+function applyTranslations() {
+  // Translate elements with data-lang attribute
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    const key = el.getAttribute('data-lang');
+    el.textContent = L(key);
+  });
+  // Translate placeholders
+  document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-lang-placeholder');
+    el.placeholder = L(key);
+  });
+  // Re-render dynamic content
+  if (document.getElementById('app').classList.contains('active')) {
+    renderUsers();
+    renderBroadcasts();
+  }
+}
+
 // ══════════════════════════════════════════════════════════
 //  SPLASH SCREEN — 3D letter animation + surrounding items
 // ══════════════════════════════════════════════════════════
@@ -640,7 +983,10 @@ let allOrders=[];
 let allCouriers=[];
 let allRestaurants=[];
 let allTickets=[];
+let allUsers=[];
+let allBroadcasts=[];
 let stats={};
+let pendingReasonAction=null; // {type, userId}
 
 const STATUS_LABELS={
   pending:'Pending',accepted:'Accepted',ready_for_pickup:'Ready',
@@ -704,9 +1050,28 @@ const MOCK_TICKETS=[
   {id:4,order_id:1,order_number:'ORD-10001',user_name:'Alice Johnson',status:'resolved',created_at:'2026-06-05T14:30:00'},
   {id:5,order_id:2,order_number:'ORD-10002',user_name:'Bob Smith',status:'open',created_at:'2026-06-06T10:10:00'}
 ];
+const MOCK_USERS=[
+  {id:1,username:'admin',display_name:'Administrator',role:'admin',phone:'',approval_status:'approved'},
+  {id:2,username:'courier1',display_name:'Marco Rossi',role:'courier',phone:'+37369123456',approval_status:'approved'},
+  {id:3,username:'courier2',display_name:'Sofia Garcia',role:'courier',phone:'+37369234567',approval_status:'approved'},
+  {id:4,username:'courier3',display_name:'Liam Chen',role:'courier',phone:'+37369345678',approval_status:'pending'},
+  {id:5,username:'courier4',display_name:'Emma Wilson',role:'courier',phone:'+37369456789',approval_status:'suspended'},
+  {id:6,username:'courier5',display_name:'Hans Mueller',role:'courier',phone:'+37369567890',approval_status:'blocked'},
+  {id:7,username:'customer1',display_name:'Alice Johnson',role:'customer',phone:'+37361111111',approval_status:'approved'},
+  {id:8,username:'customer2',display_name:'Bob Smith',role:'customer',phone:'+37362222222',approval_status:'approved'},
+  {id:9,username:'partner1',display_name:'Pizza Palace Owner',role:'partner',phone:'+37363333333',approval_status:'approved'},
+  {id:10,username:'partner2',display_name:'Burger Barn Owner',role:'partner',phone:'+37364444444',approval_status:'pending'},
+  {id:11,username:'support1',display_name:'Help Desk',role:'support',phone:'+37365555555',approval_status:'approved'},
+  {id:12,username:'customer3',display_name:'Carol White',role:'customer',phone:'+37366666666',approval_status:'pending'}
+];
+const MOCK_BROADCASTS=[
+  {id:1,title:'System Maintenance',message:'The system will be undergoing maintenance tonight from 2AM to 4AM.',target_roles:'all',created_at:'2026-06-05T18:00:00'},
+  {id:2,title:'New Delivery Zone',message:'We have expanded our delivery zone to include the northern district. Check the map for details.',target_roles:'courier,partner',created_at:'2026-06-06T09:00:00'},
+  {id:3,title:'Weekend Promo',message:'Enjoy 20% off on all orders this weekend! Use code WEEKEND20.',target_roles:'customer',created_at:'2026-06-06T10:00:00'}
+];
 let useMockData=false;
 
-function getMockResponse(path){
+function getMockResponse(path,method){
   if(path==='/api/admin/stats')return{success:true,data:MOCK_STATS};
   if(path==='/api/admin/couriers')return{success:true,data:MOCK_COURIERS};
   if(path.startsWith('/api/restaurants'))return{success:true,data:MOCK_RESTAURANTS};
@@ -716,6 +1081,16 @@ function getMockResponse(path){
   if(path==='/api/notifications')return{success:true,data:[]};
   if(path==='/api/notifications/unread-count')return{success:true,data:{count:0}};
   if(path.startsWith('/api/restaurants/')&&path.endsWith('/toggle'))return{success:true,data:{is_open:true}};
+  if(path==='/api/admin/users')return{success:true,data:MOCK_USERS};
+  if(path==='/api/admin/broadcasts')return{success:true,data:MOCK_BROADCASTS};
+  // POST actions for users
+  if(method==='POST'&&path==='/api/admin/users/approve')return{success:true,message:'User approved'};
+  if(method==='POST'&&path==='/api/admin/users/suspend')return{success:true,message:'User suspended'};
+  if(method==='POST'&&path==='/api/admin/users/block')return{success:true,message:'User blocked'};
+  if(method==='POST'&&path==='/api/admin/users/create')return{success:true,message:'User created',data:{id:Date.now()}};
+  if(method==='DELETE'&&path.match(/^\/api\/admin\/users\/\d+$/))return{success:true,message:'User deleted'};
+  if(method==='POST'&&path==='/api/admin/broadcasts/create')return{success:true,message:'Broadcast created',data:{id:Date.now()}};
+  if(method==='DELETE'&&path.match(/^\/api\/admin\/broadcasts\/\d+$/))return{success:true,message:'Broadcast deleted'};
   return{success:false,message:'Mock not available'};
 }
 
@@ -771,7 +1146,7 @@ function playSound(){
 async function api(method,path,body){
   // If using mock data, return mock response
   if(useMockData){
-    return getMockResponse(path.split('?')[0]);
+    return getMockResponse(path.split('?')[0],method);
   }
   const opts={method,headers:{'Content-Type':'application/json'}};
   if(token)opts.headers['Authorization']='Bearer '+token;
@@ -797,7 +1172,7 @@ async function api(method,path,body){
       useMockData=true;
       toast('Backend unavailable — using demo data','warning');
     }
-    return getMockResponse(path.split('?')[0]);
+    return getMockResponse(path.split('?')[0],method);
   }
 }
 
@@ -833,9 +1208,26 @@ function hideInAppNotif(){
 }
 
 // ══════════════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════════════════════════
+function switchTab(tabName){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="'+tabName+'"]').classList.add('active');
+  document.getElementById('tab-'+tabName).classList.add('active');
+  // Load data for the tab if needed
+  if(tabName==='users')loadUsers();
+  if(tabName==='broadcasts')loadBroadcasts();
+}
+
+// ══════════════════════════════════════════════════════════
 //  INIT APP
 // ══════════════════════════════════════════════════════════
 function initApp(){
+  // Restore language
+  const savedLang=localStorage.getItem('admin_lang');
+  if(savedLang){currentLang=savedLang;document.getElementById('langSelect').value=savedLang}
+
   if(token&&user&&user.role==='admin'){
     enterApp();
   }else{
@@ -846,12 +1238,13 @@ function initApp(){
 function enterApp(){
   document.getElementById('loginScreen').classList.remove('active');
   document.getElementById('app').classList.add('active');
+  applyTranslations();
   loadAll();
   startPolling();
 }
 
 async function loadAll(){
-  await Promise.all([loadStats(),loadCouriers(),loadOrders(),loadRestaurants(),loadTickets()]);
+  await Promise.all([loadStats(),loadCouriers(),loadOrders(),loadRestaurants(),loadTickets(),loadUsers(),loadBroadcasts()]);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1198,6 +1591,274 @@ function renderChart(){
 
   if(container.innerHTML===''){
     container.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No data yet</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  USERS MANAGEMENT
+// ══════════════════════════════════════════════════════════
+async function loadUsers(){
+  const res=await api('GET','/api/admin/users');
+  if(res.success){
+    allUsers=res.data||[];
+    renderUsers();
+  }
+}
+
+function renderUsers(){
+  const body=document.getElementById('usersBody');
+  const roleFilter=document.getElementById('filterRole').value;
+  const approvalFilter=document.getElementById('filterApproval').value;
+  const searchFilter=(document.getElementById('filterUserSearch').value||'').toLowerCase();
+
+  let filtered=allUsers;
+  if(roleFilter!=='all')filtered=filtered.filter(u=>u.role===roleFilter);
+  if(approvalFilter!=='all')filtered=filtered.filter(u=>u.approval_status===approvalFilter);
+  if(searchFilter)filtered=filtered.filter(u=>
+    (u.username||'').toLowerCase().includes(searchFilter)||
+    (u.display_name||'').toLowerCase().includes(searchFilter)||
+    (u.phone||'').toLowerCase().includes(searchFilter)
+  );
+
+  document.getElementById('userCountBadge').textContent='('+filtered.length+'/'+allUsers.length+')';
+
+  if(filtered.length===0){
+    body.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">'+L('noUsers')+'</td></tr>';
+    return;
+  }
+
+  body.innerHTML=filtered.map(u=>{
+    const approvalClass='approval-'+(u.approval_status||'approved');
+    const roleClass='role-'+(u.role||'customer');
+    const statusLabel=L(u.approval_status||'approved');
+    const roleLabel=u.role||'customer';
+
+    let actionBtns='';
+    const status=u.approval_status||'approved';
+    if(status==='pending'){
+      actionBtns=`<button class="btn-approve" onclick="doApproveUser(${u.id})">${L('approve')}</button> `;
+      actionBtns+=`<button class="btn-suspend" onclick="doSuspendUser(${u.id})">${L('suspend')}</button> `;
+      actionBtns+=`<button class="btn-block" onclick="doBlockUser(${u.id})">${L('block')}</button> `;
+    }else if(status==='approved'){
+      actionBtns+=`<button class="btn-suspend" onclick="doSuspendUser(${u.id})">${L('suspend')}</button> `;
+      actionBtns+=`<button class="btn-block" onclick="doBlockUser(${u.id})">${L('block')}</button> `;
+    }else if(status==='suspended'||status==='blocked'){
+      actionBtns=`<button class="btn-approve" onclick="doApproveUser(${u.id})">${L('approve')}</button> `;
+    }
+    actionBtns+=`<button class="btn-delete" onclick="doDeleteUser(${u.id})">${L('delete')}</button>`;
+
+    return `<tr>
+      <td>${u.id}</td>
+      <td>${esc(u.username||'-')}</td>
+      <td>${esc(u.display_name||'-')}</td>
+      <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
+      <td>${esc(u.phone||'-')}</td>
+      <td><span class="${approvalClass}">${statusLabel}</span></td>
+      <td style="max-width:none;white-space:nowrap">${actionBtns}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function doApproveUser(id){
+  const res=await api('POST','/api/admin/users/approve',{user_id:id});
+  if(res.success){
+    toast(L('approve')+' ✓','success');
+    if(useMockData){const u=MOCK_USERS.find(x=>x.id===id);if(u)u.approval_status='approved'}
+    loadUsers();
+  }else{
+    toast(res.message||'Failed','error');
+  }
+}
+
+function doSuspendUser(id){
+  pendingReasonAction={type:'suspend',userId:id};
+  document.getElementById('reasonModalTitle').textContent=L('suspend')+' — '+L('reason');
+  document.getElementById('reasonInput').value='';
+  document.getElementById('reasonConfirmBtn').textContent=L('confirm');
+  document.getElementById('reasonModal').classList.add('active');
+}
+
+function doBlockUser(id){
+  pendingReasonAction={type:'block',userId:id};
+  document.getElementById('reasonModalTitle').textContent=L('block')+' — '+L('reason');
+  document.getElementById('reasonInput').value='';
+  document.getElementById('reasonConfirmBtn').textContent=L('confirm');
+  document.getElementById('reasonModal').classList.add('active');
+}
+
+async function confirmReasonAction(){
+  if(!pendingReasonAction)return;
+  const reason=document.getElementById('reasonInput').value.trim();
+  const {type,userId}=pendingReasonAction;
+  closeReasonModal();
+
+  let res;
+  if(type==='suspend'){
+    res=await api('POST','/api/admin/users/suspend',{user_id:userId,reason});
+    if(res.success){
+      toast(L('suspend')+' ✓','warning');
+      if(useMockData){const u=MOCK_USERS.find(x=>x.id===userId);if(u)u.approval_status='suspended'}
+    }
+  }else if(type==='block'){
+    res=await api('POST','/api/admin/users/block',{user_id:userId,reason});
+    if(res.success){
+      toast(L('block')+' ✓','error');
+      if(useMockData){const u=MOCK_USERS.find(x=>x.id===userId);if(u)u.approval_status='blocked'}
+    }
+  }
+  if(res&&!res.success)toast(res.message||'Failed','error');
+  loadUsers();
+  pendingReasonAction=null;
+}
+
+function closeReasonModal(){
+  document.getElementById('reasonModal').classList.remove('active');
+  pendingReasonAction=null;
+}
+
+async function doDeleteUser(id){
+  if(!confirm('Delete user #'+id+'?'))return;
+  const res=await api('DELETE','/api/admin/users/'+id);
+  if(res.success){
+    toast(L('delete')+' ✓','error');
+    if(useMockData){const idx=MOCK_USERS.findIndex(x=>x.id===id);if(idx>=0)MOCK_USERS.splice(idx,1)}
+    loadUsers();
+  }else{
+    toast(res.message||'Failed to delete','error');
+  }
+}
+
+// Create User Modal
+function showCreateUserModal(){
+  document.getElementById('cuUsername').value='';
+  document.getElementById('cuPassword').value='';
+  document.getElementById('cuDisplayName').value='';
+  document.getElementById('cuPhone').value='';
+  document.getElementById('cuRole').value='support';
+  document.getElementById('createUserModal').classList.add('active');
+}
+function closeCreateUserModal(){
+  document.getElementById('createUserModal').classList.remove('active');
+}
+
+async function doCreateUser(){
+  const username=document.getElementById('cuUsername').value.trim();
+  const password=document.getElementById('cuPassword').value;
+  const display_name=document.getElementById('cuDisplayName').value.trim();
+  const phone=document.getElementById('cuPhone').value.trim();
+  const role=document.getElementById('cuRole').value;
+
+  if(!username||!password){
+    toast('Username and password are required','error');
+    return;
+  }
+
+  const res=await api('POST','/api/admin/users/create',{username,password,display_name,phone,role});
+  if(res.success){
+    toast(L('createUser')+' ✓','success');
+    closeCreateUserModal();
+    if(useMockData){
+      MOCK_USERS.push({id:Date.now(),username,display_name:display_name||username,role,phone,approval_status:'approved'});
+    }
+    loadUsers();
+  }else{
+    toast(res.message||'Failed to create user','error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  BROADCASTS
+// ══════════════════════════════════════════════════════════
+async function loadBroadcasts(){
+  const res=await api('GET','/api/admin/broadcasts');
+  if(res.success){
+    allBroadcasts=res.data||[];
+    renderBroadcasts();
+  }
+}
+
+function renderBroadcasts(){
+  const container=document.getElementById('broadcastList');
+
+  if(allBroadcasts.length===0){
+    container.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:14px">'+L('noBroadcasts')+'</div>';
+    return;
+  }
+
+  container.innerHTML=allBroadcasts.map(b=>{
+    const targetLabel=b.target_roles==='all'?L('all'):b.target_roles;
+    return `<div class="broadcast-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div style="flex:1">
+          <h4>${esc(b.title||'')}</h4>
+          <p>${esc(b.message||'')}</p>
+          <div class="bc-meta">
+            <span class="bc-target">${targetLabel}</span>
+            <span class="bc-date">${formatDate(b.created_at)}</span>
+          </div>
+        </div>
+        <button class="btn-delete" onclick="doDeleteBroadcast(${b.id})" style="flex-shrink:0">${L('delete')}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function doDeleteBroadcast(id){
+  if(!confirm('Delete this broadcast?'))return;
+  const res=await api('DELETE','/api/admin/broadcasts/'+id);
+  if(res.success){
+    toast(L('delete')+' ✓','success');
+    if(useMockData){const idx=MOCK_BROADCASTS.findIndex(x=>x.id===id);if(idx>=0)MOCK_BROADCASTS.splice(idx,1)}
+    loadBroadcasts();
+  }else{
+    toast(res.message||'Failed to delete','error');
+  }
+}
+
+// Broadcast Modal
+function showBroadcastModal(){
+  document.getElementById('bcTitle').value='';
+  document.getElementById('bcMessage').value='';
+  document.getElementById('bcAll').checked=false;
+  document.querySelectorAll('.bc-role-cb').forEach(cb=>cb.checked=false);
+  document.getElementById('broadcastModal').classList.add('active');
+}
+function closeBroadcastModal(){
+  document.getElementById('broadcastModal').classList.remove('active');
+}
+
+function toggleBcAll(){
+  const allChecked=document.getElementById('bcAll').checked;
+  document.querySelectorAll('.bc-role-cb').forEach(cb=>cb.checked=allChecked);
+}
+
+async function doCreateBroadcast(){
+  const title=document.getElementById('bcTitle').value.trim();
+  const message=document.getElementById('bcMessage').value.trim();
+  const allChecked=document.getElementById('bcAll').checked;
+  const roles=[];
+  document.querySelectorAll('.bc-role-cb:checked').forEach(cb=>roles.push(cb.value));
+
+  if(!title||!message){
+    toast('Title and message are required','error');
+    return;
+  }
+  if(!allChecked&&roles.length===0){
+    toast('Select at least one target role','error');
+    return;
+  }
+
+  const target_roles=allChecked?'all':roles.join(',');
+  const res=await api('POST','/api/admin/broadcasts/create',{title,message,target_roles});
+  if(res.success){
+    toast(L('newBroadcast')+' ✓','success');
+    closeBroadcastModal();
+    if(useMockData){
+      MOCK_BROADCASTS.unshift({id:Date.now(),title,message,target_roles,created_at:new Date().toISOString()});
+    }
+    loadBroadcasts();
+  }else{
+    toast(res.message||'Failed to create broadcast','error');
   }
 }
 

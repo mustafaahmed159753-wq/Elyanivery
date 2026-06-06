@@ -671,6 +671,7 @@ def handle_register(body):
         password = body.get('password') or ''
         role = body.get('role', 'customer')
         display_name = body.get('display_name', username)
+        phone = body.get('phone', '') or ''
         if not username or not password:
             return 400, {"success": False, "message": "Username and password required"}
         if role not in ('customer', 'courier', 'admin', 'support', 'partner'):
@@ -678,9 +679,11 @@ def handle_register(body):
         existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
         if existing:
             return 409, {"success": False, "message": "Username already taken"}
+        # Couriers require admin approval — they start as 'pending'
+        approval_status = 'pending' if role == 'courier' else 'approved'
         pw_hash = AuthService.hash_pw(password)
-        uid = insert("INSERT INTO Users (username,password_hash,role,display_name) VALUES (?,?,?,?)",
-                     (username, pw_hash, role, display_name))
+        uid = insert("INSERT INTO Users (username,password_hash,role,display_name,phone,approval_status) VALUES (?,?,?,?,?,?)",
+                     (username, pw_hash, role, display_name, phone, approval_status))
         if role == 'courier':
             insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,FALSE)", (uid,))
         # Init loyalty
@@ -689,7 +692,7 @@ def handle_register(body):
         except:
             pass
         token_val = AuthService.make_token(uid, role)
-        return 201, {"success": True, "data": {"id": uid, "username": username, "role": role, "token": token_val, "display_name": display_name, "avatar_url": None}}
+        return 201, {"success": True, "data": {"id": uid, "username": username, "role": role, "token": token_val, "display_name": display_name, "avatar_url": None, "approval_status": approval_status, "phone": phone}}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -701,18 +704,25 @@ def handle_login(body):
         user = query("SELECT * FROM Users WHERE username=?", (username,), fetch_one=True)
         if not user or not AuthService.verify_pw(password, user['password_hash']):
             return 401, {"success": False, "message": "Invalid credentials"}
+        # Check if courier is pending approval
+        approval = user.get('approval_status', 'approved')
+        if user['role'] == 'courier' and approval == 'pending':
+            return 403, {"success": False, "message": "Your account is pending admin approval", "approval_status": "pending"}
+        if user['role'] == 'courier' and approval in ('suspended', 'blocked'):
+            return 403, {"success": False, "message": f"Your account has been {approval}. Contact support.", "approval_status": approval}
         token_val = AuthService.make_token(user['id'], user['role'])
         return 200, {"success": True, "data": {
             "id": user['id'], "username": user['username'], "role": user['role'],
             "token": token_val, "display_name": user.get('display_name', ''),
-            "avatar_url": user.get('avatar_url')}}
+            "avatar_url": user.get('avatar_url'), "phone": user.get('phone', ''),
+            "approval_status": approval}}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
 
 def handle_me(payload):
     try:
-        user = query("SELECT id,username,role,display_name,avatar_url FROM Users WHERE id=?", (payload['uid'],), fetch_one=True)
+        user = query("SELECT id,username,role,display_name,avatar_url,phone,approval_status FROM Users WHERE id=?", (payload['uid'],), fetch_one=True)
         if not user:
             return 404, {"success": False, "message": "User not found"}
         # Append loyalty points
@@ -1628,23 +1638,32 @@ def handle_support_close_ticket(payload, ticket_id):
 
 # ── DELIVER ANYTHING ──
 def handle_deliver_anything(body, payload):
-    """Create a special 'Deliver Anything' order — no restaurant needed."""
+    """Create a special 'Deliver Anything' order — no restaurant needed.
+    Client provides pickup/delivery addresses and contacts, not coordinates.
+    delivery_type: 'send' (client sends something) or 'receive' (client receives something)."""
     try:
         uid = payload['uid']
-        pickup_lat = body.get('pickup_lat')
-        pickup_lng = body.get('pickup_lng')
-        pickup_address = body.get('pickup_address', '')
-        pickup_description = body.get('pickup_description', '')
-        delivery_lat = body.get('delivery_lat')
-        delivery_lng = body.get('delivery_lng')
-        delivery_address = body.get('delivery_address', '')
+        delivery_type = body.get('delivery_type', 'send')  # 'send' or 'receive'
+        pickup_address = (body.get('pickup_address') or '').strip()
+        pickup_contact_name = (body.get('pickup_contact_name') or '').strip()
+        pickup_contact_phone = (body.get('pickup_contact_phone') or '').strip()
+        delivery_address = (body.get('delivery_address') or '').strip()
+        delivery_contact_name = (body.get('delivery_contact_name') or '').strip()
+        delivery_contact_phone = (body.get('delivery_contact_phone') or '').strip()
+        item_description = (body.get('item_description') or '').strip()
 
-        if not pickup_lat or not pickup_lng:
-            return 400, {"success": False, "message": "pickup_lat and pickup_lng required"}
-        if not delivery_lat or not delivery_lng:
-            return 400, {"success": False, "message": "delivery_lat and delivery_lng required"}
-        if not pickup_description:
-            return 400, {"success": False, "message": "pickup_description required (what to pick up)"}
+        if not pickup_address:
+            return 400, {"success": False, "message": "Pickup address is required"}
+        if not delivery_address:
+            return 400, {"success": False, "message": "Delivery address is required"}
+        if not item_description:
+            return 400, {"success": False, "message": "Item description is required (what to deliver)"}
+
+        # Default coordinates to Chisinau center (will be refined by courier GPS)
+        pickup_lat = body.get('pickup_lat', 47.0105)
+        pickup_lng = body.get('pickup_lng', 28.8638)
+        delivery_lat = body.get('delivery_lat', 47.0105)
+        delivery_lng = body.get('delivery_lng', 28.8638)
 
         # Find or create a virtual restaurant for "Deliver Anything"
         virtual = query("SELECT id FROM Restaurants WHERE name='Elyanivery Delivery Service'", fetch_one=True)
@@ -1652,7 +1671,7 @@ def handle_deliver_anything(body, payload):
             virtual_id = insert(
                 "INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category) "
                 "VALUES ('Elyanivery Delivery Service','Virtual restaurant for Deliver Anything orders','',?,?,'TRUE','delivery_service')",
-                (pickup_lat, pickup_lng)
+                (47.0105, 28.8638)
             )
         else:
             virtual_id = virtual['id']
@@ -1670,23 +1689,28 @@ def handle_deliver_anything(body, payload):
 
         oid = insert(
             "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
-            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng,estimated_prep_minutes)"
-            " VALUES (?,?,?,'ready_for_pickup',0,?,?,?,?,NULL)",
+            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng,estimated_prep_minutes,"
+            "is_deliver_anything,delivery_type,pickup_address,pickup_lat,pickup_lng,"
+            "pickup_contact_name,pickup_contact_phone,delivery_contact_name,delivery_contact_phone,item_description)"
+            " VALUES (?,?,?,'ready_for_pickup',0,?,?,?,?,NULL,TRUE,?,?,?,?,?,?,?,?,?,0)",
             (order_number, uid, virtual_id, delivery_fee, total,
-             delivery_address or 'Customer Location', delivery_lat, delivery_lng)
+             delivery_address, delivery_lat, delivery_lng,
+             delivery_type, pickup_address, pickup_lat, pickup_lng,
+             pickup_contact_name, pickup_contact_phone,
+             delivery_contact_name, delivery_contact_phone, item_description)
         )
 
         if not oid:
             return 500, {"success": False, "message": "Failed to create order"}
 
-        # Add pickup description as a virtual order item
+        # Add item description as a virtual order item
         insert(
             "INSERT INTO OrderItems (order_id,item_id,item_name,item_price,quantity) VALUES (?,0,?,0,1)",
-            (oid, pickup_description)
+            (oid, item_description)
         )
 
         query("INSERT INTO OrderLog (order_id, status, note) VALUES (?, 'ready_for_pickup', ?)",
-              (oid, f'Deliver Anything order. Pickup: {pickup_description}'))
+              (oid, f'Deliver Anything order ({delivery_type}). Item: {item_description}. Pickup: {pickup_address}. Delivery: {delivery_address}'))
 
         # Auto-assign nearest courier
         courier_id = auto_assign_courier(oid, float(pickup_lat), float(pickup_lng),
@@ -1698,10 +1722,6 @@ def handle_deliver_anything(body, payload):
 
         order = query("SELECT o.*, r.name as restaurant_name FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id WHERE o.id=?", (oid,), fetch_one=True)
         order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True) or []
-        order['pickup_lat'] = pickup_lat
-        order['pickup_lng'] = pickup_lng
-        order['pickup_address'] = pickup_address
-        order['pickup_description'] = pickup_description
 
         result = {"success": True, "data": order}
         if courier_id:
@@ -1795,6 +1815,261 @@ def handle_admin_assign_order(body, payload):
         query("INSERT INTO OrderLog (order_id,status,note) VALUES (?,'courier_assigned','Manually assigned')", (oid,))
         push_notification(cid, 'Order Assigned', f'Admin assigned you to order #{oid}', 'order_assigned', oid)
         return 200, {"success": True, "message": "Courier assigned"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN USER MANAGEMENT ──
+def handle_admin_users(payload):
+    """Get all users with their approval status. Admin only."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("SELECT u.id, u.username, u.role, u.display_name, u.phone, u.approval_status, u.created_at, u.avatar_url FROM Users u ORDER BY u.created_at DESC", fetch=True)
+        # For couriers, also get vehicle type
+        for r in (rows or []):
+            if r['role'] == 'courier':
+                cl = query("SELECT vehicle_type, is_online FROM CourierLocations WHERE courier_id=?", (r['id'],), fetch_one=True)
+                r['vehicle_type'] = cl['vehicle_type'] if cl else 'bicycle'
+                r['is_online'] = cl['is_online'] if cl else False
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_approve_user(body, payload):
+    """Admin approves a pending courier. Sets approval_status='approved'."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        uid = body.get('user_id')
+        if not uid:
+            return 400, {"success": False, "message": "user_id required"}
+        user = query("SELECT id, role, approval_status FROM Users WHERE id=?", (uid,), fetch_one=True)
+        if not user:
+            return 404, {"success": False, "message": "User not found"}
+        query("UPDATE Users SET approval_status='approved' WHERE id=?", (uid,))
+        push_notification(uid, 'Account Approved', 'Your courier account has been approved! You can now go online.', 'account_approved', None)
+        return 200, {"success": True, "message": f"User {uid} approved"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_suspend_user(body, payload):
+    """Admin suspends a courier. They cannot log in."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        uid = body.get('user_id')
+        reason = body.get('reason', 'Suspended by admin')
+        if not uid:
+            return 400, {"success": False, "message": "user_id required"}
+        user = query("SELECT id, role FROM Users WHERE id=?", (uid,), fetch_one=True)
+        if not user:
+            return 404, {"success": False, "message": "User not found"}
+        query("UPDATE Users SET approval_status='suspended' WHERE id=?", (uid,))
+        # Force courier offline
+        if user['role'] == 'courier':
+            query("UPDATE CourierLocations SET is_online=FALSE WHERE courier_id=?", (uid,))
+        push_notification(uid, 'Account Suspended', f'Your account has been suspended. Reason: {reason}', 'account_suspended', None)
+        return 200, {"success": True, "message": f"User {uid} suspended"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_block_user(body, payload):
+    """Admin blocks a user permanently."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        uid = body.get('user_id')
+        reason = body.get('reason', 'Blocked by admin')
+        if not uid:
+            return 400, {"success": False, "message": "user_id required"}
+        user = query("SELECT id, role FROM Users WHERE id=?", (uid,), fetch_one=True)
+        if not user:
+            return 404, {"success": False, "message": "User not found"}
+        query("UPDATE Users SET approval_status='blocked' WHERE id=?", (uid,))
+        if user['role'] == 'courier':
+            query("UPDATE CourierLocations SET is_online=FALSE WHERE courier_id=?", (uid,))
+        return 200, {"success": True, "message": f"User {uid} blocked"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_delete_user(payload, uid):
+    """Admin deletes a user account."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        user = query("SELECT id, role FROM Users WHERE id=?", (uid,), fetch_one=True)
+        if not user:
+            return 404, {"success": False, "message": "User not found"}
+        if user['id'] == payload['uid']:
+            return 400, {"success": False, "message": "Cannot delete your own account"}
+        # Clean up related records
+        if user['role'] == 'courier':
+            query("DELETE FROM CourierLocations WHERE courier_id=?", (uid,))
+        query("DELETE FROM LoyaltyPoints WHERE user_id=?", (uid,))
+        query("DELETE FROM Notifications WHERE user_id=?", (uid,))
+        query("DELETE FROM Addresses WHERE user_id=?", (uid,))
+        query("DELETE FROM Users WHERE id=?", (uid,))
+        return 200, {"success": True, "message": f"User {uid} deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_create_user(body, payload):
+    """Admin creates a new user (e.g., support staff, courier, partner)."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        username = (body.get('username') or '').strip()
+        password = body.get('password') or ''
+        role = body.get('role', 'support')
+        display_name = body.get('display_name', username)
+        phone = body.get('phone', '') or ''
+        if not username or not password:
+            return 400, {"success": False, "message": "Username and password required"}
+        if role not in ('support', 'courier', 'partner', 'customer', 'admin'):
+            role = 'support'
+        existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
+        if existing:
+            return 409, {"success": False, "message": "Username already taken"}
+        # Admin-created users are auto-approved
+        pw_hash = AuthService.hash_pw(password)
+        uid = insert("INSERT INTO Users (username,password_hash,role,display_name,phone,approval_status) VALUES (?,?,?,?,?,'approved')",
+                     (username, pw_hash, role, display_name, phone))
+        if role == 'courier':
+            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online) VALUES (?,0,0,FALSE)", (uid,))
+        try:
+            insert("INSERT INTO LoyaltyPoints (user_id,points,total_earned) VALUES (?,0,0)", (uid,))
+        except:
+            pass
+        return 201, {"success": True, "data": {"id": uid, "username": username, "role": role, "display_name": display_name, "phone": phone}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── BROADCASTS ──
+def handle_admin_create_broadcast(body, payload):
+    """Admin creates a broadcast message targeting specific roles."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        title = (body.get('title') or '').strip()
+        message = (body.get('message') or '').strip()
+        target_roles = body.get('target_roles', 'all')  # comma-separated: 'courier,customer,partner,support' or 'all'
+        if not title or not message:
+            return 400, {"success": False, "message": "Title and message required"}
+        bid = insert("INSERT INTO Broadcasts (admin_id,title,message,target_roles,is_active) VALUES (?,?,?,?,TRUE)",
+                     (payload['uid'], title, message, target_roles))
+        return 201, {"success": True, "data": {"id": bid, "title": title, "target_roles": target_roles}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_broadcasts(payload):
+    """Get all broadcasts. Admin only."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("SELECT b.*, u.display_name as admin_name FROM Broadcasts b JOIN Users u ON b.admin_id=u.id ORDER BY b.created_at DESC", fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_delete_broadcast(payload, bid):
+    """Delete a broadcast. Admin only."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        query("DELETE FROM Broadcasts WHERE id=?", (bid,))
+        return 200, {"success": True, "message": "Broadcast deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_get_broadcasts(payload):
+    """Get active broadcasts for the current user's role."""
+    try:
+        role = payload['role']
+        rows = query("SELECT * FROM Broadcasts WHERE is_active=TRUE ORDER BY created_at DESC", fetch=True)
+        # Filter by target roles
+        result = []
+        for b in (rows or []):
+            targets = b['target_roles']
+            if targets == 'all' or role in targets.split(','):
+                result.append(b)
+        return 200, {"success": True, "data": result}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── SUPPORT: ORDER DETAILS WITH CONTACTS ──
+def handle_support_order_detail(payload, oid):
+    """Get full order details for support, including phone numbers and addresses of all parties."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        order = query("""
+            SELECT o.*, r.name as restaurant_name, r.address as restaurant_address, r.phone as restaurant_phone
+            FROM Orders o
+            JOIN Restaurants r ON o.restaurant_id=r.id
+            WHERE o.id=?
+        """, (oid,), fetch_one=True)
+        if not order:
+            return 404, {"success": False, "message": "Order not found"}
+        # Customer info
+        customer = query("SELECT id, username, display_name, phone FROM Users WHERE id=?", (order['customer_id'],), fetch_one=True)
+        order['customer_info'] = customer
+        # Courier info
+        if order.get('courier_id'):
+            courier = query("SELECT u.id, u.username, u.display_name, u.phone, cl.vehicle_type, cl.is_online FROM Users u LEFT JOIN CourierLocations cl ON u.id=cl.courier_id WHERE u.id=?", (order['courier_id'],), fetch_one=True)
+            order['courier_info'] = courier
+        # Partner info
+        partner = query("SELECT u.id, u.username, u.display_name, u.phone FROM Users u WHERE u.id=(SELECT created_by FROM Restaurants WHERE id=?)", (order['restaurant_id'],), fetch_one=True)
+        order['partner_info'] = partner
+        # Items
+        order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True) or []
+        # Order log
+        order['log'] = query("SELECT * FROM OrderLog WHERE order_id=? ORDER BY created_at", (oid,), fetch=True) or []
+        return 200, {"success": True, "data": order}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_support_ongoing_orders(payload):
+    """Get all ongoing orders with contact details for support dashboard."""
+    try:
+        if payload['role'] not in ('admin', 'support'):
+            return 403, {"success": False, "message": "Admin or support role required"}
+        rows = query("""
+            SELECT o.id, o.order_number, o.status, o.total, o.created_at,
+                   o.delivery_address, o.is_deliver_anything, o.delivery_type,
+                   o.pickup_address, o.pickup_contact_name, o.pickup_contact_phone,
+                   o.delivery_contact_name, o.delivery_contact_phone, o.item_description,
+                   r.name as restaurant_name, r.address as restaurant_address, r.phone as restaurant_phone,
+                   cu.display_name as customer_name, cu.phone as customer_phone,
+                   co.display_name as courier_name, co.phone as courier_phone
+            FROM Orders o
+            JOIN Restaurants r ON o.restaurant_id=r.id
+            JOIN Users cu ON o.customer_id=cu.id
+            LEFT JOIN Users co ON o.courier_id=co.id
+            WHERE o.status NOT IN ('delivered','cancelled','rejected')
+            ORDER BY o.created_at DESC
+        """, fetch=True)
+        # Get partner info for each
+        for o in (rows or []):
+            partner = query("SELECT u.display_name as partner_name, u.phone as partner_phone FROM Users u WHERE u.id=(SELECT created_by FROM Restaurants WHERE id=?)", (o.get('restaurant_id') or o.get('id')), fetch_one=True)
+            # Workaround: get restaurant_id from order
+            order_row = query("SELECT restaurant_id FROM Orders WHERE id=?", (o['id'],), fetch_one=True)
+            if order_row:
+                partner = query("SELECT u.display_name as partner_name, u.phone as partner_phone FROM Users u JOIN Restaurants r ON u.id=r.created_by WHERE r.id=?", (order_row['restaurant_id'],), fetch_one=True)
+            o['partner_name'] = partner['partner_name'] if partner else ''
+            o['partner_phone'] = partner['partner_phone'] if partner else ''
+        return 200, {"success": True, "data": rows or []}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -2471,6 +2746,22 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_support_tickets(p)
                 self._json(code, data)
+            elif path == '/api/support/ongoing-orders':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_support_ongoing_orders(p)
+                self._json(code, data)
+            elif path.startswith('/api/support/order/') and path.endswith('/detail'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    oid = int(path.split('/')[4])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid order ID"})
+                code, data = handle_support_order_detail(p, oid)
+                self._json(code, data)
             elif path.startswith('/api/support/tickets/') and path.endswith('/messages'):
                 p = self._auth()
                 if not p:
@@ -2488,6 +2779,54 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_couriers(p)
+                self._json(code, data)
+            elif path == '/api/admin/users':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_users(p)
+                self._json(code, data)
+            elif path == '/api/admin/users/create':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_create_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/approve':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_approve_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/suspend':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_suspend_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/users/block':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_block_user(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/broadcasts':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_broadcasts(p)
+                self._json(code, data)
+            elif path == '/api/admin/broadcasts/create':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_create_broadcast(body, p)
+                self._json(code, data)
+            elif path == '/api/broadcasts':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_get_broadcasts(p)
                 self._json(code, data)
             elif path == '/api/admin/unassigned':
                 p = self._auth()
@@ -2981,6 +3320,28 @@ class Handler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         path = self.path.split('?')[0]
         try:
+            # ── Admin user delete ──
+            if path.startswith('/api/admin/users/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    uid = int(path.split('/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid user ID"})
+                code, data = handle_admin_delete_user(p, uid)
+                self._json(code, data)
+            # ── Admin broadcast delete ──
+            elif path.startswith('/api/admin/broadcasts/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    bid = int(path.split('/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid broadcast ID"})
+                code, data = handle_admin_delete_broadcast(p, bid)
+                self._json(code, data)
             # ── Partner menu item delete ──
             if path.startswith('/api/partner/menu/items/'):
                 p = self._auth()
@@ -3082,12 +3443,15 @@ class ThreadedServer(HTTPServer):
 
 if __name__ == '__main__':
     print("=" * 50)
-    print("  ELYANIVERY v4.0 - Delivery Platform (PostgreSQL)")
+    print("  ELYANIVERY v5.0 - Delivery Platform (PostgreSQL)")
     print("  + Chat, Voice Calls, Notifications,")
     print("    Address Book, Loyalty Points,")
     print("    Vehicle-based Courier, Earnings,")
     print("    Support Tickets, Deliver Anything,")
-    print("    Admin Dashboard")
+    print("    Admin Dashboard, User Management,")
+    print("    Courier Approval, Broadcasts,")
+    print("    Multi-language (EN/RU/RO),")
+    print("    Moldova-based Seed Data")
     print("=" * 50)
 
     # init_db() connects to PostgreSQL using DATABASE_URL or individual params

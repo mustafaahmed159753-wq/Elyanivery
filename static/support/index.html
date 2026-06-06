@@ -80,7 +80,9 @@ html[data-theme="glassmorphism"] .order-card,
 html[data-theme="glassmorphism"] .ticket-card,
 html[data-theme="glassmorphism"] .detail-panel,
 html[data-theme="glassmorphism"] .chat-section,
-html[data-theme="glassmorphism"] .msg-bubble{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+html[data-theme="glassmorphism"] .msg-bubble,
+html[data-theme="glassmorphism"] .broadcast-banner,
+html[data-theme="glassmorphism"] .contact-card{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
 html[data-theme="glassmorphism"] .order-card,
 html[data-theme="glassmorphism"] .ticket-card{border:1px solid rgba(255,255,255,.18)!important}
 html[data-theme="glassmorphism"] .top-bar{background:rgba(15,12,41,.7)!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
@@ -157,11 +159,25 @@ input,textarea,select{font-family:inherit;outline:none}
 .top-title{color:var(--text2);font-size:14px;font-weight:500;white-space:nowrap}
 .top-spacer{flex:1}
 .top-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer}
+.top-lang-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;cursor:pointer;min-width:70px}
 .top-bell{position:relative;background:none;color:var(--text2);font-size:20px;padding:6px;border-radius:8px;transition:all .2s}
 .top-bell:hover{background:var(--bg2);color:var(--pri)}
 .bell-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .top-logout{background:none;color:var(--muted);font-size:13px;padding:6px 12px;border-radius:8px;transition:all .2s;white-space:nowrap}
 .top-logout:hover{background:var(--bg2);color:var(--red)}
+
+/* ════════════════════════════════════════════════════════════════════
+   BROADCAST BANNER
+   ════════════════════════════════════════════════════════════════════ */
+.broadcast-banner{position:fixed;top:56px;left:0;right:0;z-index:99;background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(155,89,182,.15));border-bottom:1px solid var(--pri);padding:10px 20px;display:flex;align-items:center;gap:12px;animation:bannerSlide .4s ease}
+@keyframes bannerSlide{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
+.broadcast-banner-icon{font-size:22px;flex-shrink:0}
+.broadcast-banner-content{flex:1;display:flex;flex-direction:column;gap:2px}
+.broadcast-banner-title{font-size:13px;font-weight:700;color:var(--pri)}
+.broadcast-banner-msg{font-size:12px;color:var(--text2)}
+.broadcast-banner-close{background:none;color:var(--muted);font-size:18px;padding:4px 8px;border-radius:6px;flex-shrink:0}
+.broadcast-banner-close:hover{color:var(--red);background:var(--bg2)}
+.dashboard.broadcast-active{padding-top:96px}
 
 /* ════════════════════════════════════════════════════════════════════
    DASHBOARD LAYOUT
@@ -171,7 +187,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .dashboard-main{display:flex;flex:1;overflow:hidden;width:100%}
 
 /* Left Panel — Active Orders */
-.left-panel{width:320px;min-width:280px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.left-panel{width:340px;min-width:290px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
 .panel-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .panel-header h3{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
 .panel-header .count-badge{background:var(--pri);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
@@ -191,8 +207,12 @@ input,textarea,select{font-family:inherit;outline:none}
 .status-courier_assigned{background:rgba(26,188,156,.15);color:var(--teal)}
 .status-heading_to_restaurant,.status-arrived_at_restaurant{background:rgba(26,188,156,.15);color:var(--teal)}
 .status-order_picked_up,.status-heading_to_customer,.status-arrived_at_customer,.status-delivering{background:rgba(46,204,113,.15);color:var(--green)}
-.order-customer{font-size:13px;color:var(--text);font-weight:500;margin-bottom:4px}
-.order-restaurant{font-size:12px;color:var(--muted)}
+.order-customer{font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px}
+.order-restaurant{font-size:12px;color:var(--muted);margin-bottom:4px}
+.order-contact-line{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px}
+.order-contact-line a{color:var(--pri);text-decoration:none;font-weight:500}
+.order-contact-line a:hover{text-decoration:underline}
+.order-contact-line .contact-icon{font-size:12px;flex-shrink:0}
 .order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px}
 .order-items-summary{color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .order-total{font-weight:700;color:var(--pri)}
@@ -219,6 +239,33 @@ input,textarea,select{font-family:inherit;outline:none}
 .detail-item:last-child{border-bottom:none}
 .detail-item .name{color:var(--text)}
 .detail-item .price{color:var(--pri);font-weight:600}
+
+/* Contact Details Cards */
+.contact-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px}
+.contact-card{background:var(--card);border-radius:12px;padding:14px;border-left:4px solid var(--border);transition:all .2s;position:relative}
+.contact-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.contact-card.customer-card{border-left-color:var(--amber)}
+.contact-card.courier-card{border-left-color:var(--blue)}
+.contact-card.restaurant-card{border-left-color:var(--teal)}
+.contact-card.sender-card{border-left-color:var(--purple)}
+.contact-card.receiver-card{border-left-color:var(--green)}
+.contact-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.contact-card-icon{font-size:20px}
+.contact-card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.customer-card .contact-card-title{color:var(--amber)}
+.courier-card .contact-card-title{color:var(--blue)}
+.restaurant-card .contact-card-title{color:var(--teal)}
+.sender-card .contact-card-title{color:var(--purple)}
+.receiver-card .contact-card-title{color:var(--green)}
+.contact-card-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px}
+.contact-card-row:last-child{margin-bottom:0}
+.contact-card-row .row-label{color:var(--muted);min-width:55px;font-size:11px}
+.contact-card-row .row-value{color:var(--text);font-weight:500;word-break:break-all}
+.contact-card-row .row-value a{color:var(--pri);text-decoration:none}
+.contact-card-row .row-value a:hover{text-decoration:underline}
+.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px}
+.online-dot.is-online{background:var(--green);box-shadow:0 0 6px var(--green)}
+.online-dot.is-offline{background:var(--muted)}
 
 /* Status Timeline */
 .status-timeline{display:flex;align-items:center;gap:0;padding:12px 0;margin-bottom:16px;overflow-x:auto}
@@ -339,18 +386,22 @@ input,textarea,select{font-family:inherit;outline:none}
    ════════════════════════════════════════════════════════════════════ */
 @media(max-width:1100px){
   .right-panel{width:260px;min-width:220px}
+  .contact-cards{grid-template-columns:1fr}
 }
 @media(max-width:900px){
   .dashboard-main{flex-direction:column}
   .left-panel,.right-panel{width:100%;min-width:unset;max-height:40vh;border:none;border-bottom:1px solid var(--border)}
   .center-panel{min-height:50vh}
   .left-panel{order:1}.center-panel{order:2}.right-panel{order:3}
+  .contact-cards{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){
   .top-title{display:none}
   .detail-info-grid{grid-template-columns:1fr}
   .login-box{padding:28px 20px}
   .status-timeline{overflow-x:auto;padding-bottom:8px}
+  .contact-cards{grid-template-columns:1fr}
+  .top-lang-select{min-width:55px;font-size:10px;padding:4px 6px}
 }
 
 /* Loading spinner */
@@ -373,7 +424,7 @@ input,textarea,select{font-family:inherit;outline:none}
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
     <div class="splash-letters" id="splashLetters"></div>
-    <div class="splash-subtitle">Customer Support</div>
+    <div class="splash-subtitle" id="splashSubtitle">Customer Support</div>
     <div class="splash-progress">
       <svg viewBox="0 0 64 64">
         <circle class="progress-bg" cx="32" cy="32" r="25"/>
@@ -388,22 +439,30 @@ input,textarea,select{font-family:inherit;outline:none}
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <div class="logo-icon">🎧</div>
-    <h2>Support Center</h2>
+    <h2 id="loginTitle">Support Center</h2>
     <p>Elyanivery Customer Support Dashboard</p>
     <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="username">
     <input type="password" id="loginPass" class="login-input" placeholder="Password" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">Sign In 🔐</button>
+    <button class="login-btn" onclick="doLogin()">🔐 <span data-lang="login">Sign In</span></button>
     <div id="loginError" class="login-error">Invalid credentials or not a support account</div>
   </div>
 </div>
 
 <!-- ═══ MAIN DASHBOARD ═══ -->
 <div id="dashboard" class="dashboard">
+  <!-- Broadcast Banner (inserted dynamically) -->
+  <div id="broadcastBanner"></div>
+
   <!-- Top Bar -->
   <div class="top-bar">
     <div class="top-logo"><span>🎧</span> Elyanivery</div>
-    <div class="top-title">Customer Support</div>
+    <div class="top-title" id="topTitle">Customer Support</div>
     <div class="top-spacer"></div>
+    <select class="top-lang-select" id="langSelect" onchange="changeLang(this.value)">
+      <option value="en">EN 🇬🇧</option>
+      <option value="ru">RU 🇷🇺</option>
+      <option value="ro">RO 🇲🇩</option>
+    </select>
     <select class="top-select" id="themeSelect" onchange="changeTheme(this.value)">
       <option value="midnight_dark">🌙 Midnight Dark</option>
       <option value="ocean_blue">🌊 Ocean Blue</option>
@@ -415,7 +474,7 @@ input,textarea,select{font-family:inherit;outline:none}
       <option value="glassmorphism">🪟 Glassmorphism</option>
     </select>
     <button class="top-bell" onclick="toggleNotifDropdown()" id="bellBtn">🔔<span class="bell-badge" id="bellBadge" style="display:none">0</span></button>
-    <button class="top-logout" onclick="doLogout()">Logout 👋</button>
+    <button class="top-logout" onclick="doLogout()">👋 <span data-lang="logout">Logout</span></button>
   </div>
 
   <!-- Dashboard Main -->
@@ -423,11 +482,11 @@ input,textarea,select{font-family:inherit;outline:none}
     <!-- Left Panel: Active Orders -->
     <div class="left-panel">
       <div class="panel-header">
-        <h3>📦 Active Orders</h3>
+        <h3>📦 <span data-lang="activeOrders">Active Orders</span></h3>
         <span class="count-badge" id="ordersCount">0</span>
       </div>
       <div class="panel-search">
-        <input type="text" placeholder="🔍 Search orders..." id="ordersSearch" oninput="filterOrders()">
+        <input type="text" id="ordersSearch" oninput="filterOrders()">
       </div>
       <div class="orders-list" id="ordersList">
         <div class="refresh-indicator"><div class="spinner"></div> Loading orders...</div>
@@ -439,7 +498,7 @@ input,textarea,select{font-family:inherit;outline:none}
       <div class="detail-panel" id="detailPanel">
         <div class="detail-empty">
           <span>📋</span>
-          <p>Select an order to view details</p>
+          <p data-lang="orderDetails">Select an order to view details</p>
         </div>
       </div>
     </div>
@@ -447,14 +506,14 @@ input,textarea,select{font-family:inherit;outline:none}
     <!-- Right Panel: Support Tickets -->
     <div class="right-panel">
       <div class="panel-header">
-        <h3>🎫 Tickets</h3>
+        <h3>🎫 <span data-lang="tickets">Tickets</span></h3>
         <span class="count-badge" id="ticketsCount">0</span>
       </div>
-      <button class="create-ticket-btn" onclick="toggleCreateTicket()">➕ New Ticket</button>
+      <button class="create-ticket-btn" onclick="toggleCreateTicket()">➕ <span data-lang="newTicket">New Ticket</span></button>
       <div class="create-ticket-form" id="createTicketForm">
         <input type="number" id="ticketOrderId" placeholder="Order ID">
         <textarea id="ticketMessage" placeholder="Describe the issue..."></textarea>
-        <button onclick="createTicket()">Create Ticket</button>
+        <button onclick="createTicket()" data-lang="open">Create</button>
       </div>
       <div class="orders-list" id="ticketsList">
         <div class="refresh-indicator"><div class="spinner"></div> Loading tickets...</div>
@@ -466,7 +525,7 @@ input,textarea,select{font-family:inherit;outline:none}
 <!-- Notification Dropdown -->
 <div class="notif-dropdown" id="notifDropdown">
   <div class="notif-dropdown-header">
-    <h4>🔔 Notifications</h4>
+    <h4>🔔 <span data-lang="notifications">Notifications</span></h4>
     <button style="background:none;color:var(--pri);font-size:12px" onclick="clearNotifications()">Clear all</button>
   </div>
   <div class="notif-dropdown-list" id="notifList">
@@ -504,6 +563,146 @@ input,textarea,select{font-family:inherit;outline:none}
 
 <script>
 // ════════════════════════════════════════════════════════════════════
+// MULTI-LANGUAGE SYSTEM
+// ════════════════════════════════════════════════════════════════════
+const LANG = {
+  en: {
+    supportCenter: 'Support Center', activeOrders: 'Active Orders', tickets: 'Tickets',
+    logout: 'Logout', login: 'Login', username: 'Username', password: 'Password',
+    contactDetails: 'Contact Details', customer: 'Customer', courier: 'Courier',
+    restaurant: 'Restaurant', phone: 'Phone', address: 'Address',
+    vehicleType: 'Vehicle', online: 'Online', offline: 'Offline',
+    orderNumber: 'Order #', status: 'Status', total: 'Total',
+    senderInfo: 'Sender Info', receiverInfo: 'Receiver Info',
+    pickupAddress: 'Pickup Address', deliveryAddress: 'Delivery Address',
+    itemDescription: 'Item Description', deliveryType: 'Delivery Type',
+    sendSomething: 'Send', receiveSomething: 'Receive',
+    newTicket: 'New Ticket', sendMessage: 'Send Message',
+    open: 'Open', inProgress: 'In Progress', closed: 'Closed',
+    searchOrders: 'Search orders...', notifications: 'Notifications',
+    chatWith: 'Chat with', orderDetails: 'Order Details',
+    pending: 'Pending', accepted: 'Accepted', readyForPickup: 'Ready',
+    onTheWay: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled',
+    signIn: 'Sign In', notAssigned: 'Not assigned', selectOrder: 'Select an order to view details',
+    people: 'People', orderInfo: 'Order Info', items: 'Items',
+    subtotal: 'Subtotal', delivery: 'Delivery', create: 'Create',
+    describeIssue: 'Describe the issue...', orderId: 'Order ID',
+    typeReply: 'Type your reply...', send: 'Send', orderChat: 'Order Chat',
+    live: 'Live', allParticipants: 'All participants', typeMessage: 'Type a message to this order...',
+    newMessage: 'New Message!', gotIt: 'Got it!', noNotifications: 'No notifications',
+    noActiveOrders: 'No active orders', noTickets: 'No support tickets',
+    loadingOrders: 'Loading orders...', loadingTickets: 'Loading tickets...',
+    welcomeBack: 'Welcome back', loggedOut: 'Logged out successfully',
+    name: 'Name', customerSupport: 'Customer Support'
+  },
+  ru: {
+    supportCenter: 'Центр Поддержки', activeOrders: 'Активные Заказы', tickets: 'Тикеты',
+    logout: 'Выйти', login: 'Вход', username: 'Имя пользователя', password: 'Пароль',
+    contactDetails: 'Контактная Информация', customer: 'Клиент', courier: 'Курьер',
+    restaurant: 'Ресторан', phone: 'Телефон', address: 'Адрес',
+    vehicleType: 'Транспорт', online: 'Онлайн', offline: 'Оффлайн',
+    orderNumber: 'Заказ №', status: 'Статус', total: 'Итого',
+    senderInfo: 'Информация об Отправителе', receiverInfo: 'Информация о Получателе',
+    pickupAddress: 'Адрес Забора', deliveryAddress: 'Адрес Доставки',
+    itemDescription: 'Описание Груза', deliveryType: 'Тип Доставки',
+    sendSomething: 'Отправить', receiveSomething: 'Получить',
+    newTicket: 'Новый Тикет', sendMessage: 'Отправить Сообщение',
+    open: 'Открыт', inProgress: 'В Работе', closed: 'Закрыт',
+    searchOrders: 'Поиск заказов...', notifications: 'Уведомления',
+    chatWith: 'Чат с', orderDetails: 'Детали Заказа',
+    pending: 'Ожидает', accepted: 'Принят', readyForPickup: 'Готов',
+    onTheWay: 'В Пути', delivered: 'Доставлен', cancelled: 'Отменён',
+    signIn: 'Войти', notAssigned: 'Не назначен', selectOrder: 'Выберите заказ для просмотра деталей',
+    people: 'Участники', orderInfo: 'Информация', items: 'Позиции',
+    subtotal: 'Подитог', delivery: 'Доставка', create: 'Создать',
+    describeIssue: 'Опишите проблему...', orderId: 'ID Заказа',
+    typeReply: 'Введите ответ...', send: 'Отправить', orderChat: 'Чат Заказа',
+    live: 'Онлайн', allParticipants: 'Все участники', typeMessage: 'Введите сообщение...',
+    newMessage: 'Новое Сообщение!', gotIt: 'Понятно!', noNotifications: 'Нет уведомлений',
+    noActiveOrders: 'Нет активных заказов', noTickets: 'Нет тикетов',
+    loadingOrders: 'Загрузка заказов...', loadingTickets: 'Загрузка тикетов...',
+    welcomeBack: 'С возвращением', loggedOut: 'Вы вышли из системы',
+    name: 'Имя', customerSupport: 'Поддержка Клиентов'
+  },
+  ro: {
+    supportCenter: 'Centru Suport', activeOrders: 'Comenzi Active', tickets: 'Tichete',
+    logout: 'Deconectare', login: 'Autentificare', username: 'Nume utilizator', password: 'Parola',
+    contactDetails: 'Detalii Contact', customer: 'Client', courier: 'Curier',
+    restaurant: 'Restaurant', phone: 'Telefon', address: 'Adresa',
+    vehicleType: 'Vehicul', online: 'Online', offline: 'Offline',
+    orderNumber: 'Comanda Nr', status: 'Status', total: 'Total',
+    senderInfo: 'Info Expeditor', receiverInfo: 'Info Destinatar',
+    pickupAddress: 'Adresa Ridicare', deliveryAddress: 'Adresa Livrare',
+    itemDescription: 'Descriere Articol', deliveryType: 'Tip Livrare',
+    sendSomething: 'Trimite', receiveSomething: 'Primeste',
+    newTicket: 'Tichet Nou', sendMessage: 'Trimite Mesaj',
+    open: 'Deschis', inProgress: 'In Lucru', closed: 'Inchis',
+    searchOrders: 'Cauta comenzi...', notifications: 'Notificari',
+    chatWith: 'Chat cu', orderDetails: 'Detalii Comanda',
+    pending: 'In asteptare', accepted: 'Acceptat', readyForPickup: 'Gata',
+    onTheWay: 'In drum', delivered: 'Livat', cancelled: 'Anulat',
+    signIn: 'Autentificare', notAssigned: 'Neasignat', selectOrder: 'Selectati o comanda pentru detalii',
+    people: 'Persoane', orderInfo: 'Info Comanda', items: 'Articole',
+    subtotal: 'Subtotal', delivery: 'Livrare', create: 'Creeaza',
+    describeIssue: 'Descrieti problema...', orderId: 'ID Comanda',
+    typeReply: 'Scrieti raspuns...', send: 'Trimite', orderChat: 'Chat Comanda',
+    live: 'Live', allParticipants: 'Toti participantii', typeMessage: 'Scrieti un mesaj...',
+    newMessage: 'Mesaj Nou!', gotIt: 'Am inteles!', noNotifications: 'Fara notificari',
+    noActiveOrders: 'Fara comenzi active', noTickets: 'Fara tichete',
+    loadingOrders: 'Se incarca...', loadingTickets: 'Se incarca...',
+    welcomeBack: 'Bine ai revenit', loggedOut: 'Deconectat cu succes',
+    name: 'Nume', customerSupport: 'Suport Clienti'
+  }
+};
+
+let currentLang = localStorage.getItem('support_lang') || 'en';
+
+function t(key) {
+  return (LANG[currentLang] && LANG[currentLang][key]) || (LANG.en[key]) || key;
+}
+
+function changeLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('support_lang', lang);
+  applyTranslations();
+  // Re-render dynamic content
+  renderOrders();
+  renderTickets();
+  if (selectedOrderId) loadOrderDetail(selectedOrderId);
+}
+
+function applyTranslations() {
+  // Update data-lang attributes
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    const key = el.getAttribute('data-lang');
+    el.textContent = t(key);
+  });
+  // Update placeholders
+  const searchInput = document.getElementById('ordersSearch');
+  if (searchInput) searchInput.placeholder = '🔍 ' + t('searchOrders');
+  const loginUser = document.getElementById('loginUser');
+  if (loginUser) loginUser.placeholder = t('username');
+  const loginPass = document.getElementById('loginPass');
+  if (loginPass) loginPass.placeholder = t('password');
+  const ticketOrderId = document.getElementById('ticketOrderId');
+  if (ticketOrderId) ticketOrderId.placeholder = t('orderId');
+  const ticketMessage = document.getElementById('ticketMessage');
+  if (ticketMessage) ticketMessage.placeholder = t('describeIssue');
+  const ticketMsgInput = document.getElementById('ticketMsgInput');
+  if (ticketMsgInput) ticketMsgInput.placeholder = t('typeReply');
+  // Static titles
+  const loginTitle = document.getElementById('loginTitle');
+  if (loginTitle) loginTitle.textContent = t('supportCenter');
+  const topTitle = document.getElementById('topTitle');
+  if (topTitle) topTitle.textContent = t('customerSupport');
+  const splashSubtitle = document.getElementById('splashSubtitle');
+  if (splashSubtitle) splashSubtitle.textContent = t('customerSupport');
+  // Lang selector
+  const langSel = document.getElementById('langSelect');
+  if (langSel) langSel.value = currentLang;
+}
+
+// ════════════════════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════════════════════
 const API = '';
@@ -516,6 +715,8 @@ let selectedOrderId = null;
 let selectedTicketId = null;
 let pollIntervals = [];
 let lastMsgIds = {};
+let activeBroadcasts = [];
+let dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissed_broadcasts') || '[]');
 
 // ════════════════════════════════════════════════════════════════════
 // SPLASH SCREEN - 3D letter animation + support items
@@ -592,9 +793,54 @@ function changeTheme(theme) {
 })();
 
 // ════════════════════════════════════════════════════════════════════
+// BROADCASTS
+// ════════════════════════════════════════════════════════════════════
+async function loadBroadcasts() {
+  try {
+    const data = await api('GET', '/api/broadcasts');
+    if (data.success && data.data) {
+      activeBroadcasts = (data.data || []).filter(b =>
+        b.target === 'support' || b.target === 'all'
+      );
+      renderBroadcastBanner();
+    }
+  } catch(e) { console.error('Broadcasts error:', e); }
+}
+
+function renderBroadcastBanner() {
+  const container = document.getElementById('broadcastBanner');
+  const dashboard = document.getElementById('dashboard');
+  // Filter out dismissed broadcasts
+  const visible = activeBroadcasts.filter(b => !dismissedBroadcasts.includes(b.id));
+  if (!visible.length) {
+    container.innerHTML = '';
+    dashboard.classList.remove('broadcast-active');
+    return;
+  }
+  dashboard.classList.add('broadcast-active');
+  container.innerHTML = visible.map(b => `
+    <div class="broadcast-banner" id="broadcast-${b.id}">
+      <span class="broadcast-banner-icon">📢</span>
+      <div class="broadcast-banner-content">
+        <div class="broadcast-banner-title">${escapeHtml(b.title||'Announcement')}</div>
+        <div class="broadcast-banner-msg">${escapeHtml(b.message||b.body||'')}</div>
+      </div>
+      <button class="broadcast-banner-close" onclick="dismissBroadcast(${b.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function dismissBroadcast(id) {
+  dismissedBroadcasts.push(id);
+  localStorage.setItem('dismissed_broadcasts', JSON.stringify(dismissedBroadcasts));
+  renderBroadcastBanner();
+}
+
+// ════════════════════════════════════════════════════════════════════
 // AUTH
 // ════════════════════════════════════════════════════════════════════
 function initApp() {
+  applyTranslations();
   if (token) {
     // Verify token
     api('GET', '/api/me').then(data => {
@@ -620,6 +866,7 @@ function showLogin() {
   document.getElementById('loginScreen').classList.add('active');
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('dashboard').style.display = 'none';
+  applyTranslations();
 }
 
 function showDashboard() {
@@ -629,7 +876,9 @@ function showDashboard() {
   document.getElementById('dashboard').style.display = 'flex';
   loadOrders();
   loadTickets();
+  loadBroadcasts();
   startPolling();
+  applyTranslations();
 }
 
 function doLogin() {
@@ -647,7 +896,7 @@ function doLogin() {
       localStorage.setItem('support_token', token);
       document.getElementById('loginError').style.display = 'none';
       showDashboard();
-      toast('Welcome back, ' + (currentUser.display_name || currentUser.username) + '! 🎉', 'success');
+      toast(t('welcomeBack') + ', ' + (currentUser.display_name || currentUser.username) + '! 🎉', 'success');
     } else {
       document.getElementById('loginError').style.display = 'block';
       if (data.data && data.data.role && data.data.role !== 'support' && data.data.role !== 'admin') {
@@ -674,7 +923,8 @@ function doLogout() {
   document.getElementById('loginScreen').classList.add('active');
   selectedOrderId = null;
   selectedTicketId = null;
-  toast('Logged out successfully 👋', 'info');
+  activeBroadcasts = [];
+  toast(t('loggedOut') + ' 👋', 'info');
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -702,7 +952,14 @@ const ACTIVE_STATUSES = ['pending','accepted','ready_for_pickup','courier_assign
 
 async function loadOrders() {
   try {
-    const data = await api('GET', '/api/admin/orders');
+    // Try the dedicated support ongoing-orders API first
+    let data;
+    try {
+      data = await api('GET', '/api/support/ongoing-orders');
+    } catch(e) {
+      // Fallback to admin orders
+      data = await api('GET', '/api/admin/orders');
+    }
     if (data.success) {
       const prevCount = orders.length;
       orders = (data.data || []).filter(o => ACTIVE_STATUSES.includes(o.status));
@@ -727,22 +984,28 @@ function renderOrders() {
     filtered = orders.filter(o =>
       (o.order_number||'').toLowerCase().includes(search) ||
       (o.customer_name||'').toLowerCase().includes(search) ||
-      (o.restaurant_name||'').toLowerCase().includes(search)
+      (o.restaurant_name||'').toLowerCase().includes(search) ||
+      (o.courier_name||'').toLowerCase().includes(search)
     );
   }
   if (!filtered.length) {
-    list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">No active orders 🎉</div>';
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">' + t('noActiveOrders') + ' 🎉</div>';
     return;
   }
   list.innerHTML = filtered.map(o => {
     const sc = getStatusClass(o.status);
+    const phoneLink = o.customer_phone ? `<a href="tel:${o.customer_phone}">${o.customer_phone}</a>` : '';
+    const courierInfo = o.courier_name ? `${o.courier_name}${o.courier_phone ? ' · <a href="tel:'+o.courier_phone+'">'+o.courier_phone+'</a>' : ''}` : t('notAssigned');
+    const restaurantInfo = o.restaurant_name || 'Unknown';
+    const restaurantPhone = o.restaurant_phone ? `<a href="tel:${o.restaurant_phone}">${o.restaurant_phone}</a>` : '';
     return `<div class="order-card${selectedOrderId===o.id?' selected':''}" onclick="selectOrder(${o.id})">
       <div class="order-card-top">
         <span class="order-number">#${o.order_number||('Ely-'+String(o.id).padStart(5,'0'))}</span>
         <span class="status-badge ${sc}">${formatStatus(o.status)}</span>
       </div>
-      <div class="order-customer">👤 ${o.customer_name||'Unknown'}</div>
-      <div class="order-restaurant">🏪 ${o.restaurant_name||'Unknown'}</div>
+      <div class="order-customer">👤 ${o.customer_name||'Unknown'}${phoneLink ? ' · '+phoneLink : ''}</div>
+      <div class="order-restaurant">🏪 ${restaurantInfo}${restaurantPhone ? ' · '+restaurantPhone : ''}</div>
+      <div class="order-contact-line"><span class="contact-icon">🏍️</span> ${courierInfo}</div>
       <div class="order-footer">
         <span class="order-items-summary">🍽️ Order #${o.id}</span>
         <span class="order-total">€${parseFloat(o.total||0).toFixed(2)}</span>
@@ -765,6 +1028,17 @@ function getStatusClass(status) {
 }
 
 function formatStatus(s) {
+  // Try to use translated status
+  const statusKeyMap = {
+    'pending': 'pending', 'accepted': 'accepted', 'ready_for_pickup': 'readyForPickup',
+    'courier_assigned': 'courier_assigned', 'heading_to_restaurant': 'onTheWay',
+    'arrived_at_restaurant': 'arrived_at_restaurant', 'order_picked_up': 'order_picked_up',
+    'heading_to_customer': 'onTheWay', 'arrived_at_customer': 'arrived_at_customer',
+    'delivering': 'onTheWay', 'delivered': 'delivered', 'cancelled': 'cancelled',
+    'open': 'open', 'in_progress': 'inProgress', 'closed': 'closed'
+  };
+  const key = statusKeyMap[s];
+  if (key && t(key) !== key) return t(key);
   return (s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 }
 
@@ -780,8 +1054,13 @@ async function selectOrder(id) {
 async function loadOrderDetail(id) {
   const panel = document.getElementById('detailPanel');
   try {
-    // Get full order info
-    const orderData = await api('GET', `/api/orders/${id}`);
+    // Try the dedicated support order detail API first
+    let orderData;
+    try {
+      orderData = await api('GET', `/api/support/order/${id}/detail`);
+    } catch(e) {
+      orderData = await api('GET', `/api/orders/${id}`);
+    }
     if (!orderData.success) {
       panel.innerHTML = '<div class="detail-empty"><span>⚠️</span><p>Could not load order details</p></div>';
       return;
@@ -793,12 +1072,12 @@ async function loadOrderDetail(id) {
       const chatData = await api('GET', `/api/chat/messages/${id}`);
       if (chatData.success && chatData.data) {
         lastMsgIds[id] = chatData.data.length ? Math.max(...chatData.data.map(m=>m.id)) : 0;
-        chatHtml = renderChatSection(chatData.data || [], id);
+        chatHtml = renderChatSection(chatData.data || [], id, order);
       } else {
-        chatHtml = renderChatSection([], id);
+        chatHtml = renderChatSection([], id, order);
       }
     } catch(e) {
-      chatHtml = renderChatSection([], id);
+      chatHtml = renderChatSection([], id, order);
     }
 
     const sc = getStatusClass(order.status);
@@ -806,7 +1085,7 @@ async function loadOrderDetail(id) {
       'heading_to_restaurant','arrived_at_restaurant','order_picked_up',
       'heading_to_customer','arrived_at_customer','delivered'];
     const currentStep = statusSteps.indexOf(order.status);
-    const stepLabels = ['Pending','Accepted','Ready','Assigned','To Rest.','Arrived','Picked Up','Delivering','At Customer','Delivered'];
+    const stepLabels = [t('pending'),t('accepted'),t('readyForPickup'),'Assigned',t('onTheWay'),'Arrived','Picked Up',t('onTheWay'),'At Customer',t('delivered')];
     const stepIcons = ['📋','✅','📦','🏍️','🚴','📍','🛍️','🚀','🏠','✨'];
 
     let timelineHtml = '<div class="status-timeline">';
@@ -824,6 +1103,146 @@ async function loadOrderDetail(id) {
     });
     timelineHtml += '</div>';
 
+    // Build Contact Details section
+    const isDeliverAnything = order.delivery_type === 'deliver_anything' || order.order_type === 'deliver_anything';
+    let contactHtml = '';
+
+    if (isDeliverAnything) {
+      // Deliver Anything: show Sender + Receiver + Courier cards
+      contactHtml = `
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">📞 ${t('contactDetails')}</div>
+        <div class="contact-cards">
+          <div class="contact-card sender-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">📤</span>
+              <span class="contact-card-title">${t('senderInfo')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.pickup_contact_name||order.customer_name||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value"><a href="tel:${order.pickup_contact_phone||order.customer_phone||''}">${escapeHtml(order.pickup_contact_phone||order.customer_phone||'N/A')}</a></span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('pickupAddress')}</span>
+              <span class="row-value">${escapeHtml(order.pickup_address||order.delivery_address||'N/A')}</span>
+            </div>
+          </div>
+          <div class="contact-card receiver-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">📥</span>
+              <span class="contact-card-title">${t('receiverInfo')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.delivery_contact_name||order.customer_name||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value"><a href="tel:${order.delivery_contact_phone||order.customer_phone||''}">${escapeHtml(order.delivery_contact_phone||order.customer_phone||'N/A')}</a></span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('deliveryAddress')}</span>
+              <span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span>
+            </div>
+          </div>
+          <div class="contact-card courier-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">🏍️</span>
+              <span class="contact-card-title">${t('courier')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('vehicleType')}</span>
+              <span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('status')}</span>
+              <span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span>
+            </div>
+          </div>
+        </div>
+        ${order.item_description ? `<div class="contact-card-row" style="margin-top:8px"><span class="row-label">${t('itemDescription')}</span><span class="row-value">${escapeHtml(order.item_description)}</span></div>` : ''}
+        ${order.delivery_type ? `<div class="contact-card-row"><span class="row-label">${t('deliveryType')}</span><span class="row-value">${order.delivery_type === 'send' ? t('sendSomething') : t('receiveSomething')}</span></div>` : ''}
+      </div>`;
+    } else {
+      // Standard order: Customer + Restaurant + Courier cards
+      contactHtml = `
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">📞 ${t('contactDetails')}</div>
+        <div class="contact-cards">
+          <div class="contact-card customer-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">👤</span>
+              <span class="contact-card-title">${t('customer')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.customer_name||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value">${order.customer_phone ? '<a href="tel:'+order.customer_phone+'">'+escapeHtml(order.customer_phone)+'</a>' : 'N/A'}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('address')}</span>
+              <span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span>
+            </div>
+          </div>
+          <div class="contact-card courier-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">🏍️</span>
+              <span class="contact-card-title">${t('courier')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('vehicleType')}</span>
+              <span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('status')}</span>
+              <span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span>
+            </div>
+          </div>
+          <div class="contact-card restaurant-card">
+            <div class="contact-card-header">
+              <span class="contact-card-icon">🏪</span>
+              <span class="contact-card-title">${t('restaurant')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('name')}</span>
+              <span class="row-value">${escapeHtml(order.restaurant_name||order.partner_name||'N/A')}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('phone')}</span>
+              <span class="row-value">${(order.restaurant_phone||order.partner_phone) ? '<a href="tel:'+(order.restaurant_phone||order.partner_phone)+'">'+escapeHtml(order.restaurant_phone||order.partner_phone)+'</a>' : 'N/A'}</span>
+            </div>
+            <div class="contact-card-row">
+              <span class="row-label">${t('address')}</span>
+              <span class="row-value">${escapeHtml(order.restaurant_address||order.partner_address||'N/A')}</span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
     panel.innerHTML = `
       <div class="detail-header fade-in">
         <div class="detail-header-top">
@@ -832,43 +1251,27 @@ async function loadOrderDetail(id) {
         </div>
         ${timelineHtml}
       </div>
+      ${contactHtml}
       <div class="detail-section slide-up">
-        <div class="detail-section-title">👥 People</div>
+        <div class="detail-section-title">🧾 ${t('orderInfo')}</div>
         <div class="detail-info-grid">
           <div class="detail-info-card">
-            <div class="label">👤 Customer</div>
-            <div class="value">${order.customer_name||'N/A'}</div>
-          </div>
-          <div class="detail-info-card">
-            <div class="label">🏪 Restaurant</div>
-            <div class="value">${order.restaurant_name||'N/A'}</div>
-          </div>
-          <div class="detail-info-card">
-            <div class="label">🏍️ Courier</div>
-            <div class="value">${order.courier_name||'Not assigned'}</div>
-          </div>
-        </div>
-      </div>
-      <div class="detail-section slide-up">
-        <div class="detail-section-title">🧾 Order Info</div>
-        <div class="detail-info-grid">
-          <div class="detail-info-card">
-            <div class="label">💰 Total</div>
+            <div class="label">💰 ${t('total')}</div>
             <div class="value" style="color:var(--pri)">€${parseFloat(order.total||0).toFixed(2)}</div>
           </div>
           <div class="detail-info-card">
-            <div class="label">📦 Subtotal</div>
+            <div class="label">📦 ${t('subtotal')}</div>
             <div class="value">€${parseFloat(order.subtotal||0).toFixed(2)}</div>
           </div>
           <div class="detail-info-card">
-            <div class="label">🚚 Delivery</div>
+            <div class="label">🚚 ${t('delivery')}</div>
             <div class="value">€${parseFloat(order.delivery_fee||0).toFixed(2)}</div>
           </div>
         </div>
       </div>
       ${order.items && order.items.length ? `
       <div class="detail-section slide-up">
-        <div class="detail-section-title">🍽️ Items</div>
+        <div class="detail-section-title">🍽️ ${t('items')}</div>
         <ul class="detail-items-list">
           ${order.items.map(it => `<li class="detail-item">
             <span class="name">${it.item_name} × ${it.quantity||1}</span>
@@ -876,9 +1279,9 @@ async function loadOrderDetail(id) {
           </li>`).join('')}
         </ul>
       </div>` : ''}
-      ${order.delivery_address ? `
+      ${order.delivery_address && !isDeliverAnything ? `
       <div class="detail-section slide-up">
-        <div class="detail-section-title">📍 Delivery Address</div>
+        <div class="detail-section-title">📍 ${t('deliveryAddress')}</div>
         <div style="font-size:13px;color:var(--text2)">${order.delivery_address}</div>
       </div>` : ''}
       ${chatHtml}
@@ -889,7 +1292,7 @@ async function loadOrderDetail(id) {
   }
 }
 
-function renderChatSection(messages, orderId) {
+function renderChatSection(messages, orderId, order) {
   // Sort messages by time
   const sorted = [...messages].sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0));
   
@@ -922,10 +1325,10 @@ function renderChatSection(messages, orderId) {
         'heading_to_customer': '🚀', 'delivered': '✨'
       };
       const statusLabels = {
-        'pending': 'Order placed', 'accepted': 'Order accepted',
-        'ready_for_pickup': 'Ready for pickup', 'courier_assigned': 'Courier assigned',
-        'order_picked_up': 'Order picked up', 'heading_to_customer': 'On the way',
-        'delivered': 'Delivered'
+        'pending': t('pending'), 'accepted': t('accepted'),
+        'ready_for_pickup': t('readyForPickup'), 'courier_assigned': 'Courier assigned',
+        'order_picked_up': 'Order picked up', 'heading_to_customer': t('onTheWay'),
+        'delivered': t('delivered')
       };
       statusIndicator = `<div class="msg-status-indicator">${statusIcons[m.order_status]||'📌'} ${statusLabels[m.order_status]||m.order_status}</div>`;
     }
@@ -942,8 +1345,8 @@ function renderChatSection(messages, orderId) {
 
   return `<div class="chat-section slide-up">
     <div class="chat-header">
-      <h4>💬 Order Chat</h4>
-      <div class="chat-channel-info"><div class="chat-live-dot"></div> Live · All participants</div>
+      <h4>💬 ${t('orderChat')}</h4>
+      <div class="chat-channel-info"><div class="chat-live-dot"></div> ${t('live')} · ${t('allParticipants')}</div>
     </div>
     <div class="emoji-row">
       <button class="emoji-btn" onclick="addEmoji('👍')" title="Thumbs up">👍</button>
@@ -959,12 +1362,12 @@ function renderChatSection(messages, orderId) {
     <div class="chat-input-area">
       <select id="chatRecipient" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;max-width:100px">
         <option value="0">📢 All</option>
-        <option value="customer">👤 Customer</option>
-        <option value="partner">🏪 Restaurant</option>
-        <option value="courier">🛵 Courier</option>
+        <option value="customer">👤 ${t('customer')}</option>
+        <option value="partner">🏪 ${t('restaurant')}</option>
+        <option value="courier">🛵 ${t('courier')}</option>
       </select>
-      <input type="text" id="chatInput" placeholder="Type a message to this order..." onkeydown="if(event.key==='Enter')sendChatMsg(${orderId})">
-      <button class="chat-send-btn" onclick="sendChatMsg(${orderId})">Send ➤</button>
+      <input type="text" id="chatInput" placeholder="${t('typeMessage')}" onkeydown="if(event.key==='Enter')sendChatMsg(${orderId})">
+      <button class="chat-send-btn" onclick="sendChatMsg(${orderId})">${t('send')} ➤</button>
     </div>
   </div>`;
 }
@@ -1032,18 +1435,18 @@ async function loadTickets() {
 function renderTickets() {
   const list = document.getElementById('ticketsList');
   if (!tickets.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No support tickets 🎫</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">' + t('noTickets') + ' 🎫</div>';
     return;
   }
-  list.innerHTML = tickets.map(t => {
-    const sc = t.status === 'open' ? 'ticket-open' : (t.status === 'in_progress' ? 'ticket-in_progress' : 'ticket-closed');
-    return `<div class="ticket-card${selectedTicketId===t.id?' selected':''}" onclick="openTicketModal(${t.id})">
+  list.innerHTML = tickets.map(t_obj => {
+    const sc = t_obj.status === 'open' ? 'ticket-open' : (t_obj.status === 'in_progress' ? 'ticket-in_progress' : 'ticket-closed');
+    return `<div class="ticket-card${selectedTicketId===t_obj.id?' selected':''}" onclick="openTicketModal(${t_obj.id})">
       <div class="ticket-card-top">
-        <span class="ticket-order">#${t.order_number||('Ely-'+String(t.order_id).padStart(5,'0'))}</span>
-        <span class="ticket-status ${sc}">${formatStatus(t.status)}</span>
+        <span class="ticket-order">#${t_obj.order_number||('Ely-'+String(t_obj.order_id).padStart(5,'0'))}</span>
+        <span class="ticket-status ${sc}">${formatStatus(t_obj.status)}</span>
       </div>
-      <div class="ticket-customer">👤 ${t.user_name||'Unknown'}</div>
-      <div class="ticket-preview">🎫 Ticket #${t.id}</div>
+      <div class="ticket-customer">👤 ${t_obj.user_name||'Unknown'}</div>
+      <div class="ticket-preview">🎫 Ticket #${t_obj.id}</div>
     </div>`;
   }).join('');
 }
@@ -1060,7 +1463,7 @@ async function createTicket() {
   try {
     const data = await api('POST', '/api/support/tickets', {order_id: parseInt(orderId)});
     if (data.success) {
-      toast('Ticket created! 🎫', 'success');
+      toast(t('newTicket') + ' created! 🎫', 'success');
       document.getElementById('ticketOrderId').value = '';
       document.getElementById('ticketMessage').value = '';
       document.getElementById('createTicketForm').classList.remove('active');
@@ -1145,6 +1548,8 @@ function startPolling() {
   pollIntervals.push(setInterval(loadTickets, 8000));
   // Chat messages for selected order every 3s (real-time)
   pollIntervals.push(setInterval(pollChatMessages, 3000));
+  // Broadcasts every 30s
+  pollIntervals.push(setInterval(loadBroadcasts, 30000));
 }
 
 async function pollChatMessages() {
@@ -1219,7 +1624,7 @@ function toggleNotifDropdown() {
 function renderNotifDropdown() {
   const list = document.getElementById('notifList');
   if (!notifications.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No notifications 🎉</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">' + t('noNotifications') + ' 🎉</div>';
     return;
   }
   list.innerHTML = notifications.map(n => `

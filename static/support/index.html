@@ -6,74 +6,96 @@
 <title>Elyanivery - Customer Support</title>
 <style>
 /* ════════════════════════════════════════════════════════════════════
-   THEME SYSTEM — 8 Themes
+   THEME SYSTEM — 8 Professional Themes
    ════════════════════════════════════════════════════════════════════ */
-:root {
-  /* Midnight Dark (default) */
-  --pri:#ff6b35;--pri2:#ff8c5a;--bg:#0f1128;--bg2:#161938;--card:#1a1d42;
-  --card2:#22264f;--text:#e8e8f0;--text2:#b0b3d0;--muted:#6c6f9a;
-  --border:#2e3260;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
-  --glass:0;--pri-glow:0 0 20px rgba(255,107,53,.25);--radius:12px;
+:root{
+  --pri:#FF6B00;--pri2:#CC5500;--accent:#FF8C42;
+  --bg:#0a0b1e;--bg2:#10112a;--card:#161838;--card2:#1c1e48;
+  --text:#eaeaf4;--text2:#b0b3d0;--muted:#6c6f9a;
+  --border:#252860;--border2:#1e2050;
+  --green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
+  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --glass:0;--pri-glow:0 0 20px rgba(255,107,0,.25);
+  --radius:14px;--radius-sm:10px;--radius-xs:8px;
+  --input-bg:#0d0e24;--input-border:#252860;
+  --badge-bg:rgba(255,107,0,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Ocean Blue */
 html[data-theme="ocean_blue"]{
-  --pri:#2196f3;--pri2:#42a5f5;--bg:#0a1628;--bg2:#0f1f3a;--card:#142848;
-  --card2:#1a3358;--text:#e0eaff;--text2:#a0b8e0;--muted:#5a7aa0;
-  --border:#1e3a5f;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri:#2196f3;--pri2:#1976d2;--accent:#42a5f5;
+  --bg:#060e1e;--bg2:#0a1628;--card:#0f2040;--card2:#142c50;
+  --text:#e0eaff;--text2:#90b0d8;--muted:#5070a0;
+  --border:#1a3560;--border2:#152a4a;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
   --pri-glow:0 0 20px rgba(33,150,243,.25);
+  --input-bg:#081020;--input-border:#1a3560;
+  --badge-bg:rgba(33,150,243,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Emerald Forest */
 html[data-theme="emerald_forest"]{
-  --pri:#27ae60;--pri2:#2ecc71;--bg:#0a1f0e;--bg2:#0f2a14;--card:#14381c;
-  --card2:#1a4524;--text:#d8f0dc;--text2:#90c098;--muted:#4a8a54;
-  --border:#1e5028;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri:#27ae60;--pri2:#1e8c4c;--accent:#2ecc71;
+  --bg:#060f0a;--bg2:#0a1a10;--card:#0f2a18;--card2:#143620;
+  --text:#d8f0dc;--text2:#80c090;--muted:#408050;
+  --border:#1a4028;--border2:#143518;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
   --pri-glow:0 0 20px rgba(39,174,96,.25);
+  --input-bg:#07120a;--input-border:#1a4028;
+  --badge-bg:rgba(39,174,96,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Sunset Warm */
 html[data-theme="sunset_warm"]{
-  --pri:#ff6b35;--pri2:#ff8c5a;--bg:#1a0f08;--bg2:#2a1a10;--card:#3a2418;
-  --card2:#4a3020;--text:#f5e0d0;--text2:#c0a080;--muted:#8a6a50;
-  --border:#5a3a28;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
-  --pri-glow:0 0 20px rgba(255,107,53,.25);
+  --pri:#e67e22;--pri2:#d35400;--accent:#f39c12;
+  --bg:#120a04;--bg2:#1a1008;--card:#2a1a0e;--card2:#34220f;
+  --text:#f5e6d0;--text2:#c0a070;--muted:#806040;
+  --border:#3a2818;--border2:#301e10;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --pri-glow:0 0 20px rgba(230,126,34,.25);
+  --input-bg:#0e0804;--input-border:#3a2818;
+  --badge-bg:rgba(230,126,34,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Royal Purple */
 html[data-theme="royal_purple"]{
-  --pri:#9b59b6;--pri2:#af7ac5;--bg:#150f1e;--bg2:#1e1530;--card:#281e40;
-  --card2:#322850;--text:#e8d8f8;--text2:#b8a0d0;--muted:#7a60a0;
-  --border:#3a2860;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
+  --pri:#9b59b6;--pri2:#7d3c98;--accent:#af7ac5;
+  --bg:#0a0614;--bg2:#120e20;--card:#1e1535;--card2:#261c42;
+  --text:#e8d8f8;--text2:#b090d0;--muted:#7050a0;
+  --border:#301e58;--border2:#28184a;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
   --pri-glow:0 0 20px rgba(155,89,182,.25);
+  --input-bg:#08040e;--input-border:#301e58;
+  --badge-bg:rgba(155,89,182,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Rose Gold */
 html[data-theme="rose_gold"]{
-  --pri:#e8a0a0;--pri2:#f0c0c0;--bg:#1a1015;--bg2:#281820;--card:#382028;
-  --card2:#482838;--text:#f8e0e8;--text2:#d0a0b0;--muted:#9a6a7a;
-  --border:#5a3040;--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 4px 20px rgba(0,0,0,.35);
-  --pri-glow:0 0 20px rgba(232,160,160,.25);
+  --pri:#c0706c;--pri2:#a85854;--accent:#d4928e;
+  --bg:#120a0e;--bg2:#1a1014;--card:#2a1a20;--card2:#342228;
+  --text:#f0dcd8;--text2:#c0a0a0;--muted:#886060;
+  --border:#3a2628;--border2:#301e22;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --pri-glow:0 0 20px rgba(192,112,108,.25);
+  --input-bg:#0e060a;--input-border:#3a2628;
+  --badge-bg:rgba(192,112,108,.15);--hover-bg:rgba(255,255,255,.04);
 }
-/* Arctic Light */
 html[data-theme="arctic_light"]{
-  --pri:#2c3e50;--pri2:#34495e;--bg:#e8eef4;--bg2:#dce4ec;--card:#ffffff;
-  --card2:#f0f4f8;--text:#1a2a3a;--text2:#4a5a6a;--muted:#8a9aaa;
-  --border:#c0d0e0;--green:#27ae60;--red:#e74c3c;--blue:#2196f3;
-  --amber:#e67e22;--teal:#16a085;--purple:#8e44ad;--shadow:0 4px 20px rgba(0,0,0,.08);
+  --pri:#2c3e50;--pri2:#1a252f;--accent:#3498db;
+  --bg:#e8eef4;--bg2:#dce4ec;--card:#ffffff;--card2:#f0f4f8;
+  --text:#1a2a3a;--text2:#4a5a6a;--muted:#8a9aaa;
+  --border:#c0d0e0;--border2:#d0dce8;
+  --green:#27ae60;--red:#e74c3c;--blue:#2196f3;
+  --amber:#e67e22;--teal:#16a085;--purple:#8e44ad;
+  --shadow:0 4px 24px rgba(0,0,0,.06);
   --pri-glow:0 0 20px rgba(44,62,80,.1);
+  --input-bg:#f4f8fc;--input-border:#c0d0e0;
+  --badge-bg:rgba(44,62,80,.08);--hover-bg:rgba(0,0,0,.03);
 }
-/* Glassmorphism */
 html[data-theme="glassmorphism"]{
-  --pri:#ff6b35;--pri2:#ff8c5a;--bg:transparent;--bg2:transparent;
-  --card:rgba(255,255,255,.1);--card2:rgba(255,255,255,.06);
-  --text:#ffffff;--text2:rgba(255,255,255,.8);--muted:rgba(255,255,255,.5);
-  --border:rgba(255,255,255,.15);--green:#2ecc71;--red:#e74c3c;--blue:#5dade2;
-  --amber:#f39c12;--teal:#1abc9c;--purple:#9b59b6;--shadow:0 8px 32px rgba(0,0,0,.2);
-  --glass:1;--pri-glow:0 0 20px rgba(255,107,53,.3);
+  --pri:#FF6B00;--pri2:#CC5500;--accent:#FF8C42;
+  --bg:transparent;--bg2:transparent;
+  --card:rgba(255,255,255,.08);--card2:rgba(255,255,255,.05);
+  --text:#fff;--text2:rgba(255,255,255,.8);--muted:rgba(255,255,255,.5);
+  --border:rgba(255,255,255,.12);--border2:rgba(255,255,255,.08);
+  --shadow:0 8px 32px rgba(0,0,0,.25);
+  --glass:1;--pri-glow:0 0 20px rgba(255,107,0,.3);
+  --input-bg:rgba(255,255,255,.06);--input-border:rgba(255,255,255,.12);
+  --badge-bg:rgba(255,107,0,.15);--hover-bg:rgba(255,255,255,.06);
 }
-html[data-theme="glassmorphism"] body{background:linear-gradient(135deg,#0f0c29 0%,#302b63 40%,#24243e 70%,#1a1a2e 100%)!important;min-height:100vh}
+html[data-theme="glassmorphism"] body{
+  background:linear-gradient(135deg,#0f0c29 0%,#302b63 40%,#24243e 70%,#1a1a2e 100%)!important;min-height:100vh}
 html[data-theme="glassmorphism"] .dashboard-main,
 html[data-theme="glassmorphism"] .top-bar,
 html[data-theme="glassmorphism"] .order-card,
@@ -82,276 +104,304 @@ html[data-theme="glassmorphism"] .detail-panel,
 html[data-theme="glassmorphism"] .chat-section,
 html[data-theme="glassmorphism"] .msg-bubble,
 html[data-theme="glassmorphism"] .broadcast-banner,
-html[data-theme="glassmorphism"] .contact-card{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
+html[data-theme="glassmorphism"] .contact-card,
+html[data-theme="glassmorphism"] .detail-header,
+html[data-theme="glassmorphism"] .info-card,
+html[data-theme="glassmorphism"] .notif-dropdown{backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important}
 html[data-theme="glassmorphism"] .order-card,
-html[data-theme="glassmorphism"] .ticket-card{border:1px solid rgba(255,255,255,.18)!important}
-html[data-theme="glassmorphism"] .top-bar{background:rgba(15,12,41,.7)!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
+html[data-theme="glassmorphism"] .ticket-card{border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .top-bar{background:rgba(15,12,41,.75)!important;border-bottom:1px solid rgba(255,255,255,.1)!important}
 html[data-theme="glassmorphism"] .left-panel,
-html[data-theme="glassmorphism"] .right-panel{background:rgba(15,12,41,.4)!important}
-html[data-theme="glassmorphism"] .detail-panel{background:rgba(15,12,41,.5)!important}
-html[data-theme="glassmorphism"] .chat-input-area{background:rgba(15,12,41,.7)!important}
-html[data-theme="glassmorphism"] input,html[data-theme="glassmorphism"] textarea{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
-html[data-theme="glassmorphism"] select{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
+html[data-theme="glassmorphism"] .right-panel{background:rgba(15,12,41,.35)!important}
+html[data-theme="glassmorphism"] .detail-panel{background:rgba(15,12,41,.4)!important}
+html[data-theme="glassmorphism"] .chat-input-area{background:rgba(15,12,41,.6)!important}
+html[data-theme="glassmorphism"] input,html[data-theme="glassmorphism"] textarea,
+html[data-theme="glassmorphism"] select{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important}
 
 /* ════════════════════════════════════════════════════════════════════
    BASE STYLES
    ════════════════════════════════════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
-button{cursor:pointer;border:none;font-family:inherit}
-input,textarea,select{font-family:inherit;outline:none}
-::-webkit-scrollbar{width:6px}
+body{font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;transition:background .3s}
+button{cursor:pointer;border:none;font-family:inherit;transition:all .2s}
+input,textarea,select{font-family:inherit;outline:none;transition:border .2s,box-shadow .2s}
+a{color:var(--pri);text-decoration:none}
+::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+::selection{background:var(--pri);color:#fff}
 
 /* ════════════════════════════════════════════════════════════════════
-   SPLASH SCREEN - 3D letter animation + support items
+   SPLASH SCREEN — 3D Letter Animation
    ════════════════════════════════════════════════════════════════════ */
 .splash-screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;overflow:hidden}
-.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 30%,#1a1a2e 65%,#0f3460 100%);background-size:300% 300%;animation:splashGradient 3s ease-in-out forwards}
-.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,.12) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(255,255,255,.08) 0%,transparent 50%);animation:splashShift 4s ease-in-out infinite}
-.splash-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.15) 0%,transparent 60%)}
+.splash-bg{position:absolute;inset:0;background:linear-gradient(135deg,#FF6B00 0%,#CC5500 25%,#1a1a2e 60%,#0f3460 100%);background-size:300% 300%;animation:splashGradient 3s ease-in-out forwards}
+.splash-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 25% 25%,rgba(255,255,255,.1) 0%,transparent 50%),radial-gradient(ellipse at 75% 75%,rgba(255,255,255,.06) 0%,transparent 50%);animation:splashShift 4s ease-in-out infinite}
+.splash-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.12) 0%,transparent 60%)}
 @keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
 @keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
 .splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
-.splash-letters{display:flex;gap:2px;margin-bottom:8px;perspective:600px}
-.splash-letter{font-size:48px;font-weight:800;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 15px rgba(255,107,0,.4)}
-@keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-3px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
-.splash-subtitle{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:24px;opacity:0;animation:fadeInUp .6s ease 1.4s forwards}
+.splash-letters{display:flex;gap:1px;margin-bottom:6px;perspective:600px}
+.splash-letter{font-size:46px;font-weight:900;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 20px rgba(255,107,0,.5)}
+@keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-4px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
+.splash-subtitle{color:rgba(255,255,255,.8);font-size:14px;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;opacity:0;animation:fadeInUp .6s ease 1.4s forwards}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .splash-surround{position:absolute;inset:0;pointer-events:none;z-index:1}
-.splash-item{position:absolute;font-size:34px;opacity:0;animation:itemFloat 3s ease-in-out infinite}
-@keyframes itemFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.8}25%{transform:translateY(-12px) rotate(8deg);opacity:1}75%{transform:translateY(-8px) rotate(-5deg);opacity:.9}}
-
-/* Circular progress */
-.splash-progress{margin-top:8px;position:relative;width:64px;height:64px}
-.splash-progress svg{transform:rotate(-90deg);width:64px;height:64px}
-.splash-progress circle{fill:none;stroke-width:4;stroke-linecap:round}
-.splash-progress .progress-bg{stroke:rgba(255,255,255,.15)}
+.splash-item{position:absolute;font-size:30px;opacity:0;animation:itemFloat 3s ease-in-out infinite}
+@keyframes itemFloat{0%,100%{transform:translateY(0) rotate(0deg);opacity:.7}25%{transform:translateY(-14px) rotate(8deg);opacity:1}75%{transform:translateY(-8px) rotate(-5deg);opacity:.85}}
+.splash-progress{margin-top:8px;position:relative;width:60px;height:60px}
+.splash-progress svg{transform:rotate(-90deg);width:60px;height:60px}
+.splash-progress circle{fill:none;stroke-width:3;stroke-linecap:round}
+.splash-progress .progress-bg{stroke:rgba(255,255,255,.12)}
 .splash-progress .progress-fg{stroke:#fff;stroke-dasharray:157;stroke-dashoffset:157;animation:circularProgress 2.2s ease forwards}
 @keyframes circularProgress{0%{stroke-dashoffset:157}100%{stroke-dashoffset:0}}
-.splash-progress .progress-percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
-
+.splash-progress .progress-percent{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700}
 .splash-screen.fade-out{opacity:0;transform:scale(1.05);transition:opacity .7s ease,transform .7s ease}
 
 /* ════════════════════════════════════════════════════════════════════
    LOGIN SCREEN
    ════════════════════════════════════════════════════════════════════ */
-.login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:20px;flex-direction:column}
+.login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg);padding:20px;flex-direction:column;position:relative;overflow:hidden}
 .login-screen.active{display:flex}
-.login-box{background:var(--card);border-radius:16px;padding:40px 32px;width:100%;max-width:400px;box-shadow:var(--shadow);border:1px solid var(--border)}
-.login-box h2{color:var(--pri);font-size:28px;margin-bottom:4px;text-align:center}
-.login-box p{color:var(--muted);font-size:14px;text-align:center;margin-bottom:28px}
-.login-box .logo-icon{text-align:center;font-size:48px;margin-bottom:16px}
-.login-input{width:100%;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;font-size:15px;color:var(--text);margin-bottom:14px;transition:border .2s}
-.login-input:focus{border-color:var(--pri)}
-.login-btn{width:100%;padding:14px;background:var(--pri);color:#fff;border-radius:10px;font-size:16px;font-weight:600;transition:all .2s;box-shadow:var(--pri-glow)}
-.login-btn:hover{background:var(--pri2);transform:translateY(-1px)}
-.login-error{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none}
+.login-screen::before{content:'';position:absolute;top:-50%;right:-30%;width:80%;height:80%;background:radial-gradient(circle,var(--badge-bg) 0%,transparent 60%);pointer-events:none}
+.login-screen::after{content:'';position:absolute;bottom:-40%;left:-20%;width:60%;height:60%;background:radial-gradient(circle,rgba(155,89,182,.08) 0%,transparent 60%);pointer-events:none}
+.login-box{background:var(--card);border-radius:20px;padding:44px 36px;width:100%;max-width:420px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;z-index:2}
+.login-box .logo-icon{text-align:center;font-size:52px;margin-bottom:16px;animation:logoFloat 3s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.login-box h2{color:var(--pri);font-size:26px;font-weight:800;text-align:center;margin-bottom:4px}
+.login-box p{color:var(--muted);font-size:13px;text-align:center;margin-bottom:32px}
+.login-input{width:100%;padding:14px 16px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);margin-bottom:14px;transition:border .2s,box-shadow .2s}
+.login-input:focus{border-color:var(--pri);box-shadow:0 0 0 3px var(--badge-bg)}
+.login-input::placeholder{color:var(--muted)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:var(--radius-sm);font-size:15px;font-weight:700;box-shadow:var(--pri-glow);display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(255,107,0,.35)}
+.login-btn:active{transform:translateY(0)}
+.login-error{color:var(--red);font-size:12px;text-align:center;margin-top:14px;display:none;background:rgba(231,76,60,.1);padding:8px 12px;border-radius:var(--radius-xs);border:1px solid rgba(231,76,60,.2)}
 
 /* ════════════════════════════════════════════════════════════════════
    TOP BAR
    ════════════════════════════════════════════════════════════════════ */
-.top-bar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;z-index:100;box-shadow:var(--shadow);gap:12px}
-.top-logo{font-size:22px;font-weight:800;color:var(--pri);white-space:nowrap;display:flex;align-items:center;gap:8px}
-.top-logo span{font-size:24px}
-.top-title{color:var(--text2);font-size:14px;font-weight:500;white-space:nowrap}
+.top-bar{position:fixed;top:0;left:0;right:0;height:54px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;z-index:100;box-shadow:var(--shadow);gap:10px;backdrop-filter:blur(10px)}
+.top-logo{font-size:20px;font-weight:800;color:var(--pri);white-space:nowrap;display:flex;align-items:center;gap:7px;letter-spacing:-.3px}
+.top-logo span{font-size:22px}
+.top-title{color:var(--muted);font-size:12px;font-weight:600;white-space:nowrap;padding:4px 10px;background:var(--badge-bg);border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
 .top-spacer{flex:1}
-.top-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px;cursor:pointer}
-.top-lang-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;cursor:pointer;min-width:70px}
-.top-bell{position:relative;background:none;color:var(--text2);font-size:20px;padding:6px;border-radius:8px;transition:all .2s}
-.top-bell:hover{background:var(--bg2);color:var(--pri)}
-.bell-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
-.top-logout{background:none;color:var(--muted);font-size:13px;padding:6px 12px;border-radius:8px;transition:all .2s;white-space:nowrap}
-.top-logout:hover{background:var(--bg2);color:var(--red)}
+.top-select{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);padding:5px 8px;border-radius:var(--radius-xs);font-size:11px;cursor:pointer}
+.top-select:focus{border-color:var(--pri)}
+.top-lang-select{background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);padding:5px 6px;border-radius:var(--radius-xs);font-size:10px;cursor:pointer;min-width:62px}
+.top-lang-select:focus{border-color:var(--pri)}
+.top-bell{position:relative;background:none;color:var(--text2);font-size:18px;padding:6px;border-radius:var(--radius-xs);transition:all .2s}
+.top-bell:hover{background:var(--hover-bg);color:var(--pri)}
+.bell-badge{position:absolute;top:1px;right:1px;background:var(--red);color:#fff;border-radius:50%;width:15px;height:15px;font-size:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.top-logout{background:none;color:var(--muted);font-size:12px;padding:6px 10px;border-radius:var(--radius-xs);white-space:nowrap}
+.top-logout:hover{background:rgba(231,76,60,.1);color:var(--red)}
 
 /* ════════════════════════════════════════════════════════════════════
    BROADCAST BANNER
    ════════════════════════════════════════════════════════════════════ */
-.broadcast-banner{position:fixed;top:56px;left:0;right:0;z-index:99;background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(155,89,182,.15));border-bottom:1px solid var(--pri);padding:10px 20px;display:flex;align-items:center;gap:12px;animation:bannerSlide .4s ease}
+.broadcast-banner{position:fixed;top:54px;left:0;right:0;z-index:99;background:linear-gradient(135deg,var(--badge-bg),rgba(155,89,182,.12));border-bottom:1px solid var(--pri);padding:10px 20px;display:flex;align-items:center;gap:12px;animation:bannerSlide .4s ease}
 @keyframes bannerSlide{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
-.broadcast-banner-icon{font-size:22px;flex-shrink:0}
-.broadcast-banner-content{flex:1;display:flex;flex-direction:column;gap:2px}
-.broadcast-banner-title{font-size:13px;font-weight:700;color:var(--pri)}
-.broadcast-banner-msg{font-size:12px;color:var(--text2)}
-.broadcast-banner-close{background:none;color:var(--muted);font-size:18px;padding:4px 8px;border-radius:6px;flex-shrink:0}
-.broadcast-banner-close:hover{color:var(--red);background:var(--bg2)}
-.dashboard.broadcast-active{padding-top:96px}
+.broadcast-banner-icon{font-size:20px;flex-shrink:0}
+.broadcast-banner-content{flex:1;display:flex;flex-direction:column;gap:1px}
+.broadcast-banner-title{font-size:12px;font-weight:700;color:var(--pri)}
+.broadcast-banner-msg{font-size:11px;color:var(--text2)}
+.broadcast-banner-close{background:none;color:var(--muted);font-size:16px;padding:4px 8px;border-radius:6px;flex-shrink:0}
+.broadcast-banner-close:hover{color:var(--red);background:var(--hover-bg)}
+.dashboard.broadcast-active{padding-top:92px}
 
 /* ════════════════════════════════════════════════════════════════════
-   DASHBOARD LAYOUT
+   DASHBOARD LAYOUT — 3 Panel
    ════════════════════════════════════════════════════════════════════ */
-.dashboard{display:none;height:100vh;padding-top:56px}
+.dashboard{display:none;height:100vh;padding-top:54px}
 .dashboard.active{display:flex}
 .dashboard-main{display:flex;flex:1;overflow:hidden;width:100%}
 
 /* Left Panel — Active Orders */
-.left-panel{width:340px;min-width:290px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.panel-header{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.panel-header h3{font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
-.panel-header .count-badge{background:var(--pri);color:#fff;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600}
-.panel-search{padding:8px 16px}
-.panel-search input{width:100%;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px}
-.panel-search input:focus{border-color:var(--pri)}
-.orders-list{flex:1;overflow-y:auto;padding:8px}
-.order-card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:all .2s;position:relative}
-.order-card:hover{border-color:var(--pri);transform:translateY(-1px);box-shadow:var(--shadow)}
-.order-card.selected{border-color:var(--pri);box-shadow:var(--pri-glow)}
-.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.order-number{font-weight:700;font-size:14px;color:var(--pri)}
-.status-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
-.status-pending{background:rgba(243,156,18,.15);color:var(--amber)}
-.status-accepted{background:rgba(93,173,226,.15);color:var(--blue)}
-.status-ready_for_pickup{background:rgba(155,89,182,.15);color:var(--purple)}
-.status-courier_assigned{background:rgba(26,188,156,.15);color:var(--teal)}
-.status-heading_to_restaurant,.status-arrived_at_restaurant{background:rgba(26,188,156,.15);color:var(--teal)}
-.status-order_picked_up,.status-heading_to_customer,.status-arrived_at_customer,.status-delivering{background:rgba(46,204,113,.15);color:var(--green)}
-.order-customer{font-size:13px;color:var(--text);font-weight:500;margin-bottom:2px}
-.order-restaurant{font-size:12px;color:var(--muted);margin-bottom:4px}
-.order-contact-line{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px}
-.order-contact-line a{color:var(--pri);text-decoration:none;font-weight:500}
-.order-contact-line a:hover{text-decoration:underline}
-.order-contact-line .contact-icon{font-size:12px;flex-shrink:0}
-.order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px}
-.order-items-summary{color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
-.order-total{font-weight:700;color:var(--pri)}
+.left-panel{width:330px;min-width:280px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
+.panel-header h3{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.panel-header .count-badge{background:var(--pri);color:#fff;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;min-width:24px;text-align:center}
+.panel-search{padding:8px 12px}
+.panel-search input{width:100%;padding:9px 12px 9px 32px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-xs);color:var(--text);font-size:12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%236c6f9a' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+.panel-search input:focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--badge-bg)}
+.panel-search input::placeholder{color:var(--muted)}
+.orders-list{flex:1;overflow-y:auto;padding:6px 8px}
+
+/* Order Cards */
+.order-card{background:var(--card);border-radius:var(--radius-sm);padding:12px;margin-bottom:6px;cursor:pointer;border:1px solid var(--border);transition:all .2s;position:relative}
+.order-card:hover{border-color:var(--pri);transform:translateY(-1px);box-shadow:var(--shadow);background:var(--card2)}
+.order-card.selected{border-color:var(--pri);box-shadow:var(--pri-glow);background:var(--card2)}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.order-number{font-weight:700;font-size:13px;color:var(--pri);font-family:'Inter',monospace}
+.status-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.status-pending{background:rgba(243,156,18,.12);color:var(--amber)}
+.status-accepted{background:rgba(93,173,226,.12);color:var(--blue)}
+.status-ready_for_pickup{background:rgba(155,89,182,.12);color:var(--purple)}
+.status-courier_assigned{background:rgba(26,188,156,.12);color:var(--teal)}
+.status-heading_to_restaurant,.status-arrived_at_restaurant{background:rgba(26,188,156,.12);color:var(--teal)}
+.status-order_picked_up,.status-heading_to_customer,.status-arrived_at_customer,.status-delivering{background:rgba(46,204,113,.12);color:var(--green)}
+.status-delivered{background:rgba(46,204,113,.12);color:var(--green)}
+.status-cancelled{background:rgba(231,76,60,.12);color:var(--red)}
+.order-customer{font-size:12px;color:var(--text);font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px}
+.order-restaurant{font-size:11px;color:var(--muted);margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.order-contact-line{font-size:10px;color:var(--text2);display:flex;align-items:center;gap:3px;margin-top:2px}
+.order-contact-line a{color:var(--pri);text-decoration:none;font-weight:600}
+.order-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11px;padding-top:6px;border-top:1px solid var(--border2)}
+.order-items-summary{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+.order-total{font-weight:700;color:var(--pri);font-size:12px}
+.order-payment{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:3px;margin-top:2px}
 
 /* Center Panel — Detail */
 .center-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);position:relative}
-.detail-panel{flex:1;overflow-y:auto;padding:20px}
-.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:16px}
-.detail-empty span{font-size:64px;opacity:.4}
-.detail-empty p{font-size:16px}
+.detail-panel{flex:1;overflow-y:auto;padding:16px}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);gap:12px}
+.detail-empty span{font-size:56px;opacity:.3}
+.detail-empty p{font-size:14px}
 
-.detail-header{background:var(--card);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
-.detail-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.detail-order-num{font-size:22px;font-weight:800;color:var(--pri)}
-.detail-status-badge{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;text-transform:uppercase}
-.detail-section{margin-bottom:16px}
-.detail-section-title{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.detail-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.detail-info-card{background:var(--bg2);border-radius:10px;padding:12px;border:1px solid var(--border)}
-.detail-info-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.detail-info-card .value{font-size:14px;font-weight:600;color:var(--text)}
+/* Detail Header */
+.detail-header{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:14px;border:1px solid var(--border)}
+.detail-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.detail-order-num{font-size:20px;font-weight:800;color:var(--pri);font-family:'Inter',monospace}
+.detail-status-badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+
+/* Detail Sections */
+.detail-section{margin-bottom:14px}
+.detail-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+/* Info Grid */
+.detail-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.info-card{background:var(--bg2);border-radius:var(--radius-sm);padding:12px;border:1px solid var(--border2)}
+.info-card .label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.info-card .value{font-size:14px;font-weight:700;color:var(--text)}
+.info-card .value.highlight{color:var(--pri)}
+
+/* Items List with Images */
 .detail-items-list{list-style:none}
-.detail-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.detail-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border2);font-size:13px}
 .detail-item:last-child{border-bottom:none}
-.detail-item .name{color:var(--text)}
-.detail-item .price{color:var(--pri);font-weight:600}
+.detail-item-img{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--card2)}
+.detail-item-img img{width:100%;height:100%;object-fit:cover}
+.detail-item-img .item-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.detail-item-info{flex:1;min-width:0}
+.detail-item .name{color:var(--text);font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.detail-item .qty{color:var(--muted);font-size:11px}
+.detail-item .price{color:var(--pri);font-weight:700;flex-shrink:0}
 
-/* Contact Details Cards */
-.contact-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:8px}
-.contact-card{background:var(--card);border-radius:12px;padding:14px;border-left:4px solid var(--border);transition:all .2s;position:relative}
+/* Contact Cards */
+.contact-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.contact-card{background:var(--card);border-radius:var(--radius-sm);padding:12px;border-left:3px solid var(--border);transition:all .2s;position:relative}
 .contact-card:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
 .contact-card.customer-card{border-left-color:var(--amber)}
 .contact-card.courier-card{border-left-color:var(--blue)}
 .contact-card.restaurant-card{border-left-color:var(--teal)}
 .contact-card.sender-card{border-left-color:var(--purple)}
 .contact-card.receiver-card{border-left-color:var(--green)}
-.contact-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.contact-card-icon{font-size:20px}
-.contact-card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.contact-card-header{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.contact-card-icon{font-size:18px}
+.contact-card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .customer-card .contact-card-title{color:var(--amber)}
 .courier-card .contact-card-title{color:var(--blue)}
 .restaurant-card .contact-card-title{color:var(--teal)}
 .sender-card .contact-card-title{color:var(--purple)}
 .receiver-card .contact-card-title{color:var(--green)}
-.contact-card-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px}
+.contact-card-row{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:11px}
 .contact-card-row:last-child{margin-bottom:0}
-.contact-card-row .row-label{color:var(--muted);min-width:55px;font-size:11px}
-.contact-card-row .row-value{color:var(--text);font-weight:500;word-break:break-all}
-.contact-card-row .row-value a{color:var(--pri);text-decoration:none}
+.contact-card-row .row-label{color:var(--muted);min-width:48px;font-size:10px}
+.contact-card-row .row-value{color:var(--text);font-weight:600;word-break:break-all}
+.contact-card-row .row-value a{color:var(--pri);text-decoration:none;font-weight:700}
 .contact-card-row .row-value a:hover{text-decoration:underline}
-.online-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px}
+.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:3px;vertical-align:middle}
 .online-dot.is-online{background:var(--green);box-shadow:0 0 6px var(--green)}
 .online-dot.is-offline{background:var(--muted)}
 
 /* Status Timeline */
-.status-timeline{display:flex;align-items:center;gap:0;padding:12px 0;margin-bottom:16px;overflow-x:auto}
-.timeline-step{display:flex;flex-direction:column;align-items:center;min-width:70px;position:relative}
-.timeline-dot{width:24px;height:24px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .3s;position:relative;z-index:2}
-.timeline-dot.done{background:var(--green);color:#fff}
-.timeline-dot.current{background:var(--pri);color:#fff;box-shadow:var(--pri-glow);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:var(--pri-glow)}50%{box-shadow:0 0 30px rgba(255,107,53,.5)}}
-.timeline-label{font-size:10px;color:var(--muted);margin-top:6px;text-align:center;white-space:nowrap}
+.status-timeline{display:flex;align-items:center;gap:0;padding:10px 0;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.status-timeline::-webkit-scrollbar{display:none}
+.timeline-step{display:flex;flex-direction:column;align-items:center;min-width:60px;position:relative}
+.timeline-dot{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .3s;position:relative;z-index:2;border:2px solid var(--border)}
+.timeline-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.timeline-dot.current{background:var(--pri);border-color:var(--pri);color:#fff;box-shadow:var(--pri-glow);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:var(--pri-glow)}50%{box-shadow:0 0 24px rgba(255,107,0,.5)}}
+.timeline-label{font-size:9px;color:var(--muted);margin-top:5px;text-align:center;white-space:nowrap;font-weight:500}
 .timeline-step.done .timeline-label{color:var(--green)}
-.timeline-step.current .timeline-label{color:var(--pri);font-weight:600}
-.timeline-line{height:2px;flex:1;min-width:30px;background:var(--border);position:relative}
+.timeline-step.current .timeline-label{color:var(--pri);font-weight:700}
+.timeline-line{height:2px;flex:1;min-width:20px;background:var(--border)}
 .timeline-line.done{background:var(--green)}
 
 /* Chat Section */
-.chat-section{background:var(--card);border-radius:12px;border:1px solid var(--border);margin-top:8px;display:flex;flex-direction:column;max-height:500px}
-.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
-.chat-header h4{font-size:14px;font-weight:600;color:var(--text)}
-.chat-recipient-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:12px}
-.chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:150px;max-height:340px}
-.msg-bubble{max-width:80%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;animation:msgIn .3s;position:relative}
-.msg-bubble.sent{align-self:flex-end;background:rgba(255,107,53,.2);color:var(--text);border-bottom-right-radius:4px}
-.msg-bubble.received{align-self:flex-start;background:rgba(255,255,255,.08);color:var(--text2);border-bottom-left-radius:4px}
-.msg-sender{font-size:10px;font-weight:600;margin-bottom:2px;display:flex;align-items:center;gap:4px}
+.chat-section{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);margin-top:6px;display:flex;flex-direction:column;max-height:480px}
+.chat-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.chat-header h4{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.chat-channel-info{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.chat-live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.3}}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-height:120px;max-height:300px}
+.msg-bubble{max-width:82%;padding:8px 12px;border-radius:14px;font-size:12px;line-height:1.5;animation:msgIn .25s;position:relative}
+.msg-bubble.sent{align-self:flex-end;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-bottom-right-radius:4px}
+.msg-bubble.received{align-self:flex-start;background:var(--card2);color:var(--text2);border-bottom-left-radius:4px;border:1px solid var(--border2)}
+.msg-sender{font-size:9px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:3px}
 .msg-sender.sender-customer{color:var(--amber)}
 .msg-sender.sender-partner{color:var(--teal)}
 .msg-sender.sender-courier{color:var(--blue)}
 .msg-sender.sender-support{color:var(--purple)}
-.msg-sender-icon{font-size:12px}
-.msg-time{font-size:10px;color:var(--muted);margin-top:4px}
-.msg-status-indicator{font-size:10px;color:var(--muted);background:var(--bg2);border-radius:8px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;margin-top:4px;border:1px solid var(--border)}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.chat-input-area{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center}
-.chat-input-area input{flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px}
-.chat-input-area input:focus{border-color:var(--pri)}
-.chat-send-btn{background:var(--pri);color:#fff;border-radius:10px;padding:10px 16px;font-size:14px;transition:all .2s;white-space:nowrap}
-.chat-send-btn:hover{background:var(--pri2)}
-.emoji-row{display:flex;gap:4px;padding:4px 16px 8px;flex-wrap:wrap}
-.emoji-btn{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:16px;cursor:pointer;transition:all .15s}
+.msg-time{font-size:9px;color:var(--muted);margin-top:3px}
+.msg-bubble.sent .msg-time{color:rgba(255,255,255,.6)}
+.msg-status-indicator{font-size:9px;color:var(--muted);background:var(--bg2);border-radius:6px;padding:2px 6px;display:inline-flex;align-items:center;gap:2px;margin-top:3px;border:1px solid var(--border2)}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.chat-input-area{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:6px;align-items:center;background:var(--card2)}
+.chat-input-area input{flex:1;padding:9px 12px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-sm);color:var(--text);font-size:12px}
+.chat-input-area input:focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--badge-bg)}
+.chat-send-btn{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:var(--radius-sm);padding:9px 14px;font-size:12px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.chat-send-btn:hover{box-shadow:var(--pri-glow)}
+.emoji-row{display:flex;gap:3px;padding:4px 12px 6px;flex-wrap:wrap}
+.emoji-btn{background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:3px 6px;font-size:14px;cursor:pointer;transition:all .15s}
 .emoji-btn:hover{transform:scale(1.15);background:var(--card2)}
-.chat-channel-info{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
-.chat-live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:livePulse 2s infinite}
-@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* Right Panel — Tickets */
-.right-panel{width:300px;min-width:260px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-.ticket-card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
+.right-panel{width:290px;min-width:250px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.ticket-card{background:var(--card);border-radius:var(--radius-sm);padding:12px;margin-bottom:6px;cursor:pointer;border:1px solid var(--border);transition:all .2s}
 .ticket-card:hover{border-color:var(--pri);transform:translateY(-1px)}
 .ticket-card.selected{border-color:var(--pri);box-shadow:var(--pri-glow)}
-.ticket-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.ticket-order{font-size:13px;font-weight:600;color:var(--pri)}
-.ticket-status{padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
-.ticket-open{background:rgba(231,76,60,.15);color:var(--red)}
-.ticket-in_progress{background:rgba(243,156,18,.15);color:var(--amber)}
-.ticket-closed{background:rgba(46,204,113,.15);color:var(--green)}
-.ticket-customer{font-size:12px;color:var(--text);margin-bottom:4px}
-.ticket-preview{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ticket-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ticket-order{font-size:12px;font-weight:700;color:var(--pri)}
+.ticket-status{padding:2px 7px;border-radius:12px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.ticket-open{background:rgba(231,76,60,.12);color:var(--red)}
+.ticket-in_progress{background:rgba(243,156,18,.12);color:var(--amber)}
+.ticket-closed{background:rgba(46,204,113,.12);color:var(--green)}
+.ticket-customer{font-size:11px;color:var(--text);margin-bottom:3px;font-weight:500}
+.ticket-preview{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* Ticket Conversation Modal */
+/* Ticket Modal */
 .ticket-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .ticket-modal-overlay.active{display:flex}
-.ticket-modal{background:var(--card);border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:var(--shadow);animation:modalIn .3s}
-@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-.ticket-modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.ticket-modal-header h3{font-size:16px;font-weight:700;color:var(--text)}
-.ticket-modal-close{background:none;color:var(--muted);font-size:20px;padding:4px 8px;border-radius:6px}
-.ticket-modal-close:hover{color:var(--red);background:var(--bg2)}
-.ticket-modal-messages{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:8px}
-.ticket-modal-input{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px}
-.ticket-modal-input input{flex:1;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px}
-.ticket-modal-input button{background:var(--pri);color:#fff;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600}
+.ticket-modal{background:var(--card);border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.5);animation:modalIn .3s}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.ticket-modal-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.ticket-modal-header h3{font-size:15px;font-weight:700;color:var(--text)}
+.ticket-modal-close{background:none;color:var(--muted);font-size:18px;padding:4px 8px;border-radius:6px}
+.ticket-modal-close:hover{color:var(--red);background:var(--hover-bg)}
+.ticket-modal-messages{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:6px}
+.ticket-modal-input{padding:10px 18px;border-top:1px solid var(--border);display:flex;gap:8px}
+.ticket-modal-input input{flex:1;padding:10px 14px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-sm);color:var(--text);font-size:12px}
+.ticket-modal-input input:focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--badge-bg)}
+.ticket-modal-input button{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:var(--radius-sm);padding:10px 18px;font-size:12px;font-weight:700}
 
 /* Create Ticket */
-.create-ticket-btn{margin:8px 16px;padding:10px;background:var(--pri);color:#fff;border-radius:10px;font-size:13px;font-weight:600;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
-.create-ticket-btn:hover{background:var(--pri2)}
-.create-ticket-form{padding:12px 16px;display:none;border-bottom:1px solid var(--border)}
+.create-ticket-btn{margin:6px 12px;padding:9px;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border-radius:var(--radius-sm);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:var(--pri-glow)}
+.create-ticket-btn:hover{transform:translateY(-1px)}
+.create-ticket-form{padding:10px 12px;display:none;border-bottom:1px solid var(--border);background:var(--card)}
 .create-ticket-form.active{display:block}
-.create-ticket-form input,.create-ticket-form textarea{width:100%;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:8px}
-.create-ticket-form textarea{resize:vertical;min-height:60px}
-.create-ticket-form button{padding:8px 16px;background:var(--green);color:#fff;border-radius:8px;font-size:13px;font-weight:600}
+.create-ticket-form input,.create-ticket-form textarea{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:var(--radius-xs);color:var(--text);font-size:12px;margin-bottom:6px}
+.create-ticket-form input:focus,.create-ticket-form textarea:focus{border-color:var(--pri)}
+.create-ticket-form textarea{resize:vertical;min-height:50px}
+.create-ticket-form button{padding:8px 16px;background:var(--green);color:#fff;border-radius:var(--radius-xs);font-size:12px;font-weight:700;width:100%}
 
 /* ════════════════════════════════════════════════════════════════════
    NOTIFICATIONS & TOASTS
    ════════════════════════════════════════════════════════════════════ */
-.toast-container{position:fixed;top:64px;right:16px;z-index:300;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text);box-shadow:var(--shadow);animation:toastIn .3s;pointer-events:auto;max-width:320px;display:flex;align-items:center;gap:10px;backdrop-filter:blur(10px)}
+.toast-container{position:fixed;top:62px;right:16px;z-index:300;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--text);box-shadow:var(--shadow);animation:toastIn .3s;pointer-events:auto;max-width:300px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(10px)}
 .toast.success{border-left:3px solid var(--green)}
 .toast.error{border-left:3px solid var(--red)}
 .toast.info{border-left:3px solid var(--blue)}
@@ -359,61 +409,69 @@ input,textarea,select{font-family:inherit;outline:none}
 @keyframes toastIn{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
 
 /* In-App Message Notification Popup */
-.notif-popup{position:fixed;top:64px;right:16px;z-index:250;background:var(--card);border:1px solid var(--pri);border-radius:14px;padding:16px 20px;box-shadow:0 8px 40px rgba(0,0,0,.4);max-width:340px;display:none;animation:notifIn .4s;backdrop-filter:blur(16px)}
-.notif-popup.active{display:flex;flex-direction:column;gap:8px}
-@keyframes notifIn{from{opacity:0;transform:translateY(-20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-.notif-popup-smiley{font-size:36px;text-align:center;animation:smileyBounce .6s}
+.notif-popup{position:fixed;top:62px;right:16px;z-index:250;background:var(--card);border:1px solid var(--pri);border-radius:var(--radius);padding:16px 18px;box-shadow:0 8px 40px rgba(0,0,0,.5);max-width:320px;display:none;animation:notifIn .4s;backdrop-filter:blur(16px)}
+.notif-popup.active{display:flex;flex-direction:column;gap:6px}
+@keyframes notifIn{from{opacity:0;transform:translateY(-16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.notif-popup-smiley{font-size:32px;text-align:center;animation:smileyBounce .5s}
 @keyframes smileyBounce{0%{transform:scale(0)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
-.notif-popup-title{font-size:15px;font-weight:700;color:var(--pri);text-align:center}
-.notif-popup-msg{font-size:13px;color:var(--text2);text-align:center}
-.notif-popup-close{align-self:center;background:var(--pri);color:#fff;padding:6px 20px;border-radius:8px;font-size:12px;font-weight:600;margin-top:4px}
+.notif-popup-title{font-size:13px;font-weight:700;color:var(--pri);text-align:center}
+.notif-popup-msg{font-size:12px;color:var(--text2);text-align:center}
+.notif-popup-close{align-self:center;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:6px 20px;border-radius:var(--radius-xs);font-size:11px;font-weight:700;margin-top:2px}
 
 /* Notification Panel Dropdown */
-.notif-dropdown{position:fixed;top:56px;right:16px;width:320px;max-height:400px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);z-index:150;display:none;overflow:hidden;animation:dropIn .2s}
+.notif-dropdown{position:fixed;top:54px;right:16px;width:300px;max-height:380px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);z-index:150;display:none;overflow:hidden;animation:dropIn .2s}
 .notif-dropdown.active{display:block}
-@keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.notif-dropdown-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.notif-dropdown-header h4{font-size:14px;font-weight:700}
-.notif-dropdown-list{max-height:320px;overflow-y:auto}
-.notif-item{padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
-.notif-item:hover{background:var(--bg2)}
-.notif-item-title{font-size:13px;font-weight:600;color:var(--text)}
-.notif-item-body{font-size:12px;color:var(--muted);margin-top:2px}
-.notif-item-time{font-size:10px;color:var(--muted);margin-top:4px}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.notif-dropdown-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-dropdown-header h4{font-size:13px;font-weight:700}
+.notif-dropdown-list{max-height:300px;overflow-y:auto}
+.notif-item{padding:8px 14px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--hover-bg)}
+.notif-item-title{font-size:12px;font-weight:600;color:var(--text)}
+.notif-item-body{font-size:11px;color:var(--muted);margin-top:1px}
+.notif-item-time{font-size:9px;color:var(--muted);margin-top:2px}
 
 /* ════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ════════════════════════════════════════════════════════════════════ */
 @media(max-width:1100px){
-  .right-panel{width:260px;min-width:220px}
+  .right-panel{width:250px;min-width:210px}
   .contact-cards{grid-template-columns:1fr}
+  .detail-info-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:900px){
   .dashboard-main{flex-direction:column}
-  .left-panel,.right-panel{width:100%;min-width:unset;max-height:40vh;border:none;border-bottom:1px solid var(--border)}
+  .left-panel,.right-panel{width:100%;min-width:unset;max-height:35vh;border:none;border-bottom:1px solid var(--border)}
   .center-panel{min-height:50vh}
   .left-panel{order:1}.center-panel{order:2}.right-panel{order:3}
   .contact-cards{grid-template-columns:1fr 1fr}
+  .detail-info-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:600px){
   .top-title{display:none}
   .detail-info-grid{grid-template-columns:1fr}
   .login-box{padding:28px 20px}
-  .status-timeline{overflow-x:auto;padding-bottom:8px}
+  .status-timeline{overflow-x:auto;padding-bottom:6px}
   .contact-cards{grid-template-columns:1fr}
-  .top-lang-select{min-width:55px;font-size:10px;padding:4px 6px}
+  .top-lang-select{min-width:50px;font-size:9px;padding:4px 5px}
+  .top-select{font-size:10px;padding:4px 6px}
+  .chat-input-area{flex-wrap:wrap}
 }
 
-/* Loading spinner */
-.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+/* ════════════════════════════════════════════════════════════════════
+   UTILITY & ANIMATIONS
+   ════════════════════════════════════════════════════════════════════ */
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--pri);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
-.refresh-indicator{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;color:var(--muted)}
-
-/* Animations */
+.refresh-indicator{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:11px;color:var(--muted)}
 .fade-in{animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.slide-up{animation:slideUp .3s}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.slide-up{animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.payment-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:700;background:rgba(46,204,113,.12);color:var(--green);text-transform:uppercase;letter-spacing:.3px}
+.payment-badge.cash{background:rgba(243,156,18,.12);color:var(--amber)}
+.payment-badge.card{background:rgba(93,173,226,.12);color:var(--blue)}
+.payment-badge.online{background:rgba(46,204,113,.12);color:var(--green)}
 </style>
 </head>
 <body>
@@ -443,20 +501,19 @@ input,textarea,select{font-family:inherit;outline:none}
     <p>Elyanivery Customer Support Dashboard</p>
     <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="username">
     <input type="password" id="loginPass" class="login-input" placeholder="Password" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">🔐 <span data-lang="login">Sign In</span></button>
+    <button class="login-btn" onclick="doLogin()">🔐 <span data-lang="signIn">Sign In</span></button>
     <div id="loginError" class="login-error">Invalid credentials or not a support account</div>
   </div>
 </div>
 
 <!-- ═══ MAIN DASHBOARD ═══ -->
 <div id="dashboard" class="dashboard">
-  <!-- Broadcast Banner (inserted dynamically) -->
   <div id="broadcastBanner"></div>
 
   <!-- Top Bar -->
   <div class="top-bar">
     <div class="top-logo"><span>🎧</span> Elyanivery</div>
-    <div class="top-title" id="topTitle">Customer Support</div>
+    <div class="top-title" id="topTitle">Support</div>
     <div class="top-spacer"></div>
     <select class="top-lang-select" id="langSelect" onchange="changeLang(this.value)">
       <option value="en">EN 🇬🇧</option>
@@ -486,10 +543,10 @@ input,textarea,select{font-family:inherit;outline:none}
         <span class="count-badge" id="ordersCount">0</span>
       </div>
       <div class="panel-search">
-        <input type="text" id="ordersSearch" oninput="filterOrders()">
+        <input type="text" id="ordersSearch" oninput="filterOrders()" placeholder="">
       </div>
       <div class="orders-list" id="ordersList">
-        <div class="refresh-indicator"><div class="spinner"></div> Loading orders...</div>
+        <div class="refresh-indicator"><div class="spinner"></div> <span data-lang="loadingOrders">Loading orders...</span></div>
       </div>
     </div>
 
@@ -498,7 +555,7 @@ input,textarea,select{font-family:inherit;outline:none}
       <div class="detail-panel" id="detailPanel">
         <div class="detail-empty">
           <span>📋</span>
-          <p data-lang="orderDetails">Select an order to view details</p>
+          <p data-lang="selectOrder">Select an order to view details</p>
         </div>
       </div>
     </div>
@@ -511,12 +568,12 @@ input,textarea,select{font-family:inherit;outline:none}
       </div>
       <button class="create-ticket-btn" onclick="toggleCreateTicket()">➕ <span data-lang="newTicket">New Ticket</span></button>
       <div class="create-ticket-form" id="createTicketForm">
-        <input type="number" id="ticketOrderId" placeholder="Order ID">
-        <textarea id="ticketMessage" placeholder="Describe the issue..."></textarea>
-        <button onclick="createTicket()" data-lang="open">Create</button>
+        <input type="number" id="ticketOrderId" placeholder="">
+        <textarea id="ticketMessage" placeholder=""></textarea>
+        <button onclick="createTicket()" data-lang="create">Create</button>
       </div>
       <div class="orders-list" id="ticketsList">
-        <div class="refresh-indicator"><div class="spinner"></div> Loading tickets...</div>
+        <div class="refresh-indicator"><div class="spinner"></div> <span data-lang="loadingTickets">Loading tickets...</span></div>
       </div>
     </div>
   </div>
@@ -526,19 +583,19 @@ input,textarea,select{font-family:inherit;outline:none}
 <div class="notif-dropdown" id="notifDropdown">
   <div class="notif-dropdown-header">
     <h4>🔔 <span data-lang="notifications">Notifications</span></h4>
-    <button style="background:none;color:var(--pri);font-size:12px" onclick="clearNotifications()">Clear all</button>
+    <button style="background:none;color:var(--pri);font-size:11px;font-weight:600" onclick="clearNotifications()"><span data-lang="clearAll">Clear all</span></button>
   </div>
   <div class="notif-dropdown-list" id="notifList">
-    <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No notifications yet</div>
+    <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No notifications yet</div>
   </div>
 </div>
 
 <!-- In-App Message Popup -->
 <div class="notif-popup" id="msgPopup">
-  <div class="notif-popup-smiley" id="msgPopupSmiley">😊</div>
+  <div class="notif-popup-smiley" id="msgPopupSmiley">💬</div>
   <div class="notif-popup-title" id="msgPopupTitle">New Message!</div>
   <div class="notif-popup-msg" id="msgPopupMsg">You have a new message</div>
-  <button class="notif-popup-close" onclick="closeMsgPopup()">Got it!</button>
+  <button class="notif-popup-close" onclick="closeMsgPopup()" data-lang="gotIt">Got it!</button>
 </div>
 
 <!-- Ticket Conversation Modal -->
@@ -552,8 +609,8 @@ input,textarea,select{font-family:inherit;outline:none}
       <div style="text-align:center;color:var(--muted);padding:20px">Loading...</div>
     </div>
     <div class="ticket-modal-input">
-      <input type="text" id="ticketMsgInput" placeholder="Type your reply..." onkeydown="if(event.key==='Enter')sendTicketMsg()">
-      <button onclick="sendTicketMsg()">Send ➤</button>
+      <input type="text" id="ticketMsgInput" placeholder="" onkeydown="if(event.key==='Enter')sendTicketMsg()">
+      <button onclick="sendTicketMsg()"><span data-lang="send">Send</span> ➤</button>
     </div>
   </div>
 </div>
@@ -563,95 +620,113 @@ input,textarea,select{font-family:inherit;outline:none}
 
 <script>
 // ════════════════════════════════════════════════════════════════════
-// MULTI-LANGUAGE SYSTEM
+// MULTI-LANGUAGE SYSTEM (EN / RU / RO)
 // ════════════════════════════════════════════════════════════════════
 const LANG = {
   en: {
-    supportCenter: 'Support Center', activeOrders: 'Active Orders', tickets: 'Tickets',
-    logout: 'Logout', login: 'Login', username: 'Username', password: 'Password',
-    contactDetails: 'Contact Details', customer: 'Customer', courier: 'Courier',
-    restaurant: 'Restaurant', phone: 'Phone', address: 'Address',
-    vehicleType: 'Vehicle', online: 'Online', offline: 'Offline',
-    orderNumber: 'Order #', status: 'Status', total: 'Total',
-    senderInfo: 'Sender Info', receiverInfo: 'Receiver Info',
-    pickupAddress: 'Pickup Address', deliveryAddress: 'Delivery Address',
-    itemDescription: 'Item Description', deliveryType: 'Delivery Type',
-    sendSomething: 'Send', receiveSomething: 'Receive',
-    newTicket: 'New Ticket', sendMessage: 'Send Message',
-    open: 'Open', inProgress: 'In Progress', closed: 'Closed',
-    searchOrders: 'Search orders...', notifications: 'Notifications',
-    chatWith: 'Chat with', orderDetails: 'Order Details',
-    pending: 'Pending', accepted: 'Accepted', readyForPickup: 'Ready',
-    onTheWay: 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled',
-    signIn: 'Sign In', notAssigned: 'Not assigned', selectOrder: 'Select an order to view details',
-    people: 'People', orderInfo: 'Order Info', items: 'Items',
-    subtotal: 'Subtotal', delivery: 'Delivery', create: 'Create',
-    describeIssue: 'Describe the issue...', orderId: 'Order ID',
-    typeReply: 'Type your reply...', send: 'Send', orderChat: 'Order Chat',
-    live: 'Live', allParticipants: 'All participants', typeMessage: 'Type a message to this order...',
-    newMessage: 'New Message!', gotIt: 'Got it!', noNotifications: 'No notifications',
-    noActiveOrders: 'No active orders', noTickets: 'No support tickets',
-    loadingOrders: 'Loading orders...', loadingTickets: 'Loading tickets...',
-    welcomeBack: 'Welcome back', loggedOut: 'Logged out successfully',
-    name: 'Name', customerSupport: 'Customer Support'
+    supportCenter:'Support Center', activeOrders:'Active Orders', tickets:'Tickets',
+    logout:'Logout', login:'Login', username:'Username', password:'Password',
+    contactDetails:'Contact Details', customer:'Customer', courier:'Courier',
+    restaurant:'Restaurant', phone:'Phone', address:'Address',
+    vehicleType:'Vehicle', online:'Online', offline:'Offline',
+    orderNumber:'Order #', status:'Status', total:'Total',
+    senderInfo:'Sender Info', receiverInfo:'Receiver Info',
+    pickupAddress:'Pickup Address', deliveryAddress:'Delivery Address',
+    itemDescription:'Item Description', deliveryType:'Delivery Type',
+    sendSomething:'Send', receiveSomething:'Receive',
+    newTicket:'New Ticket', sendMessage:'Send Message',
+    open:'Open', inProgress:'In Progress', closed:'Closed',
+    searchOrders:'Search orders...', notifications:'Notifications',
+    chatWith:'Chat with', orderDetails:'Order Details',
+    pending:'Pending', accepted:'Accepted', readyForPickup:'Ready',
+    onTheWay:'On the Way', delivered:'Delivered', cancelled:'Cancelled',
+    signIn:'Sign In', notAssigned:'Not assigned',
+    selectOrder:'Select an order to view details',
+    people:'People', orderInfo:'Order Info', items:'Items',
+    subtotal:'Subtotal', delivery:'Delivery Fee', create:'Create',
+    describeIssue:'Describe the issue...', orderId:'Order ID',
+    typeReply:'Type your reply...', send:'Send', orderChat:'Order Chat',
+    live:'Live', allParticipants:'All participants',
+    typeMessage:'Type a message to this order...',
+    newMessage:'New Message!', gotIt:'Got it!', noNotifications:'No notifications',
+    noActiveOrders:'No active orders', noTickets:'No support tickets',
+    loadingOrders:'Loading orders...', loadingTickets:'Loading tickets...',
+    welcomeBack:'Welcome back', loggedOut:'Logged out successfully',
+    name:'Name', customerSupport:'Customer Support',
+    clearAll:'Clear all', paymentMethod:'Payment', cash:'Cash',
+    card:'Card', onlinePay:'Online', assigned:'Assigned',
+    courierAssigned:'Courier Assigned', pickedUp:'Picked Up',
+    atCustomer:'At Customer', arrivedAt:'Arrived'
   },
   ru: {
-    supportCenter: 'Центр Поддержки', activeOrders: 'Активные Заказы', tickets: 'Тикеты',
-    logout: 'Выйти', login: 'Вход', username: 'Имя пользователя', password: 'Пароль',
-    contactDetails: 'Контактная Информация', customer: 'Клиент', courier: 'Курьер',
-    restaurant: 'Ресторан', phone: 'Телефон', address: 'Адрес',
-    vehicleType: 'Транспорт', online: 'Онлайн', offline: 'Оффлайн',
-    orderNumber: 'Заказ №', status: 'Статус', total: 'Итого',
-    senderInfo: 'Информация об Отправителе', receiverInfo: 'Информация о Получателе',
-    pickupAddress: 'Адрес Забора', deliveryAddress: 'Адрес Доставки',
-    itemDescription: 'Описание Груза', deliveryType: 'Тип Доставки',
-    sendSomething: 'Отправить', receiveSomething: 'Получить',
-    newTicket: 'Новый Тикет', sendMessage: 'Отправить Сообщение',
-    open: 'Открыт', inProgress: 'В Работе', closed: 'Закрыт',
-    searchOrders: 'Поиск заказов...', notifications: 'Уведомления',
-    chatWith: 'Чат с', orderDetails: 'Детали Заказа',
-    pending: 'Ожидает', accepted: 'Принят', readyForPickup: 'Готов',
-    onTheWay: 'В Пути', delivered: 'Доставлен', cancelled: 'Отменён',
-    signIn: 'Войти', notAssigned: 'Не назначен', selectOrder: 'Выберите заказ для просмотра деталей',
-    people: 'Участники', orderInfo: 'Информация', items: 'Позиции',
-    subtotal: 'Подитог', delivery: 'Доставка', create: 'Создать',
-    describeIssue: 'Опишите проблему...', orderId: 'ID Заказа',
-    typeReply: 'Введите ответ...', send: 'Отправить', orderChat: 'Чат Заказа',
-    live: 'Онлайн', allParticipants: 'Все участники', typeMessage: 'Введите сообщение...',
-    newMessage: 'Новое Сообщение!', gotIt: 'Понятно!', noNotifications: 'Нет уведомлений',
-    noActiveOrders: 'Нет активных заказов', noTickets: 'Нет тикетов',
-    loadingOrders: 'Загрузка заказов...', loadingTickets: 'Загрузка тикетов...',
-    welcomeBack: 'С возвращением', loggedOut: 'Вы вышли из системы',
-    name: 'Имя', customerSupport: 'Поддержка Клиентов'
+    supportCenter:'Центр Поддержки', activeOrders:'Активные Заказы', tickets:'Тикеты',
+    logout:'Выйти', login:'Вход', username:'Имя пользователя', password:'Пароль',
+    contactDetails:'Контакты', customer:'Клиент', courier:'Курьер',
+    restaurant:'Ресторан', phone:'Телефон', address:'Адрес',
+    vehicleType:'Транспорт', online:'Онлайн', offline:'Оффлайн',
+    orderNumber:'Заказ №', status:'Статус', total:'Итого',
+    senderInfo:'Отправитель', receiverInfo:'Получатель',
+    pickupAddress:'Адрес Забора', deliveryAddress:'Адрес Доставки',
+    itemDescription:'Описание Груза', deliveryType:'Тип Доставки',
+    sendSomething:'Отправить', receiveSomething:'Получить',
+    newTicket:'Новый Тикет', sendMessage:'Отправить Сообщение',
+    open:'Открыт', inProgress:'В Работе', closed:'Закрыт',
+    searchOrders:'Поиск заказов...', notifications:'Уведомления',
+    chatWith:'Чат с', orderDetails:'Детали Заказа',
+    pending:'Ожидает', accepted:'Принят', readyForPickup:'Готов',
+    onTheWay:'В Пути', delivered:'Доставлен', cancelled:'Отменён',
+    signIn:'Войти', notAssigned:'Не назначен',
+    selectOrder:'Выберите заказ для просмотра',
+    people:'Участники', orderInfo:'Информация', items:'Позиции',
+    subtotal:'Подитог', delivery:'Доставка', create:'Создать',
+    describeIssue:'Опишите проблему...', orderId:'ID Заказа',
+    typeReply:'Введите ответ...', send:'Отправить', orderChat:'Чат Заказа',
+    live:'Онлайн', allParticipants:'Все участники',
+    typeMessage:'Введите сообщение...',
+    newMessage:'Новое Сообщение!', gotIt:'Понятно!', noNotifications:'Нет уведомлений',
+    noActiveOrders:'Нет активных заказов', noTickets:'Нет тикетов',
+    loadingOrders:'Загрузка заказов...', loadingTickets:'Загрузка тикетов...',
+    welcomeBack:'С возвращением', loggedOut:'Вы вышли из системы',
+    name:'Имя', customerSupport:'Поддержка Клиентов',
+    clearAll:'Очистить', paymentMethod:'Оплата', cash:'Наличные',
+    card:'Карта', onlinePay:'Онлайн', assigned:'Назначен',
+    courierAssigned:'Курьер Назначен', pickedUp:'Забрано',
+    atCustomer:'У Клиента', arrivedAt:'Прибыл'
   },
   ro: {
-    supportCenter: 'Centru Suport', activeOrders: 'Comenzi Active', tickets: 'Tichete',
-    logout: 'Deconectare', login: 'Autentificare', username: 'Nume utilizator', password: 'Parola',
-    contactDetails: 'Detalii Contact', customer: 'Client', courier: 'Curier',
-    restaurant: 'Restaurant', phone: 'Telefon', address: 'Adresa',
-    vehicleType: 'Vehicul', online: 'Online', offline: 'Offline',
-    orderNumber: 'Comanda Nr', status: 'Status', total: 'Total',
-    senderInfo: 'Info Expeditor', receiverInfo: 'Info Destinatar',
-    pickupAddress: 'Adresa Ridicare', deliveryAddress: 'Adresa Livrare',
-    itemDescription: 'Descriere Articol', deliveryType: 'Tip Livrare',
-    sendSomething: 'Trimite', receiveSomething: 'Primeste',
-    newTicket: 'Tichet Nou', sendMessage: 'Trimite Mesaj',
-    open: 'Deschis', inProgress: 'In Lucru', closed: 'Inchis',
-    searchOrders: 'Cauta comenzi...', notifications: 'Notificari',
-    chatWith: 'Chat cu', orderDetails: 'Detalii Comanda',
-    pending: 'In asteptare', accepted: 'Acceptat', readyForPickup: 'Gata',
-    onTheWay: 'In drum', delivered: 'Livat', cancelled: 'Anulat',
-    signIn: 'Autentificare', notAssigned: 'Neasignat', selectOrder: 'Selectati o comanda pentru detalii',
-    people: 'Persoane', orderInfo: 'Info Comanda', items: 'Articole',
-    subtotal: 'Subtotal', delivery: 'Livrare', create: 'Creeaza',
-    describeIssue: 'Descrieti problema...', orderId: 'ID Comanda',
-    typeReply: 'Scrieti raspuns...', send: 'Trimite', orderChat: 'Chat Comanda',
-    live: 'Live', allParticipants: 'Toti participantii', typeMessage: 'Scrieti un mesaj...',
-    newMessage: 'Mesaj Nou!', gotIt: 'Am inteles!', noNotifications: 'Fara notificari',
-    noActiveOrders: 'Fara comenzi active', noTickets: 'Fara tichete',
-    loadingOrders: 'Se incarca...', loadingTickets: 'Se incarca...',
-    welcomeBack: 'Bine ai revenit', loggedOut: 'Deconectat cu succes',
-    name: 'Nume', customerSupport: 'Suport Clienti'
+    supportCenter:'Centru Suport', activeOrders:'Comenzi Active', tickets:'Tichete',
+    logout:'Deconectare', login:'Autentificare', username:'Nume utilizator', password:'Parola',
+    contactDetails:'Detalii Contact', customer:'Client', courier:'Curier',
+    restaurant:'Restaurant', phone:'Telefon', address:'Adresa',
+    vehicleType:'Vehicul', online:'Online', offline:'Offline',
+    orderNumber:'Comanda Nr', status:'Status', total:'Total',
+    senderInfo:'Expeditor', receiverInfo:'Destinatar',
+    pickupAddress:'Adresa Ridicare', deliveryAddress:'Adresa Livrare',
+    itemDescription:'Descriere Articol', deliveryType:'Tip Livrare',
+    sendSomething:'Trimite', receiveSomething:'Primeste',
+    newTicket:'Tichet Nou', sendMessage:'Trimite Mesaj',
+    open:'Deschis', inProgress:'In Lucru', closed:'Inchis',
+    searchOrders:'Cauta comenzi...', notifications:'Notificari',
+    chatWith:'Chat cu', orderDetails:'Detalii Comanda',
+    pending:'In asteptare', accepted:'Acceptat', readyForPickup:'Gata',
+    onTheWay:'In drum', delivered:'Livrata', cancelled:'Anulata',
+    signIn:'Autentificare', notAssigned:'Neasignat',
+    selectOrder:'Selectati o comanda pentru detalii',
+    people:'Persoane', orderInfo:'Info Comanda', items:'Articole',
+    subtotal:'Subtotal', delivery:'Livrare', create:'Creeaza',
+    describeIssue:'Descrieti problema...', orderId:'ID Comanda',
+    typeReply:'Scrieti raspuns...', send:'Trimite', orderChat:'Chat Comanda',
+    live:'Live', allParticipants:'Toti participantii',
+    typeMessage:'Scrieti un mesaj...',
+    newMessage:'Mesaj Nou!', gotIt:'Am inteles!', noNotifications:'Fara notificari',
+    noActiveOrders:'Fara comenzi active', noTickets:'Fara tichete',
+    loadingOrders:'Se incarca...', loadingTickets:'Se incarca...',
+    welcomeBack:'Bine ai revenit', loggedOut:'Deconectat cu succes',
+    name:'Nume', customerSupport:'Suport Clienti',
+    clearAll:'Sterge', paymentMethod:'Plata', cash:'Cash',
+    card:'Card', onlinePay:'Online', assigned:'Asignat',
+    courierAssigned:'Curier Asignat', pickedUp:'Ridicat',
+    atCustomer:'La Client', arrivedAt:'Sosit'
   }
 };
 
@@ -665,41 +740,35 @@ function changeLang(lang) {
   currentLang = lang;
   localStorage.setItem('support_lang', lang);
   applyTranslations();
-  // Re-render dynamic content
   renderOrders();
   renderTickets();
   if (selectedOrderId) loadOrderDetail(selectedOrderId);
 }
 
 function applyTranslations() {
-  // Update data-lang attributes
   document.querySelectorAll('[data-lang]').forEach(el => {
-    const key = el.getAttribute('data-lang');
-    el.textContent = t(key);
+    el.textContent = t(el.getAttribute('data-lang'));
   });
-  // Update placeholders
-  const searchInput = document.getElementById('ordersSearch');
-  if (searchInput) searchInput.placeholder = '🔍 ' + t('searchOrders');
-  const loginUser = document.getElementById('loginUser');
-  if (loginUser) loginUser.placeholder = t('username');
-  const loginPass = document.getElementById('loginPass');
-  if (loginPass) loginPass.placeholder = t('password');
-  const ticketOrderId = document.getElementById('ticketOrderId');
-  if (ticketOrderId) ticketOrderId.placeholder = t('orderId');
-  const ticketMessage = document.getElementById('ticketMessage');
-  if (ticketMessage) ticketMessage.placeholder = t('describeIssue');
-  const ticketMsgInput = document.getElementById('ticketMsgInput');
-  if (ticketMsgInput) ticketMsgInput.placeholder = t('typeReply');
-  // Static titles
-  const loginTitle = document.getElementById('loginTitle');
-  if (loginTitle) loginTitle.textContent = t('supportCenter');
-  const topTitle = document.getElementById('topTitle');
-  if (topTitle) topTitle.textContent = t('customerSupport');
-  const splashSubtitle = document.getElementById('splashSubtitle');
-  if (splashSubtitle) splashSubtitle.textContent = t('customerSupport');
-  // Lang selector
-  const langSel = document.getElementById('langSelect');
-  if (langSel) langSel.value = currentLang;
+  const si = document.getElementById('ordersSearch');
+  if (si) si.placeholder = t('searchOrders');
+  const lu = document.getElementById('loginUser');
+  if (lu) lu.placeholder = t('username');
+  const lp = document.getElementById('loginPass');
+  if (lp) lp.placeholder = t('password');
+  const toi = document.getElementById('ticketOrderId');
+  if (toi) toi.placeholder = t('orderId');
+  const tm = document.getElementById('ticketMessage');
+  if (tm) tm.placeholder = t('describeIssue');
+  const tmi = document.getElementById('ticketMsgInput');
+  if (tmi) tmi.placeholder = t('typeReply');
+  const lt = document.getElementById('loginTitle');
+  if (lt) lt.textContent = t('supportCenter');
+  const tt = document.getElementById('topTitle');
+  if (tt) tt.textContent = t('customerSupport');
+  const ss = document.getElementById('splashSubtitle');
+  if (ss) ss.textContent = t('customerSupport');
+  const ls = document.getElementById('langSelect');
+  if (ls) ls.value = currentLang;
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -719,14 +788,12 @@ let activeBroadcasts = [];
 let dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissed_broadcasts') || '[]');
 
 // ════════════════════════════════════════════════════════════════════
-// SPLASH SCREEN - 3D letter animation + support items
+// SPLASH SCREEN
 // ════════════════════════════════════════════════════════════════════
 (function initSplash() {
   const word = 'Elyanivery';
   const container = document.getElementById('splashLetters');
   const surroundEl = document.getElementById('splashSurround');
-
-  // 3D letter animation
   word.split('').forEach((ch, i) => {
     const span = document.createElement('span');
     span.className = 'splash-letter';
@@ -734,13 +801,13 @@ let dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissed_broadcasts'
     span.style.animationDelay = (i * 0.08) + 's';
     container.appendChild(span);
   });
-
-  // Support/communication items surrounding the word
   const items = [
     {emoji:'💬',top:'14%',left:'8%'},
     {emoji:'🎧',top:'10%',right:'10%'},
     {emoji:'📞',bottom:'18%',left:'6%'},
-    {emoji:'🎯',bottom:'14%',right:'8%'}
+    {emoji:'🎯',bottom:'14%',right:'8%'},
+    {emoji:'📋',top:'40%',left:'4%'},
+    {emoji:'🎫',bottom:'40%',right:'5%'}
   ];
   items.forEach((item, i) => {
     const el = document.createElement('div');
@@ -754,8 +821,6 @@ let dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissed_broadcasts'
     el.style.animationDuration = (2.5 + Math.random()) + 's';
     surroundEl.appendChild(el);
   });
-
-  // Percentage counter
   const pctEl = document.getElementById('splashPercent');
   let pct = 0;
   const pctInterval = setInterval(() => {
@@ -763,8 +828,6 @@ let dismissedBroadcasts = JSON.parse(localStorage.getItem('dismissed_broadcasts'
     if (pct > 100) { pct = 100; clearInterval(pctInterval); }
     pctEl.textContent = pct + '%';
   }, 42);
-
-  // Fade out after 2.5s
   setTimeout(() => {
     const splash = document.getElementById('splashScreen');
     splash.classList.add('fade-out');
@@ -782,7 +845,6 @@ function changeTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('support_theme', theme);
 }
-// Restore saved theme
 (function() {
   const saved = localStorage.getItem('support_theme');
   if (saved) {
@@ -810,7 +872,6 @@ async function loadBroadcasts() {
 function renderBroadcastBanner() {
   const container = document.getElementById('broadcastBanner');
   const dashboard = document.getElementById('dashboard');
-  // Filter out dismissed broadcasts
   const visible = activeBroadcasts.filter(b => !dismissedBroadcasts.includes(b.id));
   if (!visible.length) {
     container.innerHTML = '';
@@ -842,7 +903,6 @@ function dismissBroadcast(id) {
 function initApp() {
   applyTranslations();
   if (token) {
-    // Verify token
     api('GET', '/api/me').then(data => {
       if (data.success && (data.data.role === 'support' || data.data.role === 'admin')) {
         currentUser = data.data;
@@ -877,6 +937,7 @@ function showDashboard() {
   loadOrders();
   loadTickets();
   loadBroadcasts();
+  loadServerNotifications();
   startPolling();
   applyTranslations();
 }
@@ -885,11 +946,16 @@ function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
   if (!username || !password) return;
+  const btn = document.querySelector('.login-btn');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
   fetch(API + '/api/auth/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({username, password})
   }).then(r => r.json()).then(data => {
+    btn.innerHTML = '🔐 <span data-lang="signIn">' + t('signIn') + '</span>';
+    btn.disabled = false;
     if (data.success && (data.data.role === 'support' || data.data.role === 'admin')) {
       token = data.data.token;
       currentUser = data.data;
@@ -898,16 +964,20 @@ function doLogin() {
       showDashboard();
       toast(t('welcomeBack') + ', ' + (currentUser.display_name || currentUser.username) + '! 🎉', 'success');
     } else {
-      document.getElementById('loginError').style.display = 'block';
+      const err = document.getElementById('loginError');
       if (data.data && data.data.role && data.data.role !== 'support' && data.data.role !== 'admin') {
-        document.getElementById('loginError').textContent = 'Access denied: Support role required';
+        err.textContent = 'Access denied: Support role required';
       } else {
-        document.getElementById('loginError').textContent = 'Invalid credentials or not a support account';
+        err.textContent = 'Invalid credentials or not a support account';
       }
+      err.style.display = 'block';
     }
   }).catch(() => {
-    document.getElementById('loginError').textContent = 'Connection error. Please try again.';
-    document.getElementById('loginError').style.display = 'block';
+    btn.innerHTML = '🔐 <span data-lang="signIn">' + t('signIn') + '</span>';
+    btn.disabled = false;
+    const err = document.getElementById('loginError');
+    err.textContent = 'Connection error. Please try again.';
+    err.style.display = 'block';
   });
 }
 
@@ -952,12 +1022,10 @@ const ACTIVE_STATUSES = ['pending','accepted','ready_for_pickup','courier_assign
 
 async function loadOrders() {
   try {
-    // Try the dedicated support ongoing-orders API first
     let data;
     try {
       data = await api('GET', '/api/support/ongoing-orders');
     } catch(e) {
-      // Fallback to admin orders
       data = await api('GET', '/api/admin/orders');
     }
     if (data.success) {
@@ -965,12 +1033,10 @@ async function loadOrders() {
       orders = (data.data || []).filter(o => ACTIVE_STATUSES.includes(o.status));
       renderOrders();
       document.getElementById('ordersCount').textContent = orders.length;
-      // If there are new orders, notify
       if (orders.length > prevCount && prevCount > 0) {
         const diff = orders.length - prevCount;
         addNotification('📦 New Order', `${diff} new order(s) received`, 'order');
       }
-      // Refresh detail if selected
       if (selectedOrderId) loadOrderDetail(selectedOrderId);
     }
   } catch(e) { console.error('Orders error:', e); }
@@ -985,29 +1051,27 @@ function renderOrders() {
       (o.order_number||'').toLowerCase().includes(search) ||
       (o.customer_name||'').toLowerCase().includes(search) ||
       (o.restaurant_name||'').toLowerCase().includes(search) ||
-      (o.courier_name||'').toLowerCase().includes(search)
+      (o.courier_name||'').toLowerCase().includes(search) ||
+      String(o.id).includes(search)
     );
   }
   if (!filtered.length) {
-    list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">' + t('noActiveOrders') + ' 🎉</div>';
+    list.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:12px">' + t('noActiveOrders') + ' 🎉</div>';
     return;
   }
   list.innerHTML = filtered.map(o => {
     const sc = getStatusClass(o.status);
-    const phoneLink = o.customer_phone ? `<a href="tel:${o.customer_phone}">${o.customer_phone}</a>` : '';
-    const courierInfo = o.courier_name ? `${o.courier_name}${o.courier_phone ? ' · <a href="tel:'+o.courier_phone+'">'+o.courier_phone+'</a>' : ''}` : t('notAssigned');
-    const restaurantInfo = o.restaurant_name || 'Unknown';
-    const restaurantPhone = o.restaurant_phone ? `<a href="tel:${o.restaurant_phone}">${o.restaurant_phone}</a>` : '';
+    const paymentHtml = o.payment_method ? renderPaymentBadge(o.payment_method) : '';
     return `<div class="order-card${selectedOrderId===o.id?' selected':''}" onclick="selectOrder(${o.id})">
       <div class="order-card-top">
         <span class="order-number">#${o.order_number||('Ely-'+String(o.id).padStart(5,'0'))}</span>
         <span class="status-badge ${sc}">${formatStatus(o.status)}</span>
       </div>
-      <div class="order-customer">👤 ${o.customer_name||'Unknown'}${phoneLink ? ' · '+phoneLink : ''}</div>
-      <div class="order-restaurant">🏪 ${restaurantInfo}${restaurantPhone ? ' · '+restaurantPhone : ''}</div>
-      <div class="order-contact-line"><span class="contact-icon">🏍️</span> ${courierInfo}</div>
+      <div class="order-customer">👤 ${escapeHtml(o.customer_name||'Unknown')}</div>
+      <div class="order-restaurant">🏪 ${escapeHtml(o.restaurant_name||'N/A')}</div>
+      ${o.courier_name ? '<div class="order-contact-line">🏍️ ' + escapeHtml(o.courier_name) + (o.courier_online ? ' <span class="online-dot is-online"></span>' : '') + '</div>' : '<div class="order-contact-line" style="color:var(--muted)">🏍️ ' + t('notAssigned') + '</div>'}
       <div class="order-footer">
-        <span class="order-items-summary">🍽️ Order #${o.id}</span>
+        <span class="order-items-summary">${paymentHtml} ${o.items ? o.items.length + ' ' + t('items').toLowerCase() : 'Order #' + o.id}</span>
         <span class="order-total">€${parseFloat(o.total||0).toFixed(2)}</span>
       </div>
     </div>`;
@@ -1016,24 +1080,35 @@ function renderOrders() {
 
 function filterOrders() { renderOrders(); }
 
+function renderPaymentBadge(method) {
+  const m = (method||'').toLowerCase();
+  let cls = 'online';
+  let icon = '💳';
+  let label = t('card');
+  if (m === 'cash') { cls = 'cash'; icon = '💵'; label = t('cash'); }
+  else if (m === 'card') { cls = 'card'; icon = '💳'; label = t('card'); }
+  else if (m === 'online') { cls = 'online'; icon = '📱'; label = t('onlinePay'); }
+  return `<span class="payment-badge ${cls}">${icon} ${label}</span>`;
+}
+
 function getStatusClass(status) {
   const map = {
     'pending':'status-pending','accepted':'status-accepted',
     'ready_for_pickup':'status-ready_for_pickup','courier_assigned':'status-courier_assigned',
     'heading_to_restaurant':'status-heading_to_restaurant','arrived_at_restaurant':'status-arrived_at_restaurant',
     'order_picked_up':'status-order_picked_up','heading_to_customer':'status-heading_to_customer',
-    'arrived_at_customer':'status-arrived_at_customer','delivering':'status-delivering'
+    'arrived_at_customer':'status-arrived_at_customer','delivering':'status-delivering',
+    'delivered':'status-delivered','cancelled':'status-cancelled'
   };
   return map[status] || 'status-pending';
 }
 
 function formatStatus(s) {
-  // Try to use translated status
   const statusKeyMap = {
     'pending': 'pending', 'accepted': 'accepted', 'ready_for_pickup': 'readyForPickup',
-    'courier_assigned': 'courier_assigned', 'heading_to_restaurant': 'onTheWay',
-    'arrived_at_restaurant': 'arrived_at_restaurant', 'order_picked_up': 'order_picked_up',
-    'heading_to_customer': 'onTheWay', 'arrived_at_customer': 'arrived_at_customer',
+    'courier_assigned': 'courierAssigned', 'heading_to_restaurant': 'onTheWay',
+    'arrived_at_restaurant': 'arrivedAt', 'order_picked_up': 'pickedUp',
+    'heading_to_customer': 'onTheWay', 'arrived_at_customer': 'atCustomer',
     'delivering': 'onTheWay', 'delivered': 'delivered', 'cancelled': 'cancelled',
     'open': 'open', 'in_progress': 'inProgress', 'closed': 'closed'
   };
@@ -1054,7 +1129,6 @@ async function selectOrder(id) {
 async function loadOrderDetail(id) {
   const panel = document.getElementById('detailPanel');
   try {
-    // Try the dedicated support order detail API first
     let orderData;
     try {
       orderData = await api('GET', `/api/support/order/${id}/detail`);
@@ -1066,7 +1140,8 @@ async function loadOrderDetail(id) {
       return;
     }
     const order = orderData.data;
-    // Get chat messages
+
+    // Load chat messages
     let chatHtml = '';
     try {
       const chatData = await api('GET', `/api/chat/messages/${id}`);
@@ -1085,7 +1160,8 @@ async function loadOrderDetail(id) {
       'heading_to_restaurant','arrived_at_restaurant','order_picked_up',
       'heading_to_customer','arrived_at_customer','delivered'];
     const currentStep = statusSteps.indexOf(order.status);
-    const stepLabels = [t('pending'),t('accepted'),t('readyForPickup'),'Assigned',t('onTheWay'),'Arrived','Picked Up',t('onTheWay'),'At Customer',t('delivered')];
+    const stepLabels = [t('pending'),t('accepted'),t('readyForPickup'),t('courierAssigned'),
+      t('onTheWay'),t('arrivedAt'),t('pickedUp'),t('onTheWay'),t('atCustomer'),t('delivered')];
     const stepIcons = ['📋','✅','📦','🏍️','🚴','📍','🛍️','🚀','🏠','✨'];
 
     let timelineHtml = '<div class="status-timeline">';
@@ -1093,9 +1169,7 @@ async function loadOrderDetail(id) {
       const isDone = i < currentStep;
       const isCurrent = i === currentStep;
       const cls = isDone ? 'done' : (isCurrent ? 'current' : '');
-      if (i > 0) {
-        timelineHtml += `<div class="timeline-line${i <= currentStep ? ' done' : ''}"></div>`;
-      }
+      if (i > 0) timelineHtml += `<div class="timeline-line${i <= currentStep ? ' done' : ''}"></div>`;
       timelineHtml += `<div class="timeline-step ${cls}">
         <div class="timeline-dot ${cls}">${isDone ? '✓' : (isCurrent ? stepIcons[i] : '')}</div>
         <div class="timeline-label">${stepLabels[i]}</div>
@@ -1103,145 +1177,93 @@ async function loadOrderDetail(id) {
     });
     timelineHtml += '</div>';
 
-    // Build Contact Details section
+    // Build contact cards
     const isDeliverAnything = order.delivery_type === 'deliver_anything' || order.order_type === 'deliver_anything';
     let contactHtml = '';
 
     if (isDeliverAnything) {
-      // Deliver Anything: show Sender + Receiver + Courier cards
       contactHtml = `
       <div class="detail-section slide-up">
         <div class="detail-section-title">📞 ${t('contactDetails')}</div>
         <div class="contact-cards">
           <div class="contact-card sender-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">📤</span>
-              <span class="contact-card-title">${t('senderInfo')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.pickup_contact_name||order.customer_name||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value"><a href="tel:${order.pickup_contact_phone||order.customer_phone||''}">${escapeHtml(order.pickup_contact_phone||order.customer_phone||'N/A')}</a></span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('pickupAddress')}</span>
-              <span class="row-value">${escapeHtml(order.pickup_address||order.delivery_address||'N/A')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">📤</span><span class="contact-card-title">${t('senderInfo')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.pickup_contact_name||order.customer_name||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value"><a href="tel:${order.pickup_contact_phone||order.customer_phone||''}">${escapeHtml(order.pickup_contact_phone||order.customer_phone||'N/A')}</a></span></div>
+            <div class="contact-card-row"><span class="row-label">${t('pickupAddress')}</span><span class="row-value">${escapeHtml(order.pickup_address||'N/A')}</span></div>
           </div>
           <div class="contact-card receiver-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">📥</span>
-              <span class="contact-card-title">${t('receiverInfo')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.delivery_contact_name||order.customer_name||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value"><a href="tel:${order.delivery_contact_phone||order.customer_phone||''}">${escapeHtml(order.delivery_contact_phone||order.customer_phone||'N/A')}</a></span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('deliveryAddress')}</span>
-              <span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">📥</span><span class="contact-card-title">${t('receiverInfo')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.delivery_contact_name||order.customer_name||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value"><a href="tel:${order.delivery_contact_phone||order.customer_phone||''}">${escapeHtml(order.delivery_contact_phone||order.customer_phone||'N/A')}</a></span></div>
+            <div class="contact-card-row"><span class="row-label">${t('deliveryAddress')}</span><span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span></div>
           </div>
           <div class="contact-card courier-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">🏍️</span>
-              <span class="contact-card-title">${t('courier')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('vehicleType')}</span>
-              <span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('status')}</span>
-              <span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">🏍️</span><span class="contact-card-title">${t('courier')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('vehicleType')}</span><span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('status')}</span><span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span></div>
           </div>
         </div>
         ${order.item_description ? `<div class="contact-card-row" style="margin-top:8px"><span class="row-label">${t('itemDescription')}</span><span class="row-value">${escapeHtml(order.item_description)}</span></div>` : ''}
         ${order.delivery_type ? `<div class="contact-card-row"><span class="row-label">${t('deliveryType')}</span><span class="row-value">${order.delivery_type === 'send' ? t('sendSomething') : t('receiveSomething')}</span></div>` : ''}
       </div>`;
     } else {
-      // Standard order: Customer + Restaurant + Courier cards
       contactHtml = `
       <div class="detail-section slide-up">
         <div class="detail-section-title">📞 ${t('contactDetails')}</div>
         <div class="contact-cards">
           <div class="contact-card customer-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">👤</span>
-              <span class="contact-card-title">${t('customer')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.customer_name||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value">${order.customer_phone ? '<a href="tel:'+order.customer_phone+'">'+escapeHtml(order.customer_phone)+'</a>' : 'N/A'}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('address')}</span>
-              <span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">👤</span><span class="contact-card-title">${t('customer')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.customer_name||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value">${order.customer_phone ? '<a href="tel:'+order.customer_phone+'">'+escapeHtml(order.customer_phone)+'</a>' : 'N/A'}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('address')}</span><span class="row-value">${escapeHtml(order.delivery_address||'N/A')}</span></div>
           </div>
           <div class="contact-card courier-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">🏍️</span>
-              <span class="contact-card-title">${t('courier')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('vehicleType')}</span>
-              <span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('status')}</span>
-              <span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">🏍️</span><span class="contact-card-title">${t('courier')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.courier_name||t('notAssigned'))}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value">${order.courier_phone ? '<a href="tel:'+order.courier_phone+'">'+escapeHtml(order.courier_phone)+'</a>' : 'N/A'}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('vehicleType')}</span><span class="row-value">${escapeHtml(order.courier_vehicle_type||order.vehicle_type||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('status')}</span><span class="row-value">${order.courier_online ? '<span class="online-dot is-online"></span> '+t('online') : '<span class="online-dot is-offline"></span> '+t('offline')}</span></div>
           </div>
           <div class="contact-card restaurant-card">
-            <div class="contact-card-header">
-              <span class="contact-card-icon">🏪</span>
-              <span class="contact-card-title">${t('restaurant')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('name')}</span>
-              <span class="row-value">${escapeHtml(order.restaurant_name||order.partner_name||'N/A')}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('phone')}</span>
-              <span class="row-value">${(order.restaurant_phone||order.partner_phone) ? '<a href="tel:'+(order.restaurant_phone||order.partner_phone)+'">'+escapeHtml(order.restaurant_phone||order.partner_phone)+'</a>' : 'N/A'}</span>
-            </div>
-            <div class="contact-card-row">
-              <span class="row-label">${t('address')}</span>
-              <span class="row-value">${escapeHtml(order.restaurant_address||order.partner_address||'N/A')}</span>
-            </div>
+            <div class="contact-card-header"><span class="contact-card-icon">🏪</span><span class="contact-card-title">${t('restaurant')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('name')}</span><span class="row-value">${escapeHtml(order.restaurant_name||order.partner_name||'N/A')}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('phone')}</span><span class="row-value">${(order.restaurant_phone||order.partner_phone) ? '<a href="tel:'+(order.restaurant_phone||order.partner_phone)+'">'+escapeHtml(order.restaurant_phone||order.partner_phone)+'</a>' : 'N/A'}</span></div>
+            <div class="contact-card-row"><span class="row-label">${t('address')}</span><span class="row-value">${escapeHtml(order.restaurant_address||order.partner_address||'N/A')}</span></div>
           </div>
         </div>
       </div>`;
     }
+
+    // Payment method display
+    const paymentHtml = order.payment_method ? `
+      <div class="info-card">
+        <div class="label">💳 ${t('paymentMethod')}</div>
+        <div class="value">${renderPaymentBadge(order.payment_method)}</div>
+      </div>` : '';
+
+    // Items with images
+    const itemsHtml = order.items && order.items.length ? `
+      <div class="detail-section slide-up">
+        <div class="detail-section-title">🍽️ ${t('items')}</div>
+        <ul class="detail-items-list">
+          ${order.items.map(it => {
+            const imgHtml = it.image_url
+              ? `<div class="detail-item-img"><img src="${escapeHtml(it.image_url)}" alt="" onerror="this.parentElement.innerHTML='<div class=item-emoji>🍽️</div>'"></div>`
+              : `<div class="detail-item-img"><div class="item-emoji">🍽️</div></div>`;
+            return `<li class="detail-item">
+              ${imgHtml}
+              <div class="detail-item-info">
+                <span class="name">${escapeHtml(it.item_name)}</span>
+                <span class="qty">× ${it.quantity||1}</span>
+              </div>
+              <span class="price">€${parseFloat(it.item_price||0).toFixed(2)}</span>
+            </li>`;
+          }).join('')}
+        </ul>
+      </div>` : '';
 
     panel.innerHTML = `
       <div class="detail-header fade-in">
@@ -1255,34 +1277,26 @@ async function loadOrderDetail(id) {
       <div class="detail-section slide-up">
         <div class="detail-section-title">🧾 ${t('orderInfo')}</div>
         <div class="detail-info-grid">
-          <div class="detail-info-card">
+          <div class="info-card">
             <div class="label">💰 ${t('total')}</div>
-            <div class="value" style="color:var(--pri)">€${parseFloat(order.total||0).toFixed(2)}</div>
+            <div class="value highlight">€${parseFloat(order.total||0).toFixed(2)}</div>
           </div>
-          <div class="detail-info-card">
+          <div class="info-card">
             <div class="label">📦 ${t('subtotal')}</div>
             <div class="value">€${parseFloat(order.subtotal||0).toFixed(2)}</div>
           </div>
-          <div class="detail-info-card">
+          <div class="info-card">
             <div class="label">🚚 ${t('delivery')}</div>
             <div class="value">€${parseFloat(order.delivery_fee||0).toFixed(2)}</div>
           </div>
+          ${paymentHtml}
         </div>
       </div>
-      ${order.items && order.items.length ? `
-      <div class="detail-section slide-up">
-        <div class="detail-section-title">🍽️ ${t('items')}</div>
-        <ul class="detail-items-list">
-          ${order.items.map(it => `<li class="detail-item">
-            <span class="name">${it.item_name} × ${it.quantity||1}</span>
-            <span class="price">€${parseFloat(it.item_price||0).toFixed(2)}</span>
-          </li>`).join('')}
-        </ul>
-      </div>` : ''}
+      ${itemsHtml}
       ${order.delivery_address && !isDeliverAnything ? `
       <div class="detail-section slide-up">
         <div class="detail-section-title">📍 ${t('deliveryAddress')}</div>
-        <div style="font-size:13px;color:var(--text2)">${order.delivery_address}</div>
+        <div style="font-size:12px;color:var(--text2);padding:4px 0">${escapeHtml(order.delivery_address)}</div>
       </div>` : ''}
       ${chatHtml}
     `;
@@ -1292,56 +1306,33 @@ async function loadOrderDetail(id) {
   }
 }
 
+// ════════════════════════════════════════════════════════════════════
+// CHAT
+// ════════════════════════════════════════════════════════════════════
 function renderChatSection(messages, orderId, order) {
-  // Sort messages by time
   const sorted = [...messages].sort((a,b) => new Date(a.created_at||0) - new Date(b.created_at||0));
-  
-  // Group consecutive messages and add status indicators
-  let lastStatusInserted = '';
   const msgsHtml = sorted.map(m => {
     const isSent = m.sender_id === (currentUser ? currentUser.id : 0);
     const role = m.sender_role || '';
-    
-    // Sender identification with icon
     let senderIcon = '👤';
     let senderClass = 'sender-customer';
-    if (role === 'partner' || role === 'restaurant') {
-      senderIcon = '🏪';
-      senderClass = 'sender-partner';
-    } else if (role === 'courier') {
-      senderIcon = '🛵';
-      senderClass = 'sender-courier';
-    } else if (role === 'support' || role === 'admin') {
-      senderIcon = '🎧';
-      senderClass = 'sender-support';
-    }
-    
-    // Message type indicator - show order status context
+    if (role === 'partner' || role === 'restaurant') { senderIcon = '🏪'; senderClass = 'sender-partner'; }
+    else if (role === 'courier') { senderIcon = '🛵'; senderClass = 'sender-courier'; }
+    else if (role === 'support' || role === 'admin') { senderIcon = '🎧'; senderClass = 'sender-support'; }
+
     let statusIndicator = '';
     if (m.order_status) {
-      const statusIcons = {
-        'pending': '📋', 'accepted': '✅', 'ready_for_pickup': '📦',
-        'courier_assigned': '🏍️', 'order_picked_up': '🛍️',
-        'heading_to_customer': '🚀', 'delivered': '✨'
-      };
-      const statusLabels = {
-        'pending': t('pending'), 'accepted': t('accepted'),
-        'ready_for_pickup': t('readyForPickup'), 'courier_assigned': 'Courier assigned',
-        'order_picked_up': 'Order picked up', 'heading_to_customer': t('onTheWay'),
-        'delivered': t('delivered')
-      };
-      statusIndicator = `<div class="msg-status-indicator">${statusIcons[m.order_status]||'📌'} ${statusLabels[m.order_status]||m.order_status}</div>`;
+      const si = {'pending':'📋','accepted':'✅','ready_for_pickup':'📦','courier_assigned':'🏍️','order_picked_up':'🛍️','heading_to_customer':'🚀','delivered':'✨'};
+      statusIndicator = `<div class="msg-status-indicator">${si[m.order_status]||'📌'} ${formatStatus(m.order_status)}</div>`;
     }
-    
-    const senderLabel = isSent ? '🎧 You (Support)' : `${senderIcon} ${m.sender_name||'User'}`;
-    
+
     return `<div class="msg-bubble ${isSent ? 'sent' : 'received'}">
-      ${!isSent ? `<div class="msg-sender ${senderClass}"><span class="msg-sender-icon">${senderIcon}</span> ${escapeHtml(m.sender_name||'User')}</div>` : `<div class="msg-sender sender-support"><span class="msg-sender-icon">🎧</span> You</div>`}
+      ${!isSent ? `<div class="msg-sender ${senderClass}">${senderIcon} ${escapeHtml(m.sender_name||'User')}</div>` : `<div class="msg-sender sender-support">🎧 You</div>`}
       <div>${escapeHtml(m.message||'')}</div>
       ${statusIndicator}
       <div class="msg-time">${formatTime(m.created_at)}</div>
     </div>`;
-  }).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px">No messages yet for this order 💬</div>';
+  }).join('') || '<div style="text-align:center;color:var(--muted);font-size:11px;padding:16px">No messages yet 💬</div>';
 
   return `<div class="chat-section slide-up">
     <div class="chat-header">
@@ -1349,18 +1340,18 @@ function renderChatSection(messages, orderId, order) {
       <div class="chat-channel-info"><div class="chat-live-dot"></div> ${t('live')} · ${t('allParticipants')}</div>
     </div>
     <div class="emoji-row">
-      <button class="emoji-btn" onclick="addEmoji('👍')" title="Thumbs up">👍</button>
-      <button class="emoji-btn" onclick="addEmoji('😊')" title="Smile">😊</button>
-      <button class="emoji-btn" onclick="addEmoji('✅')" title="Confirmed">✅</button>
-      <button class="emoji-btn" onclick="addEmoji('⏳')" title="Waiting">⏳</button>
-      <button class="emoji-btn" onclick="addEmoji('❌')" title="No/Cancel">❌</button>
-      <button class="emoji-btn" onclick="addEmoji('🙏')" title="Please/Thanks">🙏</button>
-      <button class="emoji-btn" onclick="addEmoji('📞')" title="Call needed">📞</button>
-      <button class="emoji-btn" onclick="addEmoji('💡')" title="Idea/Suggestion">💡</button>
+      <button class="emoji-btn" onclick="addEmoji('👍')">👍</button>
+      <button class="emoji-btn" onclick="addEmoji('😊')">😊</button>
+      <button class="emoji-btn" onclick="addEmoji('✅')">✅</button>
+      <button class="emoji-btn" onclick="addEmoji('⏳')">⏳</button>
+      <button class="emoji-btn" onclick="addEmoji('❌')">❌</button>
+      <button class="emoji-btn" onclick="addEmoji('🙏')">🙏</button>
+      <button class="emoji-btn" onclick="addEmoji('📞')">📞</button>
+      <button class="emoji-btn" onclick="addEmoji('💡')">💡</button>
     </div>
     <div class="chat-messages" id="chatMessages">${msgsHtml}</div>
     <div class="chat-input-area">
-      <select id="chatRecipient" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:8px;font-size:11px;max-width:100px">
+      <select id="chatRecipient" style="background:var(--input-bg);border:1px solid var(--input-border);color:var(--text);padding:5px 6px;border-radius:var(--radius-xs);font-size:10px;max-width:90px">
         <option value="0">📢 All</option>
         <option value="customer">👤 ${t('customer')}</option>
         <option value="partner">🏪 ${t('restaurant')}</option>
@@ -1383,13 +1374,11 @@ async function sendChatMsg(orderId) {
   const msg = input.value.trim();
   input.value = '';
   try {
-    // Get recipient from dropdown
     const recipientSelect = document.getElementById('chatRecipient');
     let receiverId = null;
     if (recipientSelect) {
       const val = recipientSelect.value;
       if (val !== '0' && val) {
-        // Find the order to get participant IDs
         const order = orders.find(o => o.id === orderId);
         if (order) {
           if (val === 'customer' && order.customer_id) receiverId = order.customer_id;
@@ -1402,7 +1391,6 @@ async function sendChatMsg(orderId) {
     if (receiverId) payload.receiver_id = receiverId;
     const data = await api('POST', '/api/chat/send', payload);
     if (data.success) {
-      // Reload detail to show new message
       await loadOrderDetail(orderId);
       scrollChatBottom();
     } else {
@@ -1427,7 +1415,7 @@ async function loadTickets() {
     if (data.success) {
       tickets = data.data || [];
       renderTickets();
-      document.getElementById('ticketsCount').textContent = tickets.filter(t=>t.status!=='closed').length;
+      document.getElementById('ticketsCount').textContent = tickets.filter(tk=>tk.status!=='closed').length;
     }
   } catch(e) { console.error('Tickets error:', e); }
 }
@@ -1435,25 +1423,24 @@ async function loadTickets() {
 function renderTickets() {
   const list = document.getElementById('ticketsList');
   if (!tickets.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">' + t('noTickets') + ' 🎫</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">' + t('noTickets') + ' 🎫</div>';
     return;
   }
-  list.innerHTML = tickets.map(t_obj => {
-    const sc = t_obj.status === 'open' ? 'ticket-open' : (t_obj.status === 'in_progress' ? 'ticket-in_progress' : 'ticket-closed');
-    return `<div class="ticket-card${selectedTicketId===t_obj.id?' selected':''}" onclick="openTicketModal(${t_obj.id})">
+  list.innerHTML = tickets.map(tk => {
+    const sc = tk.status === 'open' ? 'ticket-open' : (tk.status === 'in_progress' ? 'ticket-in_progress' : 'ticket-closed');
+    return `<div class="ticket-card${selectedTicketId===tk.id?' selected':''}" onclick="openTicketModal(${tk.id})">
       <div class="ticket-card-top">
-        <span class="ticket-order">#${t_obj.order_number||('Ely-'+String(t_obj.order_id).padStart(5,'0'))}</span>
-        <span class="ticket-status ${sc}">${formatStatus(t_obj.status)}</span>
+        <span class="ticket-order">#${tk.order_number||('Ely-'+String(tk.order_id).padStart(5,'0'))}</span>
+        <span class="ticket-status ${sc}">${formatStatus(tk.status)}</span>
       </div>
-      <div class="ticket-customer">👤 ${t_obj.user_name||'Unknown'}</div>
-      <div class="ticket-preview">🎫 Ticket #${t_obj.id}</div>
+      <div class="ticket-customer">👤 ${escapeHtml(tk.user_name||'Unknown')}</div>
+      <div class="ticket-preview">🎫 Ticket #${tk.id}</div>
     </div>`;
   }).join('');
 }
 
 function toggleCreateTicket() {
-  const form = document.getElementById('createTicketForm');
-  form.classList.toggle('active');
+  document.getElementById('createTicketForm').classList.toggle('active');
 }
 
 async function createTicket() {
@@ -1461,7 +1448,9 @@ async function createTicket() {
   const message = document.getElementById('ticketMessage').value.trim();
   if (!orderId) { toast('Please enter an order ID', 'error'); return; }
   try {
-    const data = await api('POST', '/api/support/tickets', {order_id: parseInt(orderId)});
+    const payload = {order_id: parseInt(orderId)};
+    if (message) payload.message = message;
+    const data = await api('POST', '/api/support/tickets', payload);
     if (data.success) {
       toast(t('newTicket') + ' created! 🎫', 'success');
       document.getElementById('ticketOrderId').value = '';
@@ -1476,7 +1465,6 @@ async function createTicket() {
   }
 }
 
-// Ticket Modal
 async function openTicketModal(ticketId) {
   selectedTicketId = ticketId;
   renderTickets();
@@ -1499,13 +1487,18 @@ async function loadTicketMessages(ticketId) {
     if (data.success && data.data) {
       const msgs = data.data;
       if (!msgs.length) {
-        container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">No messages yet. Start the conversation! 💬</div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px">No messages yet. Start the conversation! 💬</div>';
         return;
       }
       container.innerHTML = msgs.map(m => {
         const isSent = m.sender_id === (currentUser ? currentUser.id : 0);
+        let senderClass = 'sender-customer';
+        let senderIcon = '👤';
+        if (m.sender_role === 'support' || m.sender_role === 'admin') { senderClass = 'sender-support'; senderIcon = '🎧'; }
+        else if (m.sender_role === 'courier') { senderClass = 'sender-courier'; senderIcon = '🛵'; }
+        else if (m.sender_role === 'partner') { senderClass = 'sender-partner'; senderIcon = '🏪'; }
         return `<div class="msg-bubble ${isSent ? 'sent' : 'received'}" style="max-width:90%">
-          <div class="msg-sender">${m.sender_name||'User'} (${m.sender_role||''})</div>
+          <div class="msg-sender ${senderClass}">${senderIcon} ${escapeHtml(m.sender_name||'User')}</div>
           <div>${escapeHtml(m.message||'')}</div>
           <div class="msg-time">${formatTime(m.created_at)}</div>
         </div>`;
@@ -1513,7 +1506,7 @@ async function loadTicketMessages(ticketId) {
       container.scrollTop = container.scrollHeight;
     }
   } catch(e) {
-    container.innerHTML = '<div style="text-align:center;color:var(--red);padding:20px">Error loading messages</div>';
+    container.innerHTML = '<div style="text-align:center;color:var(--red);padding:20px;font-size:12px">Error loading messages</div>';
   }
 }
 
@@ -1542,14 +1535,11 @@ async function sendTicketMsg() {
 function startPolling() {
   pollIntervals.forEach(id => clearInterval(id));
   pollIntervals = [];
-  // Orders every 5s
   pollIntervals.push(setInterval(loadOrders, 5000));
-  // Tickets every 8s
   pollIntervals.push(setInterval(loadTickets, 8000));
-  // Chat messages for selected order every 3s (real-time)
   pollIntervals.push(setInterval(pollChatMessages, 3000));
-  // Broadcasts every 30s
   pollIntervals.push(setInterval(loadBroadcasts, 30000));
+  pollIntervals.push(setInterval(loadServerNotifications, 15000));
 }
 
 async function pollChatMessages() {
@@ -1559,20 +1549,36 @@ async function pollChatMessages() {
     if (data.success && data.data && data.data.length) {
       const newMsgs = data.data;
       lastMsgIds[selectedOrderId] = Math.max(...newMsgs.map(m=>m.id));
-      // Show in-app popup for new messages
       const fromOthers = newMsgs.filter(m => m.sender_id !== (currentUser ? currentUser.id : 0));
       if (fromOthers.length) {
         const latest = fromOthers[fromOthers.length - 1];
         showMsgPopup(
-          `New message from ${latest.sender_name||'User'}`,
-          latest.message ? (latest.message.substring(0, 80) + (latest.message.length > 80 ? '...' : '')) : '',
-          '😊'
+          `${latest.sender_name||'User'}`,
+          latest.message ? (latest.message.substring(0, 60) + (latest.message.length > 60 ? '...' : '')) : '',
+          '💬'
         );
-        addNotification('💬 New Message', `${latest.sender_name}: ${(latest.message||'').substring(0,50)}`, 'chat');
+        addNotification('💬 New Message', `${latest.sender_name}: ${(latest.message||'').substring(0,40)}`, 'chat');
       }
-      // Reload detail
       await loadOrderDetail(selectedOrderId);
       scrollChatBottom();
+    }
+  } catch(e) { /* silent */ }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// SERVER NOTIFICATIONS
+// ════════════════════════════════════════════════════════════════════
+async function loadServerNotifications() {
+  try {
+    const data = await api('GET', '/api/notifications');
+    if (data.success && data.data) {
+      const serverNotifs = data.data.slice(0, 10);
+      serverNotifs.forEach(n => {
+        const exists = notifications.find(x => x.title === n.title && x.body === (n.body||n.message));
+        if (!exists) {
+          addNotification(n.title || '📢', n.body || n.message || '', 'server');
+        }
+      });
     }
   } catch(e) { /* silent */ }
 }
@@ -1583,7 +1589,7 @@ async function pollChatMessages() {
 let msgPopupTimeout = null;
 function showMsgPopup(title, msg, smiley) {
   const popup = document.getElementById('msgPopup');
-  document.getElementById('msgPopupSmiley').textContent = smiley || '😊';
+  document.getElementById('msgPopupSmiley').textContent = smiley || '💬';
   document.getElementById('msgPopupTitle').textContent = title;
   document.getElementById('msgPopupMsg').textContent = msg;
   popup.classList.add('active');
@@ -1624,7 +1630,7 @@ function toggleNotifDropdown() {
 function renderNotifDropdown() {
   const list = document.getElementById('notifList');
   if (!notifications.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">' + t('noNotifications') + ' 🎉</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">' + t('noNotifications') + ' 🎉</div>';
     return;
   }
   list.innerHTML = notifications.map(n => `
@@ -1642,7 +1648,7 @@ function clearNotifications() {
   renderNotifDropdown();
 }
 
-// Close dropdown when clicking outside
+// Close dropdown on outside click
 document.addEventListener('click', (e) => {
   const dropdown = document.getElementById('notifDropdown');
   const bell = document.getElementById('bellBtn');
@@ -1658,7 +1664,7 @@ function toast(msg, type) {
   const container = document.getElementById('toastContainer');
   const el = document.createElement('div');
   el.className = 'toast ' + (type || 'info');
-  const icons = {success: '✅', error: '❌', info: 'ℹ️'};
+  const icons = {success:'✅', error:'❌', info:'ℹ️'};
   el.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${escapeHtml(msg)}</span>`;
   container.appendChild(el);
   setTimeout(() => {
@@ -1685,12 +1691,17 @@ function formatTime(t) {
   } catch { return ''; }
 }
 
-// Handle Enter on login
+// Enter on login inputs
 document.getElementById('loginPass').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') doLogin();
 });
 document.getElementById('loginUser').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') doLogin();
+});
+
+// Close ticket modal on overlay click
+document.getElementById('ticketModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('ticketModal')) closeTicketModal();
 });
 </script>
 </body>

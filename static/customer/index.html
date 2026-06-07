@@ -236,33 +236,45 @@ a{text-decoration:none;color:var(--pri)}
 .cat-circle.active .cat-label{color:var(--pri)}
 
 /* ═══════════════════════════════════════════════════
-   RESTAURANT CARDS
+   RESTAURANT CARDS — 2-in-row grid
    ═══════════════════════════════════════════════════ */
-.rest-card{background:var(--card);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--border)}
-.rest-card:active{transform:scale(.98)}
-.rest-card-img{height:130px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;position:relative;overflow:hidden}
-.rest-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.2),transparent)}
-.rest-card-body{padding:14px}
-.rest-card-body h3{font-size:16px;margin-bottom:4px;font-weight:700}
-.rest-card-body .meta{font-size:12px;color:var(--muted);display:flex;gap:12px;align-items:center}
-.rest-card-body .meta span{display:flex;align-items:center;gap:3px}
-.rest-card-body .cat-tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;background:var(--badge-bg);color:var(--pri);margin-top:6px}
+.rest-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rest-card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--border)}
+.rest-card:active{transform:scale(.97)}
+.rest-card-img{height:110px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:36px;position:relative;overflow:hidden}
+.rest-card-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.rest-card-img .img-emoji{position:relative;z-index:2;text-shadow:0 2px 8px rgba(0,0,0,.3)}
+.rest-card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.35),transparent)}
+.rest-card-body{padding:10px 12px}
+.rest-card-body h3{font-size:13px;margin-bottom:3px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest-card-body .meta{font-size:10px;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rest-card-body .meta span{display:flex;align-items:center;gap:2px}
+.rest-card-body .cat-tag{display:inline-block;padding:2px 6px;border-radius:6px;font-size:9px;font-weight:600;background:var(--badge-bg);color:var(--pri);margin-top:4px}
 .fav-btn{float:right;background:none;font-size:20px;color:var(--red);padding:0 4px;transition:transform .2s}
 .fav-btn:active{transform:scale(1.2)}
 
 /* ═══════════════════════════════════════════════════
-   MENU
+   MENU + SUB-CATEGORIES
    ═══════════════════════════════════════════════════ */
 .menu-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .menu-header h3{flex:1;font-size:20px;font-weight:800}
 .menu-header .fav-btn{font-size:24px}
-.item-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .15s}
+.subcat-row{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none;-ms-overflow-style:none;margin:0 -4px}
+.subcat-row::-webkit-scrollbar{display:none}
+.subcat-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;background:var(--card2);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .2s;white-space:nowrap}
+.subcat-chip:active{transform:scale(.95)}
+.subcat-chip.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+.item-card{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border-radius:12px;margin-bottom:8px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .15s}
 .item-card:active{transform:scale(.98)}
-.item-card .item-info{flex:1}
-.item-card .item-info h4{font-size:14px;margin-bottom:2px;font-weight:600}
-.item-card .item-info p{font-size:12px;color:var(--muted);line-height:1.3}
-.item-card .item-price{font-weight:700;color:var(--pri);font-size:15px;margin-right:8px}
-.add-btn{background:var(--pri);color:#fff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;transition:all .2s}
+.item-card .item-img{width:56px;height:56px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--card2)}
+.item-card .item-img img{width:100%;height:100%;object-fit:cover}
+.item-card .item-img .item-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px}
+.item-card .item-info{flex:1;min-width:0}
+.item-card .item-info h4{font-size:13px;margin-bottom:2px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-card .item-info p{font-size:11px;color:var(--muted);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-card .item-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.item-card .item-price{font-weight:700;color:var(--pri);font-size:14px}
+.add-btn{background:var(--pri);color:#fff;border-radius:16px;padding:4px 12px;font-size:12px;font-weight:600;transition:all .2s}
 .add-btn:active{transform:scale(.92)}
 
 /* ═══════════════════════════════════════════════════
@@ -557,6 +569,11 @@ html[data-theme="glassmorphism"] .deliver-type-toggle button.active{background:v
 html[data-theme="glassmorphism"] .lang-selector{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
 html[data-theme="glassmorphism"] .lang-selector button{color:rgba(255,255,255,.6)!important}
 html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--pri)!important;color:#fff!important}
+html[data-theme="glassmorphism"] .rest-grid{gap:10px}
+html[data-theme="glassmorphism"] .subcat-chip{background:rgba(255,255,255,.1)!important;color:rgba(255,255,255,.7)!important;border:1px solid rgba(255,255,255,.15)!important}
+html[data-theme="glassmorphism"] .subcat-chip.active{background:var(--pri)!important;color:#fff!important;border-color:var(--pri)!important}
+html[data-theme="glassmorphism"] .item-card{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important}
+html[data-theme="glassmorphism"] .item-img{background:rgba(255,255,255,.06)!important}
 </style>
 </head>
 <body>
@@ -627,6 +644,7 @@ html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--p
         <button onclick="switchLang('en')" data-lang="en" class="active">EN</button>
         <button onclick="switchLang('ru')" data-lang="ru">RU</button>
         <button onclick="switchLang('ro')" data-lang="ro">RO</button>
+        <button onclick="switchLang('hr')" data-lang="hr">HR</button>
       </div>
       <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen');loadProfile()">?</div>
     </div>
@@ -662,7 +680,7 @@ html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--p
     </div>
   </div>
   <div class="section-title" id="restSectionTitle">Near You</div>
-  <div id="restaurantList"></div>
+  <div class="rest-grid" id="restaurantList"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
@@ -675,6 +693,7 @@ html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--p
     <button class="fav-btn" id="favBtn" onclick="toggleFav()">&#9825;</button>
   </div>
   <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="menuRestAddr"></div>
+  <div id="subcatRow" class="subcat-row"></div>
   <div class="section-title">Menu</div>
   <div id="menuItems"></div>
   <div id="cartFloat" style="position:sticky;bottom:70px;background:var(--pri);color:#fff;padding:14px 20px;border-radius:14px;display:none;align-items:center;justify-content:space-between;cursor:pointer;margin-top:12px;box-shadow:0 4px 20px rgba(255,107,0,.3)" onclick="showScreen('cartScreen')">
@@ -701,6 +720,14 @@ html[data-theme="glassmorphism"] .lang-selector button.active{background:var(--p
     </label>
   </div>
   <div class="cart-summary" id="cartSummary"></div>
+  <div style="margin:14px 0 8px;font-size:14px;font-weight:700" data-i18n="paymentMethod">Payment Method</div>
+  <div id="paymentMethods" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <button class="subcat-chip active" onclick="selectPayment('cash',this)" data-pm="cash">&#128181; Cash</button>
+    <button class="subcat-chip" onclick="selectPayment('card',this)" data-pm="card">&#128179; Card</button>
+    <button class="subcat-chip" onclick="selectPayment('maib',this)" data-pm="maib">&#127974; MAIB</button>
+    <button class="subcat-chip" onclick="selectPayment('moldindconbank',this)" data-pm="moldindconbank">&#127974; Moldindconbank</button>
+    <button class="subcat-chip" onclick="selectPayment('victoriabank',this)" data-pm="victoriabank">&#127974; VictoriaBank</button>
+  </div>
   <div class="checkout-bar">
     <div class="total" id="cartTotal">Total: &euro;0.00</div>
     <button class="btn-pri" onclick="placeOrder()" data-i18n="placeOrder">Place Order</button>
@@ -1006,7 +1033,9 @@ let chatLastId = 0;
 let chatPollTimer = null;
 let allRestaurants = [];
 let activeCategory = 'all';
-let userLat = 41.3874, userLng = 2.1686;
+let activeSubCategory = 'all';
+let selectedPaymentMethod = 'cash';
+let userLat = 47.0105, userLng = 28.8638;
 let ratingOrderId = null;
 let courierRatingVal = 0, serviceRatingVal = 0;
 let callPollTimer = null;
@@ -1077,7 +1106,8 @@ const LANG = {
     loyaltyPoints: 'Loyalty Points', pointsEarned: 'points earned',
     changeTheme: 'Change Theme', ratePlease: 'Select both ratings',
     thankYou: 'Your rating has been submitted',
-    open: 'Open', closed: 'Closed', km: 'km', home: 'Home'
+    open: 'Open', closed: 'Closed', km: 'km', home: 'Home',
+    paymentMethod: 'Payment Method'
   },
   ru: {
     deliverAnything: 'Доставить Всё', sendSomething: 'Отправить', receiveSomething: 'Получить',
@@ -1120,7 +1150,8 @@ const LANG = {
     loyaltyPoints: 'Баллы Лояльности', pointsEarned: 'баллов заработано',
     changeTheme: 'Сменить Тему', ratePlease: 'Выберите обе оценки',
     thankYou: 'Ваша оценка отправлена',
-    open: 'Открыто', closed: 'Закрыто', km: 'км', home: 'Главная'
+    open: 'Открыто', closed: 'Закрыто', km: 'км', home: 'Главная',
+    paymentMethod: 'Способ Оплаты'
   },
   ro: {
     deliverAnything: 'Livreaza Orice', sendSomething: 'Trimite', receiveSomething: 'Primeste',
@@ -1163,7 +1194,52 @@ const LANG = {
     loyaltyPoints: 'Puncte Loialitate', pointsEarned: 'puncte acumulate',
     changeTheme: 'Schimba Tema', ratePlease: 'Selectati ambele evaluari',
     thankYou: 'Evaluarea a fost trimisa',
-    open: 'Deschis', closed: 'Inchis', km: 'km', home: 'Acasa'
+    open: 'Deschis', closed: 'Inchis', km: 'km', home: 'Acasa',
+    paymentMethod: 'Metoda de Plata'
+  },
+  hr: {
+    deliverAnything: 'Dostavi Sve', sendSomething: 'Posalji', receiveSomething: 'Primi',
+    pickupAddress: '📍 Adresa Preuzimanja', deliveryAddress: '🏠 Adresa Dostave',
+    pickupContactName: '👤 Ime Pošiljatelja', pickupContactPhone: '📞 Tel Pošiljatelja',
+    deliveryContactName: '👤 Ime Primatelja', deliveryContactPhone: '📞 Tel Primatelja',
+    itemDescription: '📦 Što treba dostaviti?', placeOrder: 'Naruči',
+    restaurants: 'Restorani', fastFood: 'Brza Hrana', pharmacies: 'Ljekarne',
+    supermarket: 'Supermarket', myOrders: 'Moje Narudžbe', settings: 'Postavke',
+    logout: 'Odjava', login: 'Prijava', register: 'Registracija',
+    username: 'Korisničko ime', password: 'Lozinka', displayName: 'Prikazano ime',
+    phone: 'Telefon', cart: 'Košarica', checkout: 'Plati', total: 'Ukupno',
+    deliveryFee: 'Dostava', subtotal: 'Podzbroj', promoCode: 'Promo Kod',
+    apply: 'Primijeni', orderPlaced: 'Narudžba Plaćena!', trackingOrder: 'Prati Narudžbu',
+    pending: 'Na čekanju', accepted: 'Prihvaćeno', preparing: 'Priprema se',
+    onTheWay: 'U Putu', delivered: 'Dostavljeno', cancelled: 'Otkazano',
+    back: 'Natrag', categories: 'Kategorije', searchPh: 'Pretraži restorane i trgovine...',
+    pickupSection: 'PREUZIMANJE', deliverySection: 'DOSTAVA', itemSection: 'ARTIKL',
+    pickupAddressPh: 'npr., Str. Stefan cel Mare 67, Chisinau',
+    deliveryAddressPh: 'npr., Bd. Negruzzi 10, Chisinau',
+    namePh: 'Ime', phonePh: '+373 600 00000',
+    itemDescriptionPh: 'Opišite artikl(e) za dostavu...',
+    deliverSubtitle: 'Pokupit ćemo i dostaviti vam',
+    hello: 'Pozdrav', nearYou: 'U blizini', all: 'Sve',
+    noAccount: 'Nemate račun?', haveAccount: 'Već imate račun?',
+    enterCredentials: 'Unesite korisničko ime i lozinku', missingInfo: 'Ispunite sva obavezna polja',
+    requestSent: 'Vaš zahtjev za dostavu je poslan',
+    orderFailed: 'Narudžba nije uspjela', emptyCart: 'Prvo dodajte artikle u košaricu',
+    addToCart: 'Dodaj', viewCart: 'Košarica', yourCart: 'Vaša Košarica',
+    promoDiscount: 'Promo Popust', pointsDiscount: 'Popust Bodovi',
+    promoApplied: 'Popust primijenjen!', orderConfirmed: 'Narudžba Potvrđena',
+    courierAssigned: 'Dostavljac Dodijeljen', headingToRestaurant: 'Prema Restoranu',
+    atRestaurant: 'U Restoranu', orderPickedUp: 'Narudžba Pokupljena',
+    headingToYou: 'Prema Vama', courierArrived: 'Dostavljač Stigao',
+    orderCancelled: 'Narudžba Otkazana', currentStatus: 'Trenutni status', completed: 'Završeno',
+    cancelOrder: 'Otkaži Narudžbu', rateOrder: 'Ocijeni Narudžbu', backToHome: 'Natrag',
+    cancelConfirm: 'Sigurno želite otkazati narudžbu?',
+    notifications: 'Obavijesti', noNotifications: 'Nema obavijesti',
+    messages: 'Poruke', noConversations: 'Nema konverzacija',
+    loyaltyPoints: 'Bodovi Vjernosti', pointsEarned: 'bodova zaradeno',
+    changeTheme: 'Promijeni Temu', ratePlease: 'Odaberite obje ocjene',
+    thankYou: 'Vaša ocjena je poslana',
+    open: 'Otvoreno', closed: 'Zatvoreno', km: 'km', home: 'Početna',
+    paymentMethod: 'Način Plaćanja'
   }
 };
 
@@ -1569,14 +1645,16 @@ function renderRestaurants(list) {
   el.innerHTML = list.map(r => {
     const catEmoji = CATEGORY_EMOJIS[r.category] || '🍽️';
     const catLabel = { restaurant: t('restaurants'), fast_food: t('fastFood'), pharmacy: t('pharmacies'), supermarket: t('supermarket') }[r.category] || r.category;
+    const imgHtml = r.image_url
+      ? `<img src="${esc(r.image_url)}" alt="${esc(r.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="img-emoji" style="display:none">${catEmoji}</div>`
+      : `<div class="img-emoji">${catEmoji}</div>`;
     return `
     <div class="rest-card" onclick="openRestaurant(${r.id})">
-      <div class="rest-card-img">${catEmoji}</div>
+      <div class="rest-card-img">${imgHtml}</div>
       <div class="rest-card-body">
         <h3>${esc(r.name)}</h3>
         <div class="meta">
           <span>&#128205; ${r.distance_km||'?'} ${t('km')}</span>
-          <span>${r.is_open ? '&#128994; '+t('open') : '&#128308; '+t('closed')}</span>
           ${r.rating ? '<span>&#11088; ' + parseFloat(r.rating).toFixed(1) + '</span>' : ''}
         </div>
         ${r.category ? '<div class="cat-tag">' + esc(catLabel) + '</div>' : ''}
@@ -1603,6 +1681,7 @@ async function openRestaurant(id) {
   currentRest = res.data;
   document.getElementById('menuRestName').textContent = currentRest.name;
   document.getElementById('menuRestAddr').textContent = currentRest.address || '';
+  activeSubCategory = 'all';
   renderMenuItems();
   checkFav();
   showScreen('menuScreen');
@@ -1611,16 +1690,50 @@ async function openRestaurant(id) {
 
 function renderMenuItems() {
   const items = currentRest.items || [];
-  document.getElementById('menuItems').innerHTML = items.length ? items.map(i => `
+  // Build sub-category chips
+  const subcats = ['all', ...new Set(items.map(i => i.sub_category).filter(Boolean))];
+  const subcatRow = document.getElementById('subcatRow');
+  if (subcatRow) {
+    subcatRow.innerHTML = subcats.map(sc =>
+      `<button class="subcat-chip ${sc === activeSubCategory ? 'active' : ''}" onclick="filterSubCategory('${esc(sc)}',this)">${sc === 'all' ? 'All' : esc(sc)}</button>`
+    ).join('');
+  }
+  // Filter items by sub-category
+  const filtered = activeSubCategory === 'all' ? items : items.filter(i => i.sub_category === activeSubCategory);
+  document.getElementById('menuItems').innerHTML = filtered.length ? filtered.map(i => {
+    const imgHtml = i.image_url
+      ? `<img src="${esc(i.image_url)}" alt="${esc(i.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'item-emoji\\'>&#127869;</div>'">`
+      : '<div class="item-emoji">&#127869;</div>';
+    return `
     <div class="item-card">
+      <div class="item-img">${imgHtml}</div>
       <div class="item-info">
         <h4>${esc(i.name)}</h4>
         <p>${esc(i.description||'')}</p>
       </div>
-      <div class="item-price">&euro;${parseFloat(i.price).toFixed(2)}</div>
-      <button class="add-btn" onclick="addToCart(${i.id})">${t('addToCart')}</button>
-    </div>
-  `).join('') : '<div class="empty-state"><p>No items available</p></div>';
+      <div class="item-right">
+        <div class="item-price">&euro;${parseFloat(i.price).toFixed(2)}</div>
+        <button class="add-btn" onclick="addToCart(${i.id})">${t('addToCart')}</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty-state"><p>No items in this category</p></div>';
+}
+
+function filterSubCategory(sc, el) {
+  activeSubCategory = sc;
+  if (el) {
+    document.querySelectorAll('.subcat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+  renderMenuItems();
+}
+
+function selectPayment(method, el) {
+  selectedPaymentMethod = method;
+  if (el) {
+    document.querySelectorAll('#paymentMethods .subcat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
 }
 
 async function checkFav() {
@@ -1864,7 +1977,8 @@ async function placeOrder() {
     promo_code: promoData?.code || '',
     redeem_points: pts,
     delivery_lat: userLat,
-    delivery_lng: userLng
+    delivery_lng: userLng,
+    payment_method: selectedPaymentMethod
   });
   if (res.success) {
     cart = null; promoData = null;

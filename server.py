@@ -1169,14 +1169,15 @@ def handle_create_order(body, payload):
 
         delivery_lat = body.get('delivery_lat', 41.3900) or 41.3900
         delivery_lng = body.get('delivery_lng', 2.1700) or 2.1700
+        payment_method = body.get('payment_method', 'cash') or 'cash'
 
         # Insert order — status starts as 'pending' waiting for restaurant acceptance
         oid = insert(
             "INSERT INTO Orders (order_number,customer_id,restaurant_id,status,"
-            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng)"
-            " VALUES (?,?,?,'pending',?,?,?,?,?,?)",
+            "subtotal,delivery_fee,total,delivery_address,delivery_lat,delivery_lng,payment_method)"
+            " VALUES (?,?,?,'pending',?,?,?,?,?,?,?)",
             (order_number, uid, restaurant_id, subtotal, delivery_fee, total,
-             'Customer Location', delivery_lat, delivery_lng)
+             'Customer Location', delivery_lat, delivery_lng, payment_method)
         )
 
         if not oid:

@@ -6,7 +6,7 @@ v6.0 — Version-based auto-reseed, Admin approval, broadcasts, phone numbers, M
 """
 
 # ── Current seed version — bump this to force a database reseed on Railway ──
-CURRENT_SEED_VERSION = '9'
+CURRENT_SEED_VERSION = '10'
 
 import psycopg2
 import psycopg2.extras
@@ -438,29 +438,39 @@ def seed_data(force=False):
 
     if needs_reseed:
         # Clear existing seed data for a clean reseed
+        # Use TRUNCATE with RESTART IDENTITY CASCADE to reset SERIAL sequences
+        # This ensures new rows get IDs starting from 1 again
         try:
-            query("DELETE FROM OrderItems")
-            query("DELETE FROM OrderLog")
-            query("DELETE FROM Orders")
-            query("DELETE FROM Items")
-            query("DELETE FROM Restaurants")
-            query("DELETE FROM PromoCodes")
-            query("DELETE FROM Favorites")
-            query("DELETE FROM Ratings")
-            query("DELETE FROM CourierEarnings")
-            query("DELETE FROM SupportTickets")
-            query("DELETE FROM SupportMessages")
-            query("DELETE FROM ChatMessages")
-            query("DELETE FROM Notifications")
-            query("DELETE FROM Addresses")
-            query("DELETE FROM PointTransactions")
-            query("DELETE FROM LoyaltyPoints")
-            query("DELETE FROM CourierLocations")
-            query("DELETE FROM Users")
-            query("DELETE FROM CallSessions")
-            query("DELETE FROM IceCandidates")
-            query("DELETE FROM Broadcasts")
-            print("  Cleared all existing data for reseed")
+            tables_to_truncate = [
+                'OrderItems', 'OrderLog', 'Orders', 'Items', 'Restaurants',
+                'PromoCodes', 'Favorites', 'Ratings', 'CourierEarnings',
+                'SupportTickets', 'SupportMessages', 'Broadcasts',
+                'CourierLocations',
+            ]
+            # These may or may not exist, so try individually
+            for tbl in tables_to_truncate:
+                try:
+                    query(f"TRUNCATE TABLE {tbl} RESTART IDENTITY CASCADE")
+                except Exception:
+                    try:
+                        query(f"DELETE FROM {tbl}")
+                    except Exception:
+                        pass
+            # Tables that may not exist in all deployments
+            for tbl in ['ChatMessages', 'Notifications', 'Addresses', 'PointTransactions', 'LoyaltyPoints', 'CallSessions', 'IceCandidates']:
+                try:
+                    query(f"DELETE FROM {tbl}")
+                except Exception:
+                    pass
+            # Users last (referenced by other tables)
+            try:
+                query("TRUNCATE TABLE Users RESTART IDENTITY CASCADE")
+            except Exception:
+                try:
+                    query("DELETE FROM Users")
+                except Exception:
+                    pass
+            print("  Cleared all existing data for reseed (with sequence reset)")
         except Exception as e:
             print(f"  Clear data note: {e}")
 
@@ -502,8 +512,16 @@ def seed_data(force=False):
                 print(f"  Seed restaurant note: {e}")
         print("  Seeded 18 Moldova-based restaurants with Unsplash images")
 
+        # Build a name->id mapping for robust item seeding
+        # (This ensures items link to correct restaurant IDs even if sequence doesn't start from 1)
+        rest_rows = query("SELECT id, name FROM Restaurants ORDER BY id", fetch=True) or []
+        rest_name_to_id = {r['name']: r['id'] for r in rest_rows}
+        # Also build an index-based mapping (1st restaurant = index 1, etc.)
+        rest_index_to_id = {i+1: r['id'] for i, r in enumerate(rest_rows)}
+
         # Seed items for each restaurant
         # Format: (name, description, price, sub_category, image_url)
+        # Keys use index positions matching the restaurant list order (1=La Placinte, 2=Carpe Diem, etc.)
         items_data = {
             1: [  # La Placinte - Moldovan
                 ('Placinta cu Branza', 'Traditional cheese-filled pastry', 4.50, 'Pastries', 'https://images.unsplash.com/photo-1519676867240-f03562e64571?w=300&h=300&fit=crop'),
@@ -663,10 +681,12 @@ def seed_data(force=False):
             ],
         }
         for rid, items in items_data.items():
+            # Use the actual restaurant ID from the database, not the hardcoded index
+            actual_rid = rest_index_to_id.get(rid, rid)
             for name, desc, price, sub_cat, img in items:
                 try:
                     insert("INSERT INTO Items (restaurant_id,name,description,price,sub_category,image_url) VALUES (?,?,?,?,?,?)",
-                           (rid, name, desc, price, sub_cat, img))
+                           (actual_rid, name, desc, price, sub_cat, img))
                 except Exception as e:
                     print(f"  Seed item note: {e}")
         print("  Seeded menu items with sub-categories and images for all Moldova businesses")

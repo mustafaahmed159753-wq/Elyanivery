@@ -167,7 +167,7 @@ a{color:var(--pri);text-decoration:none}
 .login-screen::before{content:'';position:absolute;top:-50%;right:-30%;width:80%;height:80%;background:radial-gradient(circle,var(--badge-bg) 0%,transparent 60%);pointer-events:none}
 .login-screen::after{content:'';position:absolute;bottom:-40%;left:-20%;width:60%;height:60%;background:radial-gradient(circle,rgba(155,89,182,.08) 0%,transparent 60%);pointer-events:none}
 .login-box{background:var(--card);border-radius:20px;padding:44px 36px;width:100%;max-width:420px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;z-index:2}
-.login-box .logo-icon{text-align:center;font-size:52px;margin-bottom:16px;animation:logoFloat 3s ease-in-out infinite}
+.login-box .logo-icon{width:70px;height:70px;margin-bottom:12px;border-radius:18px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.3)}.login-box .logo-icon img{width:100%;height:100%;object-fit:cover}
 @keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .login-box h2{color:var(--pri);font-size:26px;font-weight:800;text-align:center;margin-bottom:4px}
 .login-box p{color:var(--muted);font-size:13px;text-align:center;margin-bottom:32px}
@@ -481,6 +481,7 @@ a{color:var(--pri);text-decoration:none}
   <div class="splash-bg"></div>
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
+    <div style="width:60px;height:60px;border-radius:16px;overflow:hidden;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><img src="/static/logo.png" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>
     <div class="splash-letters" id="splashLetters"></div>
     <div class="splash-subtitle" id="splashSubtitle">Customer Support</div>
     <div class="splash-progress">
@@ -496,7 +497,7 @@ a{color:var(--pri);text-decoration:none}
 <!-- ═══ LOGIN SCREEN ═══ -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <div class="logo-icon">🎧</div>
+    <div class="logo-icon"><img src="/static/logo.png" alt="Elyanivery" onerror="this.parentElement.innerHTML='🛡️'"></div>
     <h2 id="loginTitle">Support Center</h2>
     <p>Elyanivery Customer Support Dashboard</p>
     <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="username">

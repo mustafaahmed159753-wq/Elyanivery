@@ -2,8 +2,11 @@
 Elyanivery — Database Module (PostgreSQL)
 Uses psycopg2 with thread-local connections.
 All SQL Server-specific syntax has been converted to PostgreSQL.
-v5.0 — Admin approval, broadcasts, phone numbers, Moldova seed data, Deliver Anything addresses
+v6.0 — Version-based auto-reseed, Admin approval, broadcasts, phone numbers, Moldova seed data, Deliver Anything addresses
 """
+
+# ── Current seed version — bump this to force a database reseed on Railway ──
+CURRENT_SEED_VERSION = '8'
 
 import psycopg2
 import psycopg2.extras
@@ -338,6 +341,12 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             expires_at TIMESTAMP NULL
         )""",
+
+        """CREATE TABLE IF NOT EXISTS AppSettings (
+            key VARCHAR(100) PRIMARY KEY,
+            value VARCHAR(500) NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
     ]
 
     for sql in tables:
@@ -386,10 +395,73 @@ def _migrate_columns():
                     print(f"  Migration note ({table}.{column}): {e2}")
 
 
-def seed_data():
-    """Seed the database with sample restaurants, items, and promo codes if empty.
-    v5.0 — All addresses in Chisinau, Moldova. Categories: restaurant, fast_food, pharmacy, supermarket."""
-    # Seed restaurants if none exist
+def check_seed_version():
+    """Check if the database seed version matches CURRENT_SEED_VERSION.
+    Returns True if reseed is needed, False if version matches."""
+    try:
+        row = query("SELECT value FROM AppSettings WHERE key=%s", ('db_seed_version',), fetch_one=True)
+        db_version = row['value'] if row else '0'
+        if db_version != CURRENT_SEED_VERSION:
+            print(f"  Seed version mismatch: DB={db_version}, Code={CURRENT_SEED_VERSION} → Reseeding...")
+            return True
+        print(f"  Seed version OK: {db_version}")
+        return False
+    except Exception as e:
+        print(f"  Seed version check note: {e} → Will reseed")
+        return True
+
+
+def update_seed_version():
+    """Update the db_seed_version in AppSettings to CURRENT_SEED_VERSION."""
+    try:
+        existing = query("SELECT key FROM AppSettings WHERE key=%s", ('db_seed_version',), fetch_one=True)
+        if existing:
+            query("UPDATE AppSettings SET value=%s, updated_at=CURRENT_TIMESTAMP WHERE key=%s",
+                  (CURRENT_SEED_VERSION, 'db_seed_version'))
+        else:
+            insert("INSERT INTO AppSettings (key, value) VALUES (%s, %s)",
+                   ('db_seed_version', CURRENT_SEED_VERSION))
+        print(f"  Seed version updated to {CURRENT_SEED_VERSION}")
+    except Exception as e:
+        print(f"  Seed version update note: {e}")
+
+
+def seed_data(force=False):
+    """Seed the database with sample restaurants, items, and promo codes.
+    v6.0 — Version-based auto-reseed. If force=True or version mismatch, clears and reseeds.
+    All addresses in Chisinau, Moldova. Categories: restaurant, fast_food, pharmacy, supermarket."""
+    # Check if we need to force reseed
+    needs_reseed = force or check_seed_version()
+
+    if needs_reseed:
+        # Clear existing seed data for a clean reseed
+        try:
+            query("DELETE FROM OrderItems")
+            query("DELETE FROM OrderLog")
+            query("DELETE FROM Orders")
+            query("DELETE FROM Items")
+            query("DELETE FROM Restaurants")
+            query("DELETE FROM PromoCodes")
+            query("DELETE FROM Favorites")
+            query("DELETE FROM Ratings")
+            query("DELETE FROM CourierEarnings")
+            query("DELETE FROM SupportTickets")
+            query("DELETE FROM SupportMessages")
+            query("DELETE FROM ChatMessages")
+            query("DELETE FROM Notifications")
+            query("DELETE FROM Addresses")
+            query("DELETE FROM PointTransactions")
+            query("DELETE FROM LoyaltyPoints")
+            query("DELETE FROM CourierLocations")
+            query("DELETE FROM Users")
+            query("DELETE FROM CallSessions")
+            query("DELETE FROM IceCandidates")
+            query("DELETE FROM Broadcasts")
+            print("  Cleared all existing data for reseed")
+        except Exception as e:
+            print(f"  Clear data note: {e}")
+
+    # Seed restaurants if none exist (or after clearing)
     rest_count = query("SELECT COUNT(*) as cnt FROM Restaurants", fetch_one=True)
     if rest_count and rest_count['cnt'] == 0:
         # All coordinates centered on Chisinau, Moldova (47.0105, 28.8638)
@@ -548,3 +620,8 @@ def seed_data():
             except Exception as e:
                 print(f"  Seed promo note: {e}")
         print("  Seeded 3 promo codes")
+
+    # Update the seed version after successful seeding
+    if needs_reseed:
+        update_seed_version()
+        print("  ✅ Database reseed complete!")

@@ -18,7 +18,7 @@ import base64
 import uuid
 import random
 from config import Config
-from db import query, insert, init_db, seed_data, close_conn
+from db import query, insert, init_db, seed_data, close_conn, update_seed_version, CURRENT_SEED_VERSION
 from services.auth import AuthService
 
 
@@ -3469,14 +3469,15 @@ if __name__ == '__main__':
 
     if db_ok:
         print("  DB connection OK")
-        try:
-            seed_data()
-        except Exception as e:
-            print(f"  Seed data note: {e}")
+        print(f"  Current seed version: {CURRENT_SEED_VERSION}")
         try:
             init_extra_tables()
         except Exception as e:
             print(f"  Extra tables note: {e}")
+        try:
+            seed_data()  # auto-reseeds if version mismatch
+        except Exception as e:
+            print(f"  Seed data note: {e}")
         try:
             ensure_default_users()
         except Exception as e:

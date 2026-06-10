@@ -574,111 +574,6 @@ html[data-theme="glassmorphism"] .subcat-chip{background:rgba(255,255,255,.1)!im
 html[data-theme="glassmorphism"] .subcat-chip.active{background:var(--pri)!important;color:#fff!important;border-color:var(--pri)!important}
 html[data-theme="glassmorphism"] .item-card{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important}
 html[data-theme="glassmorphism"] .item-img{background:rgba(255,255,255,.06)!important}
-
-/* ═══════════════════════════════════════════════════
-   NEW FEATURE STYLES
-   ═══════════════════════════════════════════════════ */
-
-/* ── Schedule Toggle ── */
-.schedule-toggle-area{margin-bottom:12px;padding:12px;background:var(--card2);border-radius:12px;border:1px solid var(--border)}
-.schedule-toggle-row{display:flex;align-items:center;justify-content:space-between}
-.schedule-toggle-row label{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
-.toggle-switch{position:relative;width:48px;height:26px;cursor:pointer}
-.toggle-switch input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:26px;transition:all .3s}
-.toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:all .3s}
-.toggle-switch input:checked+.toggle-slider{background:var(--pri)}
-.toggle-switch input:checked+.toggle-slider::before{transform:translateX(22px)}
-.schedule-datetime{display:none;margin-top:12px;gap:8px}
-.schedule-datetime.visible{display:flex}
-.schedule-datetime input{flex:1;padding:10px 12px;border:1px solid var(--input-border);border-radius:10px;font-size:13px;background:var(--input-bg);color:var(--text);outline:none}
-.schedule-datetime input:focus{border-color:var(--pri)}
-.schedule-datetime input:disabled{opacity:.5}
-
-/* ── Reorder Button ── */
-.reorder-btn{padding:6px 14px;background:var(--pri);color:#fff;border-radius:8px;font-size:12px;font-weight:600;margin-top:8px;transition:all .2s;display:inline-flex;align-items:center;gap:4px}
-.reorder-btn:active{transform:scale(.95)}
-
-/* ── Favorites Screen ── */
-.fav-restaurant-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:14px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:transform .15s}
-.fav-restaurant-card:active{transform:scale(.98)}
-.fav-restaurant-card .fav-rest-img{width:64px;height:64px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:28px}
-.fav-restaurant-card .fav-rest-img img{width:100%;height:100%;object-fit:cover}
-.fav-restaurant-card .fav-rest-info{flex:1;min-width:0}
-.fav-restaurant-card .fav-rest-info h4{font-size:14px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fav-restaurant-card .fav-rest-info p{font-size:12px;color:var(--muted)}
-.fav-restaurant-card .fav-rest-unfav{background:none;font-size:22px;color:var(--red);padding:4px;transition:transform .2s}
-.fav-restaurant-card .fav-rest-unfav:active{transform:scale(1.2)}
-
-/* ── Address Book ── */
-.address-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shadow);border:1px solid var(--border);position:relative;transition:transform .15s}
-.address-card:active{transform:scale(.98)}
-.address-card .addr-label{font-size:15px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
-.address-card .addr-label .default-badge{font-size:9px;padding:2px 6px;background:var(--green);color:#fff;border-radius:6px;font-weight:700;text-transform:uppercase}
-.address-card .addr-text{font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.3}
-.address-card .addr-actions{display:flex;gap:8px}
-.address-card .addr-actions button{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;transition:all .2s}
-.addr-btn-default{background:var(--green);color:#fff}
-.addr-btn-edit{background:var(--blue);color:#fff}
-.addr-btn-delete{background:var(--red);color:#fff}
-.addr-btn-default:active,.addr-btn-edit:active,.addr-btn-delete:active{transform:scale(.95)}
-.addr-form{background:var(--card2);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--border)}
-.addr-form input,.addr-form textarea{width:100%;padding:10px 14px;border:1px solid var(--input-border);border-radius:10px;font-size:14px;margin-bottom:8px;background:var(--input-bg);color:var(--text);outline:none}
-.addr-form input:focus,.addr-form textarea:focus{border-color:var(--pri)}
-.addr-form textarea{height:60px;resize:none}
-.addr-form label{font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:4px}
-
-/* ── Promo Banner ── */
-.promo-banner-row{display:flex;gap:10px;overflow-x:auto;padding:4px 0 14px;scrollbar-width:none;-ms-overflow-style:none;margin:0 -4px}
-.promo-banner-row::-webkit-scrollbar{display:none}
-.promo-card{flex-shrink:0;width:200px;padding:14px;border-radius:14px;border:1px solid var(--border);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.promo-card:active{transform:scale(.96)}
-.promo-card-gradient-1{background:linear-gradient(135deg,#FF6B00,#CC5500);color:#fff}
-.promo-card-gradient-2{background:linear-gradient(135deg,#27ae60,#1e8c4c);color:#fff}
-.promo-card-gradient-3{background:linear-gradient(135deg,#5dade2,#2980b9);color:#fff}
-.promo-card .promo-code{font-size:18px;font-weight:800;letter-spacing:1px;margin-bottom:4px}
-.promo-card .promo-desc{font-size:11px;opacity:.9;line-height:1.3}
-.promo-card .promo-tap{font-size:10px;opacity:.7;margin-top:6px}
-
-/* ── Order Filter Tabs ── */
-.order-filter-tabs{display:flex;gap:0;margin-bottom:14px;border-radius:12px;overflow:hidden;border:1px solid var(--border)}
-.order-filter-tabs button{flex:1;padding:10px;font-size:13px;font-weight:600;background:var(--card2);color:var(--text2);transition:all .2s;border:none}
-.order-filter-tabs button.active{background:var(--pri);color:#fff}
-.order-filter-tabs button:active{transform:scale(.97)}
-
-/* ── Theme Quick Toggle ── */
-.theme-quick-toggle{width:36px;height:36px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .2s;color:var(--text)}
-.theme-quick-toggle:active{transform:scale(.9);background:var(--pri);color:#fff}
-
-/* ── Address Quick Select ── */
-.addr-quick-select{margin-bottom:12px}
-.addr-quick-select label{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:6px;display:block}
-.addr-quick-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.addr-quick-chips::-webkit-scrollbar{display:none}
-.addr-quick-chip{flex-shrink:0;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;background:var(--card2);color:var(--text2);border:1px solid var(--border);cursor:pointer;transition:all .2s;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis}
-.addr-quick-chip:active{transform:scale(.95)}
-.addr-quick-chip.active{background:var(--pri);color:#fff;border-color:var(--pri)}
-
-/* ── Toast Notification ── */
-.toast-container{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:8000;padding:0 16px;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px}
-.toast-popup{pointer-events:auto;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.3);animation:toastIn .3s ease,toastOut .3s ease 2.2s forwards;display:flex;align-items:center;gap:8px}
-@keyframes toastIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes toastOut{to{opacity:0;transform:translateY(-10px)}}
-
-/* Glassmorphism overrides for new elements */
-html[data-theme="glassmorphism"] .schedule-toggle-area{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
-html[data-theme="glassmorphism"] .schedule-datetime input{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
-html[data-theme="glassmorphism"] .fav-restaurant-card{background:rgba(255,255,255,.1)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.18)!important}
-html[data-theme="glassmorphism"] .address-card{background:rgba(255,255,255,.1)!important;backdrop-filter:blur(16px)!important;border:1px solid rgba(255,255,255,.18)!important}
-html[data-theme="glassmorphism"] .addr-form{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
-html[data-theme="glassmorphism"] .addr-form input,html[data-theme="glassmorphism"] .addr-form textarea{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
-html[data-theme="glassmorphism"] .order-filter-tabs{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important}
-html[data-theme="glassmorphism"] .order-filter-tabs button{background:rgba(255,255,255,.08)!important;color:rgba(255,255,255,.7)!important}
-html[data-theme="glassmorphism"] .order-filter-tabs button.active{background:var(--pri)!important;color:#fff!important}
-html[data-theme="glassmorphism"] .theme-quick-toggle{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
-html[data-theme="glassmorphism"] .addr-quick-chip{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.15)!important;color:rgba(255,255,255,.7)!important}
-html[data-theme="glassmorphism"] .addr-quick-chip.active{background:var(--pri)!important;color:#fff!important;border-color:var(--pri)!important}
-html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!important;backdrop-filter:blur(12px)!important;border:1px solid rgba(255,255,255,.15)!important;color:#fff!important}
 </style>
 </head>
 <body>
@@ -708,7 +603,6 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
      ═══════════════════════════════════════════════════ -->
 <div class="notif-container" id="notifContainer"></div>
 <div id="msgPopupOverlay"></div>
-<div class="toast-container" id="toastContainer"></div>
 
 <div id="app">
 
@@ -747,17 +641,13 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
       <p id="homeLocation" style="font-size:12px;color:var(--muted)">Detecting location...</p>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <button class="theme-quick-toggle" id="themeQuickToggle" onclick="toggleQuickTheme()" title="Toggle Light/Dark">🌙</button>
       <div class="lang-selector" id="langSelector">
         <button onclick="switchLang('en')" data-lang="en" class="active">EN</button>
         <button onclick="switchLang('ru')" data-lang="ru">RU</button>
         <button onclick="switchLang('ro')" data-lang="ro">RO</button>
         <button onclick="switchLang('hr')" data-lang="hr">HR</button>
       </div>
-      <div style="position:relative">
-        <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen');loadProfile()">?</div>
-        <button style="position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);cursor:pointer" onclick="event.stopPropagation();showScreen('favoritesScreen');loadFavorites()" title="Favorites">❤</button>
-      </div>
+      <div class="avatar" id="homeAvatar" onclick="showScreen('profileScreen');loadProfile()">?</div>
     </div>
   </div>
   <div id="broadcastContainer"></div>
@@ -791,7 +681,6 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
     </div>
   </div>
   <div class="section-title" id="restSectionTitle">Near You</div>
-  <div id="promoBannerContainer"></div>
   <div class="rest-grid" id="restaurantList"></div>
 </div>
 
@@ -987,50 +876,10 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
   </div>
   <div class="menu-list">
     <button onclick="showScreen('ordersScreen');loadOrders()"><span class="icon">&#128230;</span> <span data-i18n="myOrders">My Orders</span> <span class="arrow">&#8250;</span></button>
-    <button onclick="showScreen('favScreen');loadFavorites()"><span class="icon">&#10084;&#65039;</span> <span>Favorites</span> <span class="arrow">&#8250;</span></button>
-    <button onclick="showScreen('addrScreen');loadAddresses()"><span class="icon">&#128205;</span> <span>My Addresses</span> <span class="arrow">&#8250;</span></button>
     <button onclick="showScreen('notifScreen');loadNotifications()"><span class="icon">&#128276;</span> <span data-i18n="notifications">Notifications</span> <span class="arrow">&#8250;</span></button>
     <button onclick="openThemePicker()"><span class="icon">&#127912;</span> <span data-i18n="changeTheme">Change Theme</span> <span class="arrow">&#8250;</span></button>
     <button onclick="openDeliverAnything()"><span class="icon">&#128640;</span> <span data-i18n="deliverAnything">Deliver Anything</span> <span class="arrow">&#8250;</span></button>
     <button onclick="logout()"><span class="icon">&#128682;</span> <span data-i18n="logout">Logout</span> <span class="arrow">&#8250;</span></button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-     FAVORITES SCREEN
-     ═══════════════════════════════════════════════════ -->
-<div id="favScreen" class="screen">
-  <button class="back-btn" onclick="showScreen('profileScreen')">&#8592; Back</button>
-  <div class="section-title" style="margin-bottom:16px">&#10084;&#65039; Favorite Restaurants</div>
-  <div id="favList"></div>
-  <div id="favEmpty" class="empty-state" style="display:none"><div class="icon">&#128148;</div><p>No favorites yet. Tap the heart on a restaurant to add it!</p></div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════
-     ADDRESSES SCREEN
-     ═══════════════════════════════════════════════════ -->
-<div id="addrScreen" class="screen">
-  <button class="back-btn" onclick="showScreen('profileScreen')">&#8592; Back</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div class="section-title" style="margin:0">&#128205; My Addresses</div>
-    <button onclick="showAddAddrForm()" style="background:var(--pri);color:#fff;border:none;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700">+ Add</button>
-  </div>
-  <div id="addrList"></div>
-  <div id="addrEmpty" class="empty-state" style="display:none"><div class="icon">&#128205;</div><p>No saved addresses yet.</p></div>
-  <div id="addrForm" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
-    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--pri)" id="addrFormTitle">Add Address</div>
-    <input id="addrLabel" placeholder="Label (Home, Work, etc.)" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--bg);color:var(--text);font-size:14px">
-    <input id="addrText" placeholder="Address" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--bg);color:var(--text);font-size:14px">
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input id="addrLat" placeholder="Lat (optional)" style="flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px">
-      <input id="addrLng" placeholder="Lng (optional)" style="flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px">
-    </div>
-    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:12px"><input type="checkbox" id="addrDefault"> Set as default</label>
-    <input id="addrEditId" type="hidden" value="">
-    <div style="display:flex;gap:8px">
-      <button onclick="saveAddress()" style="flex:1;padding:12px;background:var(--pri);color:#fff;border-radius:10px;font-weight:700;font-size:14px">Save</button>
-      <button onclick="document.getElementById('addrForm').style.display='none'" style="padding:12px 16px;background:var(--bg2);color:var(--muted);border:1px solid var(--border);border-radius:10px;font-size:14px">Cancel</button>
-    </div>
   </div>
 </div>
 
@@ -2149,80 +1998,19 @@ async function loadOrders() {
     const el = document.getElementById('ordersList');
     const orders = res.data;
     if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128230;</div><p>'+t('myOrders')+'</p></div>'; return; }
-    // Add filter tabs above orders
-    const activeOrders = orders.filter(o => !['delivered','cancelled','rejected'].includes(o.status));
-    const completedOrders = orders.filter(o => o.status === 'delivered');
-    const cancelledOrders = orders.filter(o => ['cancelled','rejected'].includes(o.status));
-    
-    const filterHtml = '<div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">' +
-      '<button class="order-filter-btn active" onclick="filterOrders(\'all\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--pri);color:#fff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">All (' + orders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'active\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Active (' + activeOrders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'completed\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Completed (' + completedOrders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'cancelled\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Cancelled (' + cancelledOrders.length + ')</button>' +
-    '</div>';
-    
-    // Store all orders globally for filtering
-    window._allOrders = orders;
-    window._activeOrders = activeOrders;
-    window._completedOrders = completedOrders;
-    window._cancelledOrders = cancelledOrders;
-    
-    el.innerHTML = filterHtml + renderOrderCards(orders);
-  }
-}
-
-function renderOrderCards(orders) {
-  return orders.map(o => {
-    const statusLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[o.status]) || STATUS_LABELS[o.status] || o.status;
-    const isCompleted = o.status === 'delivered';
-    const isCancelled = ['cancelled','rejected'].includes(o.status);
-    const isActive = !isCompleted && !isCancelled;
-    return '<div class="order-card" onclick="openTracker(' + o.id + ')" style="position:relative">' +
-      '<div class="order-num-badge">' + (o.order_number || '#Ely-'+String(o.id).padStart(5,'0')) + '</div>' +
-      '<h4>' + esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order #'+o.id)) + '</h4>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">' +
-        '<span class="status-badge status-' + o.status + '">' + statusLabel + '</span>' +
-        '<span style="font-size:13px;font-weight:600">&euro;' + parseFloat(o.total).toFixed(2) + '</span>' +
-      '</div>' +
-      (isCompleted ? '<div style="display:flex;gap:6px;margin-top:8px">' +
-        '<button onclick="event.stopPropagation();reorderItems(' + o.id + ')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--pri);background:transparent;color:var(--pri);font-size:12px;font-weight:600;cursor:pointer">🔄 Reorder</button>' +
-      '</div>' : '') +
-      (isActive ? '<div style="margin-top:6px"><span style="font-size:11px;color:var(--pri)">📍 Tap to track</span></div>' : '') +
-    '</div>';
-  }).join('');
-}
-
-function filterOrders(filter, btn) {
-  // Update button styles
-  document.querySelectorAll('.order-filter-btn').forEach(b => {
-    b.style.background = 'var(--card)';
-    b.style.color = 'var(--text)';
-    b.classList.remove('active');
-  });
-  btn.style.background = 'var(--pri)';
-  btn.style.color = '#fff';
-  btn.classList.add('active');
-  
-  const el = document.getElementById('ordersList');
-  let filtered;
-  switch(filter) {
-    case 'active': filtered = window._activeOrders; break;
-    case 'completed': filtered = window._completedOrders; break;
-    case 'cancelled': filtered = window._cancelledOrders; break;
-    default: filtered = window._allOrders;
-  }
-  // Keep the filter tabs
-  const filterHtml = el.querySelector('div')?.outerHTML || '';
-  el.innerHTML = filterHtml + renderOrderCards(filtered);
-}
-
-async function reorderItems(oid) {
-  const res = await api('POST', '/api/orders/' + oid + '/reorder');
-  if (res && res.success) {
-    showInAppNotif('Reorder', 'Items added to cart!', '🛒');
-    loadCart();
-  } else {
-    showInAppNotif('Error', res?.message || 'Could not reorder', '❌');
+    el.innerHTML = orders.map(o => {
+      const statusLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[o.status]) || STATUS_LABELS[o.status] || o.status;
+      return `
+      <div class="order-card" onclick="openTracker(${o.id})">
+        <div class="order-num-badge">${o.order_number || '#Ely-'+String(o.id).padStart(5,'0')}</div>
+        <h4>${esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order #'+o.id))}</h4>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <span class="status-badge status-${o.status}">${statusLabel}</span>
+          <span style="font-size:13px;font-weight:600">&euro;${parseFloat(o.total).toFixed(2)}</span>
+        </div>
+      </div>
+    `;
+    }).join('');
   }
 }
 
@@ -2894,10 +2682,6 @@ function closeThemePicker() {
         logout();
       }
     });
-  } else {
-    // No saved credentials — show login screen after splash
-    showScreen('authScreen');
-    document.getElementById('bottomNav').style.display = 'none';
   }
 })();
 </script>

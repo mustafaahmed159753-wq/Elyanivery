@@ -439,11 +439,27 @@ a{color:var(--pri);text-decoration:none}
   .contact-cards{grid-template-columns:1fr}
   .detail-info-grid{grid-template-columns:1fr 1fr}
 }
+/* Mobile Tab Navigation */
+.mobile-tabs{display:none;background:var(--card);border-bottom:1px solid var(--border);padding:4px 8px;gap:4px;flex-shrink:0}
+.mobile-tab{flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;color:var(--muted);background:var(--bg2);text-align:center;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid transparent}
+.mobile-tab.active{background:var(--pri);color:#fff;border-color:var(--pri)}
+
 @media(max-width:900px){
-  .dashboard-main{flex-direction:column}
-  .left-panel,.right-panel{width:100%;min-width:unset;max-height:35vh;border:none;border-bottom:1px solid var(--border)}
-  .center-panel{min-height:50vh}
+  .mobile-tabs{display:flex}
+  .dashboard-main{flex-direction:column;overflow-y:auto}
+  .left-panel,.right-panel{width:100%;min-width:unset;border:none;border-bottom:1px solid var(--border)}
+  .center-panel{min-height:60vh}
   .left-panel{order:1}.center-panel{order:2}.right-panel{order:3}
+  /* Mobile: hide panels not selected via tabs */
+  .dashboard-main.mob-tab-orders .left-panel{display:flex}
+  .dashboard-main.mob-tab-orders .center-panel{display:none}
+  .dashboard-main.mob-tab-orders .right-panel{display:none}
+  .dashboard-main.mob-tab-detail .left-panel{display:none}
+  .dashboard-main.mob-tab-detail .center-panel{display:flex;min-height:80vh}
+  .dashboard-main.mob-tab-detail .right-panel{display:none}
+  .dashboard-main.mob-tab-tickets .left-panel{display:none}
+  .dashboard-main.mob-tab-tickets .center-panel{display:none}
+  .dashboard-main.mob-tab-tickets .right-panel{display:flex}
   .contact-cards{grid-template-columns:1fr 1fr}
   .detail-info-grid{grid-template-columns:1fr 1fr}
 }
@@ -456,6 +472,7 @@ a{color:var(--pri);text-decoration:none}
   .top-lang-select{min-width:50px;font-size:9px;padding:4px 5px}
   .top-select{font-size:10px;padding:4px 6px}
   .chat-input-area{flex-wrap:wrap}
+  .mobile-tab{font-size:10px;padding:7px 2px}
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -535,8 +552,15 @@ a{color:var(--pri);text-decoration:none}
     <button class="top-logout" onclick="doLogout()">👋 <span data-lang="logout">Logout</span></button>
   </div>
 
+  <!-- Mobile Tab Bar -->
+  <div class="mobile-tabs" id="mobileTabs">
+    <div class="mobile-tab active" onclick="switchMobileTab('orders',this)">📦 Orders</div>
+    <div class="mobile-tab" onclick="switchMobileTab('detail',this)">📋 Detail</div>
+    <div class="mobile-tab" onclick="switchMobileTab('tickets',this)">🎫 Tickets</div>
+  </div>
+
   <!-- Dashboard Main -->
-  <div class="dashboard-main">
+  <div class="dashboard-main" id="dashboardMain">
     <!-- Left Panel: Active Orders -->
     <div class="left-panel">
       <div class="panel-header">
@@ -935,12 +959,22 @@ function showDashboard() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('dashboard').style.display = 'flex';
+  // Initialize mobile tab (default: orders)
+  switchMobileTab('orders', document.querySelector('.mobile-tab'));
   loadOrders();
   loadTickets();
   loadBroadcasts();
   loadServerNotifications();
   startPolling();
   applyTranslations();
+}
+
+// Mobile tab switching for 3-panel layout
+function switchMobileTab(tab, el) {
+  const dm = document.getElementById('dashboardMain');
+  dm.className = 'dashboard-main mob-tab-' + tab;
+  document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
 }
 
 function doLogin() {
@@ -1125,6 +1159,10 @@ async function selectOrder(id) {
   selectedOrderId = id;
   renderOrders();
   await loadOrderDetail(id);
+  // On mobile, switch to detail tab when an order is selected
+  if (window.innerWidth <= 900) {
+    switchMobileTab('detail', document.querySelectorAll('.mobile-tab')[1]);
+  }
 }
 
 async function loadOrderDetail(id) {

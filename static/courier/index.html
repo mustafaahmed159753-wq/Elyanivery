@@ -99,9 +99,9 @@ input,textarea,select{font-family:inherit}
    BOTTOM NAVIGATION
    ═══════════════════════════════════════════════ */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.1)}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;font-size:10px;color:var(--muted);background:none;position:relative;transition:color .2s}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0;font-size:9px;color:var(--muted);background:none;position:relative;transition:color .2s}
 .nav-item.active{color:var(--pri);font-weight:700}
-.nav-item svg{width:22px;height:22px;margin-bottom:2px}
+.nav-item svg{width:20px;height:20px;margin-bottom:2px}
 .nav-badge{position:absolute;top:2px;right:calc(50% - 16px);background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .vehicle-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;background:var(--pri);color:#fff;font-size:10px;font-weight:700;margin-left:6px;white-space:nowrap}
 
@@ -429,6 +429,77 @@ input,textarea,select{font-family:inherit}
 
 /* Phone field style override for auth form */
 .auth-form input#authPhone{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238888a0' viewBox='0 0 16 16'%3E%3Cpath d='M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.48 8.341A1.745 1.745 0 0 1 5.022 6.684l.547-2.19a.678.678 0 0 0-.122-.58L3.654 1.328z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:16px center;padding-left:40px}
+
+/* ═══════════════════════════════════════════════
+   STATS SCREEN
+   ═══════════════════════════════════════════════ */
+.stats-hero{background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:var(--radius);padding:24px;color:#fff;text-align:center;margin-bottom:16px}
+.stats-hero .sh-label{font-size:12px;opacity:.8;margin-bottom:4px}
+.stats-hero .sh-amount{font-size:36px;font-weight:800}
+.stats-hero .sh-subtitle{font-size:12px;opacity:.7;margin-top:4px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stats-card{background:var(--bg);border-radius:var(--radius);padding:14px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stats-card .sc-val{font-size:20px;font-weight:800;color:var(--pri)}
+.stats-card .sc-label{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.stats-section-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* Daily Earnings Bar Chart */
+.daily-chart{background:var(--bg);border-radius:var(--radius);padding:16px;margin-bottom:16px;border:1px solid var(--border)}
+.daily-chart .chart-title{font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text)}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding-top:8px}
+.chart-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.chart-bar{width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--pri),var(--pri2));min-height:4px;transition:height .5s cubic-bezier(.16,1,.3,1);position:relative}
+.chart-bar:hover{filter:brightness(1.15)}
+.chart-bar-val{font-size:9px;font-weight:700;color:var(--pri);white-space:nowrap}
+.chart-bar-day{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* Best Hours */
+.best-hours{background:var(--bg);border-radius:var(--radius);padding:16px;margin-bottom:16px;border:1px solid var(--border)}
+.best-hours .bh-title{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text)}
+.bh-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.bh-row:last-child{border-bottom:none}
+.bh-row .bh-hour{font-size:13px;font-weight:700;color:var(--pri);min-width:60px}
+.bh-row .bh-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.bh-row .bh-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--pri),var(--pri2));transition:width .5s ease}
+.bh-row .bh-info{font-size:11px;color:var(--muted);min-width:70px;text-align:right}
+
+/* Pro Tips */
+.pro-tips{margin-bottom:16px}
+.pro-tips .pt-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.tip-card{background:var(--bg);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);font-size:13px;line-height:1.5;color:var(--text);transition:transform .15s}
+.tip-card:hover{transform:translateX(4px)}
+
+/* ═══════════════════════════════════════════════
+   WEEKLY GOAL TRACKER
+   ═══════════════════════════════════════════════ */
+.weekly-goal-card{background:var(--bg);border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.weekly-goal-card .wg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.weekly-goal-card .wg-header h4{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.weekly-goal-card .wg-header .wg-pct{font-size:14px;font-weight:800;color:var(--pri)}
+.wg-progress{height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:6px}
+.wg-progress-bar{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--pri),var(--pri2));transition:width .6s cubic-bezier(.16,1,.3,1)}
+.wg-progress-bar.complete{background:linear-gradient(90deg,var(--green),#5dde8e)}
+.weekly-goal-card .wg-text{font-size:12px;color:var(--muted)}
+
+/* ═══════════════════════════════════════════════
+   SMART TIPS CARD
+   ═══════════════════════════════════════════════ */
+.smart-tip-card{background:linear-gradient(135deg,rgba(255,107,0,.1),rgba(255,140,51,.05));border:1px solid rgba(255,107,0,.25);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px}
+.smart-tip-card .stc-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.smart-tip-card .stc-content{flex:1}
+.smart-tip-card .stc-content h4{font-size:13px;font-weight:700;margin-bottom:2px;color:var(--pri)}
+.smart-tip-card .stc-content p{font-size:12px;color:var(--text);line-height:1.4}
+
+/* ═══════════════════════════════════════════════
+   ORDER VALUE INDICATORS
+   ═══════════════════════════════════════════════ */
+.order-indicators{display:flex;gap:6px;margin-bottom:6px}
+.order-indicator{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700}
+.order-indicator.high-value{background:rgba(255,71,87,.15);color:var(--red)}
+.order-indicator.quick-order{background:rgba(77,166,255,.15);color:var(--blue)}
+
+/* Glassmorphism overrides for new elements */
+html[data-theme="glassmorphism"] .stats-card,html[data-theme="glassmorphism"] .daily-chart,html[data-theme="glassmorphism"] .best-hours,html[data-theme="glassmorphism"] .tip-card,html[data-theme="glassmorphism"] .weekly-goal-card,html[data-theme="glassmorphism"] .smart-tip-card{background:rgba(255,255,255,.1)!important;backdrop-filter:blur(14px)!important;border:1px solid rgba(255,255,255,.18)!important;color:#fff!important}
 </style>
 </head>
 <body>
@@ -503,6 +574,25 @@ input,textarea,select{font-family:inherit}
     <div class="stat-card"><div class="val" id="statDelivered">0</div><div class="label">Delivered</div></div>
     <div class="stat-card"><div class="val" id="statEarning">€0</div><div class="label">Earnings</div></div>
   </div>
+  <!-- Weekly Goal Tracker -->
+  <div class="weekly-goal-card" id="weeklyGoalCard">
+    <div class="wg-header">
+      <h4>🎯 Weekly Goal</h4>
+      <span class="wg-pct" id="wgPct">0%</span>
+    </div>
+    <div class="wg-progress">
+      <div class="wg-progress-bar" id="wgBar" style="width:0%"></div>
+    </div>
+    <div class="wg-text" id="wgText">€0.00 / €100.00 this week (0%)</div>
+  </div>
+  <!-- Smart Tips Card -->
+  <div class="smart-tip-card" id="smartTipCard">
+    <div class="stc-icon" id="stcIcon">💡</div>
+    <div class="stc-content">
+      <h4 id="stcTitle">Smart Tip</h4>
+      <p id="stcText">Select a vehicle to get personalized tips!</p>
+    </div>
+  </div>
   <div class="section-title">📋 Active Orders</div>
   <div id="activeOrdersList"></div>
 </div>
@@ -520,6 +610,61 @@ input,textarea,select{font-family:inherit}
   </div>
   <div class="earn-list-title">Recent Earnings</div>
   <div id="earnList"></div>
+</div>
+
+
+<!-- ════════ STATS SCREEN ════════ -->
+<div id="statsScreen" class="screen">
+  <button class="back-btn" onclick="navTo('dashScreen',document.querySelector('.nav-item'))">&#8592; Dashboard</button>
+  <div class="stats-hero">
+    <div class="sh-label">Total Earnings</div>
+    <div class="sh-amount" id="statsTotalEarnings">€0.00</div>
+    <div class="sh-subtitle" id="statsTotalDeliveries">0 total deliveries</div>
+  </div>
+  <div class="stats-section-title">💰 Earnings Breakdown</div>
+  <div class="stats-grid">
+    <div class="stats-card"><div class="sc-val" id="statsTodayEarnings">€0</div><div class="sc-label">Today Earnings</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsWeekEarnings">€0</div><div class="sc-label">Week Earnings</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsMonthEarnings">€0</div><div class="sc-label">Month Earnings</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsAvgPerOrder">€0</div><div class="sc-label">Avg Per Order</div></div>
+  </div>
+  <div class="stats-section-title">📦 Delivery Stats</div>
+  <div class="stats-grid">
+    <div class="stats-card"><div class="sc-val" id="statsTodayDeliveries">0</div><div class="sc-label">Today Deliveries</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsWeekDeliveries">0</div><div class="sc-label">Week Deliveries</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsMonthDeliveries">0</div><div class="sc-label">Month Deliveries</div></div>
+    <div class="stats-card"><div class="sc-val" id="statsAvgDeliveryTime">0</div><div class="sc-label">Avg Delivery Time (min)</div></div>
+  </div>
+  <!-- Daily Earnings Chart -->
+  <div class="daily-chart" id="dailyChart">
+    <div class="chart-title">📊 Daily Earnings (Last 7 Days)</div>
+    <div class="chart-bars" id="chartBars"></div>
+  </div>
+  <!-- Best Hours -->
+  <div class="best-hours" id="bestHoursSection">
+    <div class="bh-title">⏰ Best Hours</div>
+    <div id="bestHoursList"></div>
+  </div>
+  <!-- Pro Tips -->
+  <div class="pro-tips">
+    <div class="pt-title">💡 Pro Tips</div>
+    <div class="tip-card">🔥 Peak hours: 12:00-14:00 and 18:00-21:00 — stay online for max orders</div>
+    <div class="tip-card">📍 Orders near Stefan cel Mare have shortest delivery distances</div>
+    <div class="tip-card">⚡ Accepting orders within 2km increases your hourly rate by 40%</div>
+    <div class="tip-card">🛵 Scooter couriers earn 2x more per hour than bicycle couriers</div>
+    <div class="tip-card">🎯 Complete 5+ deliveries/day to unlock bonus earnings</div>
+    <div class="tip-card">🏪 Stay near restaurant clusters (Botanica, Center) for faster pickup</div>
+  </div>
+  <!-- Smart Recommendations -->
+  <div id="smartRecommendations" style="margin-top:16px">
+    <div class="bh-title">🎯 Smart Recommendations</div>
+    <div id="recContent" style="padding:8px;color:var(--muted);text-align:center;font-size:13px">Loading smart tips...</div>
+  </div>
+  <!-- Achievement Badges -->
+  <div style="margin-top:16px">
+    <div class="bh-title">🏆 Achievements</div>
+    <div id="achievementBadges" style="display:flex;gap:10px;flex-wrap:wrap;padding:8px"></div>
+  </div>
 </div>
 
 <!-- ════════ CHAT SCREEN ════════ -->
@@ -560,15 +705,23 @@ input,textarea,select{font-family:inherit}
   </div>
 </div>
 
-<!-- ════════ BOTTOM NAV (5 tabs) ════════ -->
+<!-- ════════ BOTTOM NAV (6 tabs) ════════ -->
 <div class="bottom-nav" id="bottomNav" style="display:none">
-  <button class="nav-item active" onclick="navTo('dashScreen',this)">
+  <button class="nav-item active" onclick="navTo('dashScreen',this);loadDashboard()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
-    Home
+    Dashboard
+  </button>
+  <button class="nav-item" onclick="navTo('dashScreen',this);loadDashboard()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+    Orders
   </button>
   <button class="nav-item" onclick="navTo('earnScreen',this);loadEarnings()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     Earnings
+  </button>
+  <button class="nav-item" onclick="navTo('statsScreen',this);loadEarningsStats()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    Stats
   </button>
   <button class="nav-item" onclick="navTo('convScreen',this);loadConversations()" id="navChat">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
@@ -735,6 +888,7 @@ input,textarea,select{font-family:inherit}
 
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════
 //  SPLASH SCREEN - 3D letter animation + driving vehicles
@@ -795,6 +949,7 @@ let user = JSON.parse(localStorage.getItem('courier_user') || 'null');
 let isRegister = false;
 let isOnline = false;
 let vehicleType = localStorage.getItem('courier_vehicle') || '';
+let pendingVehicleChange = null; // { requested_vehicle, current_vehicle } when a vehicle change is pending admin approval
 let selectedVehicleTemp = '';
 let chatOrderId = null;
 let chatLastId = 0;
@@ -900,7 +1055,12 @@ const LANG = {
     deliveryLocation: 'Delivery location', deliveryCompleteNotif: 'Delivery Complete!',
     greatJobEarnings: 'Great job! Earnings updated.', dontHaveAccount: "Don't have an account?",
     alreadyHaveAccount: 'Already have an account?', displayOptional: 'Display Name (optional)',
-    selectVehicleEmoji: '🚗 Select Your Vehicle'
+    selectVehicleEmoji: '🚗 Select Your Vehicle',
+    vehicleChangePending: 'Vehicle Change Pending',
+    pendingVehicleChangeMsg: 'You have a pending vehicle change request. Please wait for admin approval.',
+    requestedVehicle: 'Requested',
+    vehicleChangeApproved: 'Vehicle Change Approved!',
+    vehicleChangeRejected: 'Vehicle Change Rejected'
   },
   ru: {
     courierApp: 'Приложение Курьера', goOnline: 'Онлайн', goOffline: 'Оффлайн',
@@ -975,7 +1135,12 @@ const LANG = {
     deliveryLocation: 'Адрес доставки', deliveryCompleteNotif: 'Доставка Завершена!',
     greatJobEarnings: 'Отличная работа! Заработок обновлён.', dontHaveAccount: 'Нет аккаунта?',
     alreadyHaveAccount: 'Уже есть аккаунт?', displayOptional: 'Имя (необязательно)',
-    selectVehicleEmoji: '🚗 Выберите Транспорт'
+    selectVehicleEmoji: '🚗 Выберите Транспорт',
+    vehicleChangePending: 'Ожидание смены транспорта',
+    pendingVehicleChangeMsg: 'У вас есть ожидающий запрос на смену транспорта. Пожалуйста, дождитесь одобрения администратора.',
+    requestedVehicle: 'Запрошено',
+    vehicleChangeApproved: 'Смена транспорта одобрена!',
+    vehicleChangeRejected: 'Смена транспорта отклонена'
   },
   ro: {
     courierApp: 'Aplicatie Curier', goOnline: 'Online', goOffline: 'Offline',
@@ -1050,7 +1215,12 @@ const LANG = {
     deliveryLocation: 'Locatie livrare', deliveryCompleteNotif: 'Livrare Completa!',
     greatJobEarnings: 'Buna treaba! Câstiguri actualizate.', dontHaveAccount: 'Nu aveti cont?',
     alreadyHaveAccount: 'Aveti deja cont?', displayOptional: 'Nume (optional)',
-    selectVehicleEmoji: '🚗 Selectati Vehicul'
+    selectVehicleEmoji: '🚗 Selectati Vehicul',
+    vehicleChangePending: 'Așteptare Schimbare Vehicul',
+    pendingVehicleChangeMsg: 'Aveți o cerere de schimbare a vehiculului în așteptare. Vă rugăm așteptați aprobarea administratorului.',
+    requestedVehicle: 'Solicitat',
+    vehicleChangeApproved: 'Schimbare vehicul aprobată!',
+    vehicleChangeRejected: 'Schimbare vehicul respinsă'
   }
 };
 
@@ -1136,9 +1306,16 @@ function applyLang() {
       if (range) range.textContent = (v === 'scooter' || v === 'car') ? t('anyDistance') : t('only3km');
     }
   });
-  // Nav labels
+  // Nav labels (6 items)
   const navItems = document.querySelectorAll('.nav-item');
-  if (navItems.length >= 4) {
+  if (navItems.length >= 6) {
+    navItems[0].lastChild.textContent = '\n    Dashboard\n  ';
+    navItems[1].lastChild.textContent = '\n    Orders\n  ';
+    navItems[2].lastChild.textContent = '\n    ' + t('earnings') + '\n  ';
+    navItems[3].lastChild.textContent = '\n    Stats\n  ';
+    navItems[4].lastChild.textContent = '\n    ' + t('messages') + '\n  ';
+    navItems[5].lastChild.textContent = '\n    ' + t('profile') + '\n  ';
+  } else if (navItems.length >= 4) {
     navItems[0].querySelector('span') || (navItems[0].lastChild.textContent = '\n    ' + t('home') + '\n  ');
     navItems[1].lastChild.textContent = '\n    ' + t('earnings') + '\n  ';
     navItems[2].lastChild.textContent = '\n    ' + t('messages') + '\n  ';
@@ -1348,6 +1525,14 @@ function enterApp() {
   startUnreadPolling();
   startIncomingCallPolling();
   startOrdersPolling();
+  // Restore pending vehicle change from localStorage
+  let saved = localStorage.getItem('courier_pending_vehicle');
+  if (saved) pendingVehicleChange = JSON.parse(saved);
+  if (pendingVehicleChange) {
+    showMessagePopup(t('vehicleChangePending'), t('pendingVehicleChangeMsg'), '⏳', 'warning');
+    setInterval(refreshVehicleFromServer, 30000);
+    refreshVehicleFromServer();
+  }
   // Check if vehicle is set, if not show selector
   if (!vehicleType) {
     setTimeout(() => openVehicleSelector(), 800);
@@ -1359,6 +1544,12 @@ function enterApp() {
 //  VEHICLE SELECTION
 // ═══════════════════════════════════════════════════════
 function openVehicleSelector() {
+  if (pendingVehicleChange) {
+    showMessagePopup(t('vehicleChangePending') || 'Vehicle Change Pending',
+                     t('pendingVehicleChangeMsg') || 'You have a pending vehicle change request. Please wait for admin approval.',
+                     '⏳', 'warning');
+    return;
+  }
   selectedVehicleTemp = vehicleType;
   document.querySelectorAll('.vehicle-option').forEach(el => {
     el.classList.toggle('selected', el.dataset.vehicle === vehicleType);
@@ -1378,17 +1569,41 @@ function selectVehicle(el) {
 
 async function confirmVehicle() {
   if (!selectedVehicleTemp) return showMessagePopup(t('selectVehicleTitle'), t('pleaseSelectVehicle'), '⚠️🤔', 'warning');
-  vehicleType = selectedVehicleTemp;
-  localStorage.setItem('courier_vehicle', vehicleType);
   // Save to server
-  await api('POST', '/api/courier/set-vehicle', { vehicle_type: vehicleType });
-  // If online, also update online status with vehicle
-  if (isOnline) {
-    await api('POST', '/api/courier/online', { is_online: true, vehicle_type: vehicleType });
+  const res = await api('POST', '/api/courier/set-vehicle', { vehicle_type: selectedVehicleTemp });
+  if (res && res.data && res.data.pending_approval) {
+    pendingVehicleChange = res.data.pending_change;
+    localStorage.setItem('courier_pending_vehicle', JSON.stringify(pendingVehicleChange));
+    // Don't update vehicleType to the new one, keep current
+    closeVehicleSelector();
+    showNotif('⏳', t('vehicleChangePending') || 'Vehicle Change Pending',
+              t('pendingVehicleChangeMsg') || 'Your request is pending admin approval.');
+    updateSmartTip();
+  } else if (res && res.data && !res.data.pending_approval) {
+    pendingVehicleChange = null;
+    localStorage.removeItem('courier_pending_vehicle');
+    vehicleType = res.data.vehicle_type || selectedVehicleTemp;
+    localStorage.setItem('courier_vehicle', vehicleType);
+    // If online, also update online status with vehicle
+    if (isOnline) {
+      await api('POST', '/api/courier/online', { is_online: true, vehicle_type: vehicleType });
+    }
+    closeVehicleSelector();
+    showNotif(VEHICLE_EMOJIS[vehicleType], t('vehicleSet'), t('yourVehicle') + ': ' + t(vehicleType));
+    updateVehicleBadge();
+    updateSmartTip();
+  } else {
+    // Fallback: no pending_approval in response, treat as direct success
+    vehicleType = selectedVehicleTemp;
+    localStorage.setItem('courier_vehicle', vehicleType);
+    if (isOnline) {
+      await api('POST', '/api/courier/online', { is_online: true, vehicle_type: vehicleType });
+    }
+    closeVehicleSelector();
+    showNotif(VEHICLE_EMOJIS[vehicleType], t('vehicleSet'), t('yourVehicle') + ': ' + t(vehicleType));
+    updateVehicleBadge();
+    updateSmartTip();
   }
-  closeVehicleSelector();
-  showNotif(VEHICLE_EMOJIS[vehicleType], t('vehicleSet'), t('yourVehicle') + ': ' + t(vehicleType));
-  updateVehicleBadge();
 }
 
 function updateVehicleBadge() {
@@ -1404,6 +1619,28 @@ function updateVehicleBadge() {
       h2.appendChild(b);
     }
   }
+}
+
+async function refreshVehicleFromServer() {
+  try {
+    const res = await api('GET', '/api/courier/vehicle-status');
+    if (res && res.data) {
+      if (res.data.pending_approval) {
+        pendingVehicleChange = res.data.pending_change;
+        localStorage.setItem('courier_pending_vehicle', JSON.stringify(pendingVehicleChange));
+      } else {
+        if (pendingVehicleChange) {
+          // Request was resolved (approved or rejected)
+          pendingVehicleChange = null;
+          localStorage.removeItem('courier_pending_vehicle');
+          vehicleType = res.data.vehicle_type;
+          localStorage.setItem('courier_vehicle', vehicleType);
+          showNotif('✅', t('vehicleChangeApproved'), 'Your vehicle has been updated.');
+          updateVehicleBadge();
+        }
+      }
+    }
+  } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1435,7 +1672,9 @@ async function loadDashboard() {
     h2.innerHTML = 'Hello, ' + esc(user.display_name || user.username) + '!';
   }
   updateVehicleBadge();
+  updateSmartTip();
   await loadOrders();
+  loadWeeklyGoal();
 }
 
 async function loadOrders() {
@@ -1455,6 +1694,7 @@ async function loadOrders() {
       return `
         <div class="order-card" onclick="openDeliveryFlow(${o.id})">
           <div class="order-number">${onum}</div>
+          ${parseFloat(o.courier_earnings||0)>4||parseFloat(o.distance||99)<2?'<div class="order-indicators">'+(parseFloat(o.courier_earnings||0)>4?'<span class="order-indicator high-value">🔥 High Value</span>':'')+(parseFloat(o.distance||99)<2?'<span class="order-indicator quick-order">⚡ Quick</span>':'')+'</div>':''}
           <h4>
             ${esc(o.restaurant_name||'Order')}
             <span class="status-badge status-${o.status}">${o.status.replace(/_/g,' ')}</span>
@@ -2425,6 +2665,9 @@ function loadProfile() {
     document.getElementById('profileName').textContent = user.display_name || user.username;
     document.getElementById('profileRole').textContent = 'Courier Partner';
     document.getElementById('profileVehicle').textContent = vehicleType ? VEHICLE_EMOJIS[vehicleType] + ' ' + t(vehicleType) : t('noVehicleSet');
+    if (pendingVehicleChange) {
+      document.getElementById('profileVehicle').textContent += ' ⏳ ' + t('requestedVehicle') + ': ' + VEHICLE_EMOJIS[pendingVehicleChange.requested_vehicle] + ' ' + t(pendingVehicleChange.requested_vehicle);
+    }
   }
 }
 
@@ -2513,7 +2756,232 @@ function dismissBroadcast(id) {
   }
 }
 
+
 // ═══════════════════════════════════════════════════════
+//  EARNINGS STATS SCREEN
+// ═══════════════════════════════════════════════════════
+let statsData = null;
+
+async function loadEarningsStats() {
+  const res = await api('GET', '/api/courier/earnings-stats');
+  if (res.success && res.data) {
+    statsData = res.data;
+    renderEarningsStats(res.data);
+  } else {
+    // Fallback: try to use earnings API data
+    const earnRes = await api('GET', '/api/courier/earnings');
+    if (earnRes.success && earnRes.data) {
+      const d = earnRes.data;
+      const fallbackData = {
+        today_earnings: parseFloat(d.today_earnings || d.today || 0),
+        week_earnings: parseFloat(d.week_earnings || d.week || 0),
+        month_earnings: 0,
+        total_earnings: parseFloat(d.total_earnings || d.total || 0),
+        today_deliveries: 0,
+        week_deliveries: 0,
+        month_deliveries: 0,
+        total_deliveries: 0,
+        avg_earning_per_order: 0,
+        daily_earnings: [],
+        avg_delivery_minutes: 0,
+        extra_earnings: 0,
+        best_hours: []
+      };
+      statsData = fallbackData;
+      renderEarningsStats(fallbackData);
+    }
+  }
+  // Load smart recommendations
+  loadRecommendations();
+  // Load achievement badges
+  renderAchievements();
+}
+
+async function loadRecommendations() {
+  const el = document.getElementById('recContent');
+  if (!el) return;
+  try {
+    const res = await api('GET', '/api/courier/recommendations');
+    if (!res || !res.success || !res.data) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Start delivering to get personalized recommendations!</div>';
+      return;
+    }
+    const d = res.data;
+    let html = '';
+    // Vehicle recommendation
+    if (d.vehicle_recommendation) {
+      const vr = d.vehicle_recommendation;
+      html += '<div class="tip-card" style="border-left:3px solid var(--pri)">🚗 Vehicle: Your current (' + (vr.current || 'bicycle') + ') → Recommended: <b>' + (vr.recommended || 'scooter') + '</b><br><span style="font-size:12px;color:var(--muted)">' + (vr.reason || '') + '</span></div>';
+    }
+    // Expected hourly
+    if (d.expected_hourly_earnings) {
+      html += '<div class="tip-card" style="border-left:3px solid var(--green)">💰 Expected hourly: <b>€' + parseFloat(d.expected_hourly_earnings).toFixed(2) + '</b></div>';
+    }
+    // Avg distance
+    if (d.avg_delivery_distance_km) {
+      html += '<div class="tip-card" style="border-left:3px solid var(--blue)">📏 Avg delivery distance: <b>' + parseFloat(d.avg_delivery_distance_km).toFixed(1) + ' km</b></div>';
+    }
+    // Hot zones
+    if (d.hot_zones && d.hot_zones.length > 0) {
+      html += '<div class="tip-card" style="border-left:3px solid var(--red)">🔥 Hot zones: ' + d.hot_zones.map(z => '<b>' + z.restaurant_name + '</b> (' + z.pending_orders + ' orders)').join(', ') + '</div>';
+    }
+    // Best hours
+    if (d.best_hours && d.best_hours.length > 0) {
+      const topHour = d.best_hours[0];
+      html += '<div class="tip-card" style="border-left:3px solid var(--purple)">⏰ Best hour: <b>' + topHour.hour + ':00</b> (' + topHour.order_count + ' orders, avg €' + parseFloat(topHour.avg_earning || 0).toFixed(2) + ')</div>';
+    }
+    // Personalized tips
+    if (d.tips && d.tips.length > 0) {
+      html += d.tips.map(tip => '<div class="tip-card">💡 ' + tip + '</div>').join('');
+    }
+    // My avg vs system
+    if (d.my_avg_earning) {
+      html += '<div class="tip-card" style="border-left:3px solid var(--teal)">📊 Your avg per order: <b>€' + parseFloat(d.my_avg_earning).toFixed(2) + '</b></div>';
+    }
+    el.innerHTML = html || '<div style="color:var(--muted);padding:8px">No recommendations yet</div>';
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">Could not load recommendations</div>';
+  }
+}
+
+function renderAchievements() {
+  const el = document.getElementById('achievementBadges');
+  if (!el) return;
+  const totalDel = statsData ? parseInt(statsData.total_deliveries || 0) : 0;
+  const badges = [
+    {name:'Bronze',min:10,emoji:'🥉',color:'#cd7f32'},
+    {name:'Silver',min:50,emoji:'🥈',color:'#c0c0c0'},
+    {name:'Gold',min:100,emoji:'🥇',color:'#ffd700'},
+    {name:'Platinum',min:500,emoji:'💎',color:'#e5e4e2'},
+    {name:'Diamond',min:1000,emoji:'💠',color:'#b9f2ff'}
+  ];
+  el.innerHTML = badges.map(b => {
+    const earned = totalDel >= b.min;
+    return '<div style="display:flex;flex-direction:column;align-items:center;padding:8px 12px;border-radius:12px;border:2px solid ' + (earned ? b.color : 'var(--border)') + ';opacity:' + (earned ? '1' : '0.4') + ';background:' + (earned ? b.color + '15' : 'transparent') + '">' +
+      '<div style="font-size:24px">' + b.emoji + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:' + (earned ? b.color : 'var(--muted)') + '">' + b.name + '</div>' +
+      '<div style="font-size:10px;color:var(--muted)">' + b.min + '+ del.</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderEarningsStats(d) {
+  const totalEarnings = parseFloat(d.total_earnings || 0);
+  const todayEarnings = parseFloat(d.today_earnings || 0);
+  const weekEarnings = parseFloat(d.week_earnings || 0);
+  const monthEarnings = parseFloat(d.month_earnings || 0);
+  const avgPerOrder = parseFloat(d.avg_earning_per_order || 0);
+  const todayDeliveries = parseInt(d.today_deliveries || 0);
+  const weekDeliveries = parseInt(d.week_deliveries || 0);
+  const monthDeliveries = parseInt(d.month_deliveries || 0);
+  const totalDeliveries = parseInt(d.total_deliveries || 0);
+  const avgDeliveryTime = parseInt(d.avg_delivery_minutes || 0);
+
+  document.getElementById('statsTotalEarnings').textContent = '\u20AC' + totalEarnings.toFixed(2);
+  document.getElementById('statsTotalDeliveries').textContent = totalDeliveries + ' total deliveries';
+  document.getElementById('statsTodayEarnings').textContent = '\u20AC' + todayEarnings.toFixed(2);
+  document.getElementById('statsWeekEarnings').textContent = '\u20AC' + weekEarnings.toFixed(2);
+  document.getElementById('statsMonthEarnings').textContent = '\u20AC' + monthEarnings.toFixed(2);
+  document.getElementById('statsAvgPerOrder').textContent = '\u20AC' + avgPerOrder.toFixed(2);
+  document.getElementById('statsTodayDeliveries').textContent = todayDeliveries;
+  document.getElementById('statsWeekDeliveries').textContent = weekDeliveries;
+  document.getElementById('statsMonthDeliveries').textContent = monthDeliveries;
+  document.getElementById('statsAvgDeliveryTime').textContent = avgDeliveryTime;
+
+  // Daily Earnings Bar Chart
+  const dailyEarnings = d.daily_earnings || [];
+  if (dailyEarnings.length > 0) {
+    const maxEarning = Math.max(...dailyEarnings.map(e => parseFloat(e.earnings || 0)), 1);
+    document.getElementById('chartBars').innerHTML = dailyEarnings.map(e => {
+      const earn = parseFloat(e.earnings || 0);
+      const hPct = Math.max((earn / maxEarning) * 100, 3);
+      const dayLabel = e.day || '';
+      const shortDay = dayLabel.length > 3 ? dayLabel.substring(0, 3) : dayLabel;
+      return '<div class="chart-bar-col">' +
+        '<div class="chart-bar-val">\u20AC' + earn.toFixed(0) + '</div>' +
+        '<div class="chart-bar" style="height:' + hPct + '%"></div>' +
+        '<div class="chart-bar-day">' + shortDay + '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    document.getElementById('chartBars').innerHTML = '<div style="text-align:center;width:100%;color:var(--muted);font-size:13px;padding:30px 0">No data yet</div>';
+  }
+
+  // Best Hours
+  const bestHours = d.best_hours || [];
+  if (bestHours.length > 0) {
+    const maxCnt = Math.max(...bestHours.map(h => parseInt(h.cnt || 0)), 1);
+    document.getElementById('bestHoursList').innerHTML = bestHours.map(h => {
+      const cnt = parseInt(h.cnt || 0);
+      const earn = parseFloat(h.earn || 0);
+      const wPct = Math.max((cnt / maxCnt) * 100, 5);
+      const hourStr = h.hour || '';
+      return '<div class="bh-row">' +
+        '<div class="bh-hour">' + hourStr + '</div>' +
+        '<div class="bh-bar-wrap"><div class="bh-bar" style="width:' + wPct + '%"></div></div>' +
+        '<div class="bh-info">' + cnt + ' orders \u00B7 \u20AC' + earn.toFixed(0) + '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    document.getElementById('bestHoursList').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px 0">No data yet</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  WEEKLY GOAL TRACKER
+// ═══════════════════════════════════════════════════════
+async function loadWeeklyGoal() {
+  let weekEarnings = 0;
+  if (statsData && statsData.week_earnings) {
+    weekEarnings = parseFloat(statsData.week_earnings);
+  } else {
+    const res = await api('GET', '/api/courier/earnings');
+    if (res.success && res.data) {
+      weekEarnings = parseFloat(res.data.week_earnings || res.data.week || 0);
+      if (!res.data.week_earnings && !res.data.week) {
+        const entries = res.data.recent_entries || res.data.entries || res.data.recent || [];
+        const now = new Date();
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        weekEarnings = entries.reduce((sum, e) => {
+          const entryDate = new Date(e.created_at || e.date || 0);
+          return entryDate >= weekAgo ? sum + parseFloat(e.amount || 0) : sum;
+        }, 0);
+      }
+    }
+  }
+  const goal = 100;
+  const pct = Math.min(Math.round((weekEarnings / goal) * 100), 100);
+  const bar = document.getElementById('wgBar');
+  const pctEl = document.getElementById('wgPct');
+  const textEl = document.getElementById('wgText');
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.classList.toggle('complete', pct >= 100);
+  }
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (textEl) textEl.textContent = '\u20AC' + weekEarnings.toFixed(2) + ' / \u20AC' + goal.toFixed(2) + ' this week (' + pct + '%)';
+}
+
+// ═══════════════════════════════════════════════════════
+//  SMART TIPS (vehicle-based)
+// ═══════════════════════════════════════════════════════
+function updateSmartTip() {
+  const iconEl = document.getElementById('stcIcon');
+  const titleEl = document.getElementById('stcTitle');
+  const textEl = document.getElementById('stcText');
+  if (!iconEl || !titleEl || !textEl) return;
+  const tips = {
+    walking: { icon: '\u{1F6B6}', title: 'Walking Tip', text: 'Consider upgrading to bicycle for longer distance orders (+60% earnings)' },
+    bicycle: { icon: '\u{1F6B2}', title: 'Bicycle Tip', text: 'Great for city center! Stay within 3km for best results' },
+    scooter: { icon: '\u{1F6F5}', title: 'Scooter Tip', text: 'You can accept all orders! Focus on 3-7km for highest per-km rate' },
+    car: { icon: '\u{1F697}', title: 'Car Tip', text: 'Best for suburban deliveries. Accept 5km+ orders for best value' }
+  };
+  const tip = tips[vehicleType] || { icon: '\u{1F4A1}', title: 'Smart Tip', text: 'Select a vehicle to get personalized tips!' };
+  iconEl.textContent = tip.icon;
+  titleEl.textContent = tip.title;
+  textEl.textContent = tip.text;
+}
+
 //  UTILITIES
 // ═══════════════════════════════════════════════════════
 function esc(s) {

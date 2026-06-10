@@ -2149,80 +2149,19 @@ async function loadOrders() {
     const el = document.getElementById('ordersList');
     const orders = res.data;
     if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="icon">&#128230;</div><p>'+t('myOrders')+'</p></div>'; return; }
-    // Add filter tabs above orders
-    const activeOrders = orders.filter(o => !['delivered','cancelled','rejected'].includes(o.status));
-    const completedOrders = orders.filter(o => o.status === 'delivered');
-    const cancelledOrders = orders.filter(o => ['cancelled','rejected'].includes(o.status));
-    
-    const filterHtml = '<div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">' +
-      '<button class="order-filter-btn active" onclick="filterOrders(\'all\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--pri);color:#fff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">All (' + orders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'active\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Active (' + activeOrders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'completed\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Completed (' + completedOrders.length + ')</button>' +
-      '<button class="order-filter-btn" onclick="filterOrders(\'cancelled\',this)" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer">Cancelled (' + cancelledOrders.length + ')</button>' +
-    '</div>';
-    
-    // Store all orders globally for filtering
-    window._allOrders = orders;
-    window._activeOrders = activeOrders;
-    window._completedOrders = completedOrders;
-    window._cancelledOrders = cancelledOrders;
-    
-    el.innerHTML = filterHtml + renderOrderCards(orders);
-  }
-}
-
-function renderOrderCards(orders) {
-  return orders.map(o => {
-    const statusLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[o.status]) || STATUS_LABELS[o.status] || o.status;
-    const isCompleted = o.status === 'delivered';
-    const isCancelled = ['cancelled','rejected'].includes(o.status);
-    const isActive = !isCompleted && !isCancelled;
-    return '<div class="order-card" onclick="openTracker(' + o.id + ')" style="position:relative">' +
-      '<div class="order-num-badge">' + (o.order_number || '#Ely-'+String(o.id).padStart(5,'0')) + '</div>' +
-      '<h4>' + esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order #'+o.id)) + '</h4>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">' +
-        '<span class="status-badge status-' + o.status + '">' + statusLabel + '</span>' +
-        '<span style="font-size:13px;font-weight:600">&euro;' + parseFloat(o.total).toFixed(2) + '</span>' +
-      '</div>' +
-      (isCompleted ? '<div style="display:flex;gap:6px;margin-top:8px">' +
-        '<button onclick="event.stopPropagation();reorderItems(' + o.id + ')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--pri);background:transparent;color:var(--pri);font-size:12px;font-weight:600;cursor:pointer">🔄 Reorder</button>' +
-      '</div>' : '') +
-      (isActive ? '<div style="margin-top:6px"><span style="font-size:11px;color:var(--pri)">📍 Tap to track</span></div>' : '') +
-    '</div>';
-  }).join('');
-}
-
-function filterOrders(filter, btn) {
-  // Update button styles
-  document.querySelectorAll('.order-filter-btn').forEach(b => {
-    b.style.background = 'var(--card)';
-    b.style.color = 'var(--text)';
-    b.classList.remove('active');
-  });
-  btn.style.background = 'var(--pri)';
-  btn.style.color = '#fff';
-  btn.classList.add('active');
-  
-  const el = document.getElementById('ordersList');
-  let filtered;
-  switch(filter) {
-    case 'active': filtered = window._activeOrders; break;
-    case 'completed': filtered = window._completedOrders; break;
-    case 'cancelled': filtered = window._cancelledOrders; break;
-    default: filtered = window._allOrders;
-  }
-  // Keep the filter tabs
-  const filterHtml = el.querySelector('div')?.outerHTML || '';
-  el.innerHTML = filterHtml + renderOrderCards(filtered);
-}
-
-async function reorderItems(oid) {
-  const res = await api('POST', '/api/orders/' + oid + '/reorder');
-  if (res && res.success) {
-    showInAppNotif('Reorder', 'Items added to cart!', '🛒');
-    loadCart();
-  } else {
-    showInAppNotif('Error', res?.message || 'Could not reorder', '❌');
+    el.innerHTML = orders.map(o => {
+      const statusLabel = (window.STATUS_LABELS_I18N && window.STATUS_LABELS_I18N[o.status]) || STATUS_LABELS[o.status] || o.status;
+      return `
+      <div class="order-card" onclick="openTracker(${o.id})">
+        <div class="order-num-badge">${o.order_number || '#Ely-'+String(o.id).padStart(5,'0')}</div>
+        <h4>${esc(o.restaurant_name|| (o.is_deliver_anything ? '🚀 '+t('deliverAnything') : 'Order #'+o.id))}</h4>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <span class="status-badge status-${o.status}">${statusLabel}</span>
+          <span style="font-size:13px;font-weight:600">&euro;${parseFloat(o.total).toFixed(2)}</span>
+        </div>
+      </div>
+    `;
+    }).join('');
   }
 }
 
@@ -2894,10 +2833,6 @@ function closeThemePicker() {
         logout();
       }
     });
-  } else {
-    // No saved credentials — show login screen after splash
-    showScreen('authScreen');
-    document.getElementById('bottomNav').style.display = 'none';
   }
 })();
 </script>

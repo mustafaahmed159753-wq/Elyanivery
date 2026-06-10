@@ -51,13 +51,8 @@ def ensure_default_users():
                 pass
             print(f"  Created default user: {username} / {password} ({role})")
         else:
-            # Always reset password to known value so login always works
-            pw_hash = AuthService.hash_pw(password)
-            try:
-                query("UPDATE Users SET password_hash=?, display_name=? WHERE username=?",
-                      (pw_hash, display_name, username))
-            except:
-                pass
+            # User already exists — do NOT reset password so admin changes are preserved
+            pass
 
     # Ensure restaurant partner accounts exist
     ensure_restaurant_users()
@@ -88,11 +83,8 @@ def ensure_restaurant_users():
             except Exception as e:
                 print(f"  Partner user creation note ({username}): {e}")
         else:
-            # Ensure password stays as '1234' and link to restaurant
-            pw_hash = AuthService.hash_pw('1234')
+            # User already exists — only link to restaurant, do NOT reset password
             try:
-                query("UPDATE Users SET password_hash=?, display_name=? WHERE username=?",
-                      (pw_hash, r['name'], username))
                 query("UPDATE Restaurants SET created_by=? WHERE id=?", (existing['id'], r['id']))
             except:
                 pass
@@ -511,6 +503,16 @@ def init_extra_tables():
             message VARCHAR(2000),
             is_read BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )""",
+        """CREATE TABLE IF NOT EXISTS VehicleChangeRequests (
+            id SERIAL PRIMARY KEY,
+            courier_id INT NOT NULL,
+            current_vehicle VARCHAR(20) NOT NULL,
+            requested_vehicle VARCHAR(20) NOT NULL,
+            status VARCHAR(20) DEFAULT 'pending',
+            admin_note VARCHAR(500) NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            resolved_at TIMESTAMP NULL
         )""",
     ]
     for sql in tables:
@@ -1514,18 +1516,76 @@ def handle_courier_earnings(payload):
 
 
 def handle_courier_set_vehicle(body, payload):
-    """Update courier's vehicle type."""
+    """Courier requests a vehicle type change. Requires admin approval."""
     try:
         vehicle_type = body.get('vehicle_type', 'bicycle')
         if vehicle_type not in ('walking', 'bicycle', 'scooter', 'car'):
             return 400, {"success": False, "message": "Invalid vehicle type. Must be: walking, bicycle, scooter, car"}
-        existing = query("SELECT id FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
-        if existing:
-            query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?", (vehicle_type, payload['uid']))
+
+        # Get current vehicle
+        current = query("SELECT vehicle_type FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+        current_vehicle = current['vehicle_type'] if current else 'bicycle'
+
+        # If same vehicle, just return OK
+        if current_vehicle == vehicle_type:
+            return 200, {"success": True, "data": {"vehicle_type": vehicle_type, "pending_approval": False}}
+
+        # Check if there's already a pending request
+        pending = query("SELECT id, requested_vehicle FROM VehicleChangeRequests WHERE courier_id=? AND status='pending'", (payload['uid'],), fetch_one=True)
+        if pending:
+            return 200, {"success": True, "data": {
+                "vehicle_type": current_vehicle,
+                "pending_approval": True,
+                "pending_change": {"requested_vehicle": pending['requested_vehicle'], "current_vehicle": current_vehicle},
+                "message": "You already have a pending vehicle change request"
+            }}
+
+        # First time setting vehicle (no current vehicle set) - allow directly
+        if not current or current_vehicle == 'bicycle':
+            # Check if courier has ever been online (first-time setup)
+            was_online = query("SELECT is_online FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+            if was_online and not was_online.get('is_online') and current_vehicle == 'bicycle':
+                # First time setup - allow directly
+                if current:
+                    query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?", (vehicle_type, payload['uid']))
+                else:
+                    insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online,vehicle_type) VALUES (?,0,0,FALSE,?)",
+                           (payload['uid'], vehicle_type))
+                return 200, {"success": True, "data": {"vehicle_type": vehicle_type, "pending_approval": False}}
+
+        # Create a vehicle change request for admin approval
+        rid = insert("INSERT INTO VehicleChangeRequests (courier_id,current_vehicle,requested_vehicle,status) VALUES (?,?,?,'pending')",
+                     (payload['uid'], current_vehicle, vehicle_type))
+        # Notify admin
+        admin = query("SELECT id FROM Users WHERE role='admin' LIMIT 1", fetch_one=True)
+        if admin:
+            push_notification(admin['id'], 'Vehicle Change Request',
+                             f'Courier requests vehicle change: {current_vehicle} → {vehicle_type}',
+                             'vehicle_change_request', rid)
+        return 200, {"success": True, "data": {
+            "vehicle_type": current_vehicle,
+            "pending_approval": True,
+            "pending_change": {"requested_vehicle": vehicle_type, "current_vehicle": current_vehicle},
+            "message": "Vehicle change request submitted. Waiting for admin approval."
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_courier_vehicle_status(payload):
+    """Get courier's current vehicle and pending change request."""
+    try:
+        loc = query("SELECT vehicle_type FROM CourierLocations WHERE courier_id=?", (payload['uid'],), fetch_one=True)
+        current_vehicle = loc['vehicle_type'] if loc else 'bicycle'
+        pending = query("SELECT * FROM VehicleChangeRequests WHERE courier_id=? AND status='pending' ORDER BY created_at DESC LIMIT 1",
+                        (payload['uid'],), fetch_one=True)
+        result = {"vehicle_type": current_vehicle}
+        if pending:
+            result['pending_approval'] = True
+            result['pending_change'] = {"requested_vehicle": pending['requested_vehicle'], "current_vehicle": current_vehicle}
         else:
-            insert("INSERT INTO CourierLocations (courier_id,latitude,longitude,is_online,vehicle_type) VALUES (?,0,0,FALSE,?)",
-                   (payload['uid'], vehicle_type))
-        return 200, {"success": True, "data": {"vehicle_type": vehicle_type}}
+            result['pending_approval'] = False
+        return 200, {"success": True, "data": result}
     except Exception as e:
         return 500, {"success": False, "message": str(e)}
 
@@ -2522,6 +2582,1073 @@ def handle_get_loyalty_history(payload):
         return 500, {"success": False, "message": str(e)}
 
 
+# ── ADMIN: CHANGE PASSWORD ──
+def handle_admin_change_password(body, payload):
+    """Admin changes their own password."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        old_pw = body.get('old_password', '')
+        new_pw = body.get('new_password', '')
+        if not old_pw or not new_pw:
+            return 400, {"success": False, "message": "Old and new password required"}
+        user = query("SELECT password_hash FROM Users WHERE id=?", (payload['uid'],), fetch_one=True)
+        if not user or not AuthService.verify_pw(old_pw, user['password_hash']):
+            return 401, {"success": False, "message": "Incorrect current password"}
+        pw_hash = AuthService.hash_pw(new_pw)
+        query("UPDATE Users SET password_hash=? WHERE id=?", (pw_hash, payload['uid']))
+        return 200, {"success": True, "message": "Password changed"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: RESET USER PASSWORD ──
+def handle_admin_reset_password(body, payload):
+    """Admin resets a user's password."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        user_id = body.get('user_id')
+        new_password = body.get('new_password', '1234')
+        if not user_id:
+            return 400, {"success": False, "message": "user_id required"}
+        pw_hash = AuthService.hash_pw(new_password)
+        query("UPDATE Users SET password_hash=? WHERE id=?", (pw_hash, user_id))
+        return 200, {"success": True, "message": f"Password reset to '{new_password}'"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: ADD PARTNER ──
+def handle_admin_add_partner(body, payload):
+    """Admin creates a new partner account with restaurant."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        username = (body.get('username') or '').strip()
+        password = body.get('password', '1234')
+        restaurant_name = (body.get('restaurant_name') or '').strip()
+        display_name = body.get('display_name', restaurant_name)
+        if not username or not restaurant_name:
+            return 400, {"success": False, "message": "username and restaurant_name required"}
+        existing = query("SELECT id FROM Users WHERE username=?", (username,), fetch_one=True)
+        if existing:
+            return 409, {"success": False, "message": "Username already taken"}
+        pw_hash = AuthService.hash_pw(password)
+        uid = insert("INSERT INTO Users (username,password_hash,role,display_name,phone,approval_status) VALUES (?,?,'partner',?,?,'approved')",
+                     (username, pw_hash, display_name, body.get('phone', '')))
+        # Create restaurant
+        rid = insert("INSERT INTO Restaurants (name,description,address,latitude,longitude,is_open,category,phone,image_url,created_by) VALUES (?,?,?,?,?,TRUE,?,?,?,?)",
+                     (restaurant_name, body.get('description', ''), body.get('address', ''),
+                      body.get('latitude', 47.0105), body.get('longitude', 28.8638),
+                      body.get('category', 'restaurant'), body.get('phone', ''),
+                      body.get('image_url', ''), uid))
+        return 201, {"success": True, "data": {"user_id": uid, "restaurant_id": rid, "username": username, "password": password}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: DELETE PARTNER ──
+def handle_admin_delete_partner(body, payload):
+    """Admin deletes a partner and optionally their restaurant."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        user_id = body.get('user_id')
+        delete_restaurant = body.get('delete_restaurant', False)
+        if not user_id:
+            return 400, {"success": False, "message": "user_id required"}
+        user = query("SELECT id,role FROM Users WHERE id=?", (user_id,), fetch_one=True)
+        if not user or user['role'] != 'partner':
+            return 404, {"success": False, "message": "Partner not found"}
+        if delete_restaurant:
+            try:
+                query("DELETE FROM Items WHERE restaurant_id IN (SELECT id FROM Restaurants WHERE created_by=?)", (user_id,))
+                query("DELETE FROM Restaurants WHERE created_by=?", (user_id,))
+            except:
+                pass
+        query("DELETE FROM Users WHERE id=?", (user_id,))
+        return 200, {"success": True, "message": "Partner deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: TOGGLE PARTNER ──
+def handle_admin_toggle_partner(body, payload):
+    """Admin toggles a partner's restaurant open/closed status."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        user_id = body.get('user_id')
+        if not user_id:
+            return 400, {"success": False, "message": "user_id required"}
+        r = query("SELECT id, is_open FROM Restaurants WHERE created_by=?", (user_id,), fetch_one=True)
+        if not r:
+            return 404, {"success": False, "message": "Restaurant not found for this partner"}
+        new_val = not r['is_open']
+        query("UPDATE Restaurants SET is_open=? WHERE id=?", (new_val, r['id']))
+        return 200, {"success": True, "data": {"is_open": bool(new_val)}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: UPLOAD MENU (bot processing) ──
+def handle_admin_upload_menu(body, payload):
+    """Admin uploads a menu text for a partner. Bot parses it and adds items to the restaurant."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        partner_user_id = body.get('user_id')
+        menu_text = (body.get('menu_text') or '').strip()
+        if not partner_user_id or not menu_text:
+            return 400, {"success": False, "message": "user_id and menu_text required"}
+        r = query("SELECT id FROM Restaurants WHERE created_by=?", (partner_user_id,), fetch_one=True)
+        if not r:
+            return 404, {"success": False, "message": "Restaurant not found"}
+        rid = r['id']
+        # Simple bot parser: each line = item, format: "Name - Description - Price" or "Name - Price" or "Name, Price"
+        items_added = 0
+        for line in menu_text.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            # Try different separators
+            parts = None
+            for sep in [' - ', ' – ', ' | ', '\t']:
+                if sep in line:
+                    parts = [p.strip() for p in line.split(sep)]
+                    break
+            if not parts:
+                # Try comma but only if last part is a number
+                if ',' in line:
+                    candidate = [p.strip() for p in line.rsplit(',', 1)]
+                    try:
+                        float(candidate[-1].replace('€','').replace('$','').replace('MDL','').replace('lei','').strip())
+                        parts = candidate
+                    except:
+                        parts = [line]
+                else:
+                    parts = [line]
+            
+            name = parts[0]
+            description = ''
+            price = 0.0
+            sub_category = body.get('sub_category', '')
+            
+            if len(parts) == 2:
+                # Name + Price or Name + Description
+                try:
+                    price = float(parts[1].replace('€','').replace('$','').replace('MDL','').replace('lei','').strip())
+                except:
+                    description = parts[1]
+                    price = 5.0  # default price
+            elif len(parts) >= 3:
+                # Name + Description + Price
+                description = parts[1]
+                try:
+                    price = float(parts[-1].replace('€','').replace('$','').replace('MDL','').replace('lei','').strip())
+                except:
+                    price = 5.0
+            
+            if name and price > 0:
+                try:
+                    insert("INSERT INTO Items (restaurant_id,name,description,price,sub_category,image_url) VALUES (?,?,?,?,?,?)",
+                           (rid, name, description, price, sub_category, ''))
+                    items_added += 1
+                except Exception as e:
+                    print(f"  Menu parse insert note: {e}")
+        return 200, {"success": True, "message": f"Parsed and added {items_added} items", "items_added": items_added}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: DELIVERY ZONES ──
+def handle_admin_get_zones(payload):
+    """Get all delivery zones."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        zones = query("SELECT * FROM DeliveryZones ORDER BY id", fetch=True)
+        return 200, {"success": True, "data": zones or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_add_zone(body, payload):
+    """Admin adds a delivery zone."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        name = (body.get('name') or '').strip()
+        if not name:
+            return 400, {"success": False, "message": "name required"}
+        zid = insert("INSERT INTO DeliveryZones (name,center_lat,center_lng,radius_km,is_active,polygon_points) VALUES (?,?,?,?,?,?)",
+                     (name, body.get('center_lat', 47.0105), body.get('center_lng', 28.8638),
+                      body.get('radius_km', 5.0), body.get('is_active', True), body.get('polygon_points', '')))
+        return 201, {"success": True, "data": {"id": zid, "name": name}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_update_zone(body, payload, zone_id):
+    """Admin updates a delivery zone."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        fields, params = [], []
+        for key in ['name', 'center_lat', 'center_lng', 'radius_km', 'is_active', 'polygon_points']:
+            if key in body:
+                fields.append(f"{key}=?")
+                params.append(body[key])
+        if not fields:
+            return 400, {"success": False, "message": "No fields to update"}
+        params.append(zone_id)
+        query(f"UPDATE DeliveryZones SET {', '.join(fields)} WHERE id=?", tuple(params))
+        return 200, {"success": True, "message": "Zone updated"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_delete_zone(payload, zone_id):
+    """Admin deletes a delivery zone."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        query("DELETE FROM DeliveryZones WHERE id=?", (zone_id,))
+        return 200, {"success": True, "message": "Zone deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: DETAILED STATS ──
+def handle_admin_detailed_stats(payload):
+    """Get detailed platform statistics for admin dashboard."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        today = datetime.date.today().isoformat()
+        week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+        month_ago = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
+        
+        # Revenue stats
+        today_rev = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (today,), fetch_one=True)
+        week_rev = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (week_ago,), fetch_one=True)
+        month_rev = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (month_ago,), fetch_one=True)
+        total_rev = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered'", fetch_one=True)
+        
+        # Delivery fee revenue
+        today_fees = query("SELECT COALESCE(SUM(delivery_fee),0) as fees FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (today,), fetch_one=True)
+        month_fees = query("SELECT COALESCE(SUM(delivery_fee),0) as fees FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (month_ago,), fetch_one=True)
+        
+        # Courier earnings
+        month_courier_earn = query("SELECT COALESCE(SUM(courier_earnings),0) as earn FROM Orders WHERE status='delivered' AND DATE(created_at)>=?", (month_ago,), fetch_one=True)
+        
+        # Order counts
+        today_orders = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (today,), fetch_one=True)
+        week_orders = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (week_ago,), fetch_one=True)
+        month_orders = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (month_ago,), fetch_one=True)
+        
+        # Average order value
+        avg_order = query("SELECT COALESCE(AVG(total),0) as avg FROM Orders WHERE status='delivered'", fetch_one=True)
+        
+        # Status breakdown
+        status_breakdown = query("SELECT status, COUNT(*) as cnt FROM Orders GROUP BY status", fetch=True)
+        
+        # Top restaurants by orders
+        top_restaurants = query("""
+            SELECT r.name, COUNT(o.id) as order_count, COALESCE(SUM(o.total),0) as revenue
+            FROM Restaurants r LEFT JOIN Orders o ON r.id=o.restaurant_id AND o.status='delivered'
+            GROUP BY r.id, r.name ORDER BY order_count DESC LIMIT 10
+        """, fetch=True)
+        
+        # Daily revenue last 7 days
+        daily_rev = query("""
+            SELECT DATE(created_at) as day, COUNT(*) as orders, COALESCE(SUM(total),0) as revenue
+            FROM Orders WHERE status='delivered' AND DATE(created_at)>=?
+            GROUP BY DATE(created_at) ORDER BY day
+        """, (week_ago,), fetch=True)
+        
+        # Payment method breakdown
+        payment_breakdown = query("""
+            SELECT COALESCE(payment_method,'cash') as method, COUNT(*) as cnt
+            FROM Orders WHERE DATE(created_at)>=? GROUP BY payment_method
+        """, (month_ago,), fetch=True)
+        
+        return 200, {"success": True, "data": {
+            "today_revenue": float(today_rev['rev'] or 0),
+            "week_revenue": float(week_rev['rev'] or 0),
+            "month_revenue": float(month_rev['rev'] or 0),
+            "total_revenue": float(total_rev['rev'] or 0),
+            "today_delivery_fees": float(today_fees['fees'] or 0),
+            "month_delivery_fees": float(month_fees['fees'] or 0),
+            "month_courier_earnings": float(month_courier_earn['earn'] or 0),
+            "today_orders": today_orders['cnt'] or 0,
+            "week_orders": week_orders['cnt'] or 0,
+            "month_orders": month_orders['cnt'] or 0,
+            "avg_order_value": float(avg_order['avg'] or 0),
+            "status_breakdown": status_breakdown or [],
+            "top_restaurants": top_restaurants or [],
+            "daily_revenue": daily_rev or [],
+            "payment_breakdown": payment_breakdown or []
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── COURIER: EARNINGS STATS ──
+def handle_courier_earnings_stats(payload):
+    """Get detailed earnings statistics for courier."""
+    try:
+        if payload.get('role') != 'courier':
+            return 403, {"success": False, "message": "Courier only"}
+        cid = payload['uid']
+        today = datetime.date.today().isoformat()
+        week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+        month_ago = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
+        
+        today_earn = query("SELECT COALESCE(SUM(courier_earnings),0) as earn FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, today), fetch_one=True)
+        week_earn = query("SELECT COALESCE(SUM(courier_earnings),0) as earn FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, week_ago), fetch_one=True)
+        month_earn = query("SELECT COALESCE(SUM(courier_earnings),0) as earn FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, month_ago), fetch_one=True)
+        total_earn = query("SELECT COALESCE(SUM(courier_earnings),0) as earn FROM Orders WHERE courier_id=? AND status='delivered'", (cid,), fetch_one=True)
+        
+        today_deliveries = query("SELECT COUNT(*) as cnt FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, today), fetch_one=True)
+        week_deliveries = query("SELECT COUNT(*) as cnt FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, week_ago), fetch_one=True)
+        month_deliveries = query("SELECT COUNT(*) as cnt FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?", (cid, month_ago), fetch_one=True)
+        total_deliveries = query("SELECT COUNT(*) as cnt FROM Orders WHERE courier_id=? AND status='delivered'", (cid,), fetch_one=True)
+        
+        avg_earning = query("SELECT COALESCE(AVG(courier_earnings),0) as avg FROM Orders WHERE courier_id=? AND status='delivered'", (cid,), fetch_one=True)
+        
+        # Daily earnings last 7 days
+        daily_earn = query("""
+            SELECT DATE(delivered_at) as day, COUNT(*) as deliveries, COALESCE(SUM(courier_earnings),0) as earnings
+            FROM Orders WHERE courier_id=? AND status='delivered' AND DATE(delivered_at)>=?
+            GROUP BY DATE(delivered_at) ORDER BY day
+        """, (cid, week_ago), fetch=True)
+        
+        # Average delivery time
+        avg_time = query("""
+            SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (delivered_at - created_at))/60),0) as avg_minutes
+            FROM Orders WHERE courier_id=? AND status='delivered' AND delivered_at IS NOT NULL
+        """, (cid,), fetch_one=True)
+        
+        # Tips/extra earnings from CourierEarnings table
+        extra_earn = query("SELECT COALESCE(SUM(amount),0) as extra FROM CourierEarnings WHERE courier_id=? AND earning_type!='delivery_fee'", (cid,), fetch_one=True)
+        
+        # Best hours analysis
+        best_hours = query("""
+            SELECT EXTRACT(HOUR FROM delivered_at) as hour, COUNT(*) as cnt, COALESCE(SUM(courier_earnings),0) as earn
+            FROM Orders WHERE courier_id=? AND status='delivered' AND delivered_at IS NOT NULL
+            GROUP BY hour ORDER BY earn DESC LIMIT 5
+        """, (cid,), fetch=True)
+        
+        return 200, {"success": True, "data": {
+            "today_earnings": float(today_earn['earn'] or 0),
+            "week_earnings": float(week_earn['earn'] or 0),
+            "month_earnings": float(month_earn['earn'] or 0),
+            "total_earnings": float(total_earn['earn'] or 0),
+            "today_deliveries": today_deliveries['cnt'] or 0,
+            "week_deliveries": week_deliveries['cnt'] or 0,
+            "month_deliveries": month_deliveries['cnt'] or 0,
+            "total_deliveries": total_deliveries['cnt'] or 0,
+            "avg_earning_per_order": float(avg_earning['avg'] or 0),
+            "daily_earnings": daily_earn or [],
+            "avg_delivery_minutes": float(avg_time['avg_minutes'] or 0),
+            "extra_earnings": float(extra_earn['extra'] or 0),
+            "best_hours": best_hours or []
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ────────────────────────────────────────────
+# ENHANCED ADMIN & COURIER HANDLERS
+# ────────────────────────────────────────────
+
+def handle_courier_recommendations(payload):
+    """Get smart recommendations for couriers to maximize their profit."""
+    try:
+        if payload.get('role') != 'courier':
+            return 403, {"success": False, "message": "Courier only"}
+        cid = payload['uid']
+
+        # Get courier's current location and vehicle
+        loc = query("SELECT latitude, longitude, vehicle_type FROM CourierLocations WHERE courier_id=?", (cid,), fetch_one=True)
+        if not loc:
+            return 404, {"success": False, "message": "Courier location not found"}
+
+        # Best hours based on all delivered orders in the system
+        best_hours = query("""
+            SELECT EXTRACT(HOUR FROM created_at) as hour, COUNT(*) as order_count,
+            COALESCE(AVG(courier_earnings), 0) as avg_earning
+            FROM Orders WHERE status='delivered' AND courier_earnings > 0
+            GROUP BY hour ORDER BY order_count DESC LIMIT 5
+        """, fetch=True)
+
+        # Hot zones - areas with most recent pending/ready orders
+        hot_zones = query("""
+            SELECT r.latitude, r.longitude, r.name as restaurant_name,
+            COUNT(o.id) as pending_orders,
+            ROUND(AVG(o.delivery_fee), 2) as avg_fee
+            FROM Orders o
+            JOIN Restaurants r ON o.restaurant_id = r.id
+            WHERE o.status IN ('pending', 'accepted', 'ready_for_pickup')
+            AND o.created_at >= NOW() - INTERVAL '2 hours'
+            GROUP BY r.latitude, r.longitude, r.name
+            ORDER BY pending_orders DESC LIMIT 5
+        """, fetch=True)
+
+        # Vehicle recommendation based on average distances
+        avg_dist = query("""
+            SELECT AVG(
+                6371 * acos(cos(radians(r.latitude)) * cos(radians(o.delivery_lat)) *
+                cos(radians(o.delivery_lng) - radians(r.longitude)) +
+                sin(radians(r.latitude)) * sin(radians(o.delivery_lat)))
+            ) as avg_km
+            FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id
+            WHERE o.status='delivered' AND o.delivery_lat IS NOT NULL
+        """, fetch_one=True)
+
+        avg_distance = float(avg_dist['avg_km'] or 0) if avg_dist else 0
+        vehicle = loc.get('vehicle_type', 'bicycle')
+        if avg_distance > 5:
+            vehicle_rec = 'scooter'
+            vehicle_reason = 'Average delivery distance is over 5km - a scooter will maximize your deliveries'
+        elif avg_distance > 3:
+            vehicle_rec = 'bicycle'
+            vehicle_reason = 'Average delivery distance is moderate - a bicycle is cost-effective'
+        else:
+            vehicle_rec = 'walking'
+            vehicle_reason = 'Most deliveries are nearby - walking is sufficient and saves on fuel'
+
+        # Expected hourly earnings
+        hourly_data = query("""
+            SELECT EXTRACT(HOUR FROM delivered_at) as hour,
+            COUNT(*) as deliveries,
+            COALESCE(SUM(courier_earnings), 0) as total_earnings
+            FROM Orders WHERE status='delivered' AND delivered_at IS NOT NULL
+            GROUP BY hour ORDER BY total_earnings DESC
+        """, fetch=True)
+
+        expected_hourly = 0
+        if hourly_data:
+            top_hours = hourly_data[:3]
+            avg_earn = sum(float(h['total_earnings'] or 0) for h in top_hours) / len(top_hours)
+            expected_hourly = round(avg_earn, 2)
+
+        # Generate tips
+        tips = []
+        if best_hours:
+            peak_hour = int(best_hours[0]['hour'])
+            tips.append(f"Peak order time is {peak_hour}:00 - {peak_hour+1}:00. Be online then!")
+        if hot_zones:
+            tips.append(f"High activity near {hot_zones[0]['restaurant_name']} with {hot_zones[0]['pending_orders']} pending orders")
+        if avg_distance > 5 and vehicle in ('walking', 'bicycle'):
+            tips.append("Consider upgrading to a scooter for longer distance deliveries - they pay more!")
+        tips.append("Accept orders quickly during peak hours to maximize your delivery count")
+        tips.append("Stay near restaurant clusters to reduce pickup time")
+
+        # Get current courier earnings rate
+        my_rate = query("""
+            SELECT COALESCE(AVG(courier_earnings), 0) as my_avg
+            FROM Orders WHERE courier_id=? AND status='delivered'
+        """, (cid,), fetch_one=True)
+
+        return 200, {"success": True, "data": {
+            "best_hours": best_hours or [],
+            "hot_zones": hot_zones or [],
+            "vehicle_recommendation": {"current": vehicle, "recommended": vehicle_rec, "reason": vehicle_reason},
+            "expected_hourly_earnings": expected_hourly,
+            "my_avg_earning": float(my_rate['my_avg'] or 0),
+            "tips": tips,
+            "avg_delivery_distance_km": round(avg_distance, 1)
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_activity_log(payload):
+    """Get admin activity log."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("""
+            SELECT al.*, u.display_name as admin_name
+            FROM ActivityLog al
+            JOIN Users u ON al.admin_id=u.id
+            ORDER BY al.created_at DESC LIMIT 100
+        """, fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_full_stats(payload):
+    """Get comprehensive app statistics for admin."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+
+        today = datetime.date.today().isoformat()
+        week_ago = (datetime.date.today() - datetime.timedelta(days=7)).isoformat()
+        month_ago = (datetime.date.today() - datetime.timedelta(days=30)).isoformat()
+
+        # Revenue breakdown
+        revenue_today = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?", (today,), fetch_one=True)
+        revenue_week = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?", (week_ago,), fetch_one=True)
+        revenue_month = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?", (month_ago,), fetch_one=True)
+        revenue_total = query("SELECT COALESCE(SUM(total),0) as rev FROM Orders WHERE status='delivered'", fetch_one=True)
+
+        # Delivery fees collected
+        delivery_fees_today = query("SELECT COALESCE(SUM(delivery_fee),0) as fees FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?", (today,), fetch_one=True)
+        delivery_fees_total = query("SELECT COALESCE(SUM(delivery_fee),0) as fees FROM Orders WHERE status='delivered'", fetch_one=True)
+
+        # Courier payouts
+        courier_payouts_today = query("SELECT COALESCE(SUM(courier_earnings),0) as payouts FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?", (today,), fetch_one=True)
+        courier_payouts_total = query("SELECT COALESCE(SUM(courier_earnings),0) as payouts FROM Orders WHERE status='delivered'", fetch_one=True)
+
+        # Platform profit = delivery fees - courier payouts
+        platform_profit_today = float(delivery_fees_today['fees'] or 0) - float(courier_payouts_today['payouts'] or 0)
+        platform_profit_total = float(delivery_fees_total['fees'] or 0) - float(courier_payouts_total['payouts'] or 0)
+
+        # Order counts by period
+        orders_today_cnt = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (today,), fetch_one=True)
+        orders_week_cnt = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (week_ago,), fetch_one=True)
+        orders_month_cnt = query("SELECT COUNT(*) as cnt FROM Orders WHERE DATE(created_at)>=?", (month_ago,), fetch_one=True)
+        orders_total_cnt = query("SELECT COUNT(*) as cnt FROM Orders", fetch_one=True)
+
+        # User stats
+        total_customers = query("SELECT COUNT(*) as cnt FROM Users WHERE role='customer'", fetch_one=True)
+        total_couriers = query("SELECT COUNT(*) as cnt FROM Users WHERE role='courier'", fetch_one=True)
+        total_partners = query("SELECT COUNT(*) as cnt FROM Users WHERE role='partner'", fetch_one=True)
+        total_support = query("SELECT COUNT(*) as cnt FROM Users WHERE role='support'", fetch_one=True)
+        online_couriers = query("SELECT COUNT(*) as cnt FROM CourierLocations WHERE is_online=TRUE", fetch_one=True)
+
+        # Average order value
+        avg_order = query("SELECT COALESCE(AVG(total),0) as avg FROM Orders WHERE status='delivered'", fetch_one=True)
+
+        # Average delivery time
+        avg_time = query("""
+            SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (delivered_at - created_at))/60),0) as avg_min
+            FROM Orders WHERE status='delivered' AND delivered_at IS NOT NULL
+        """, fetch_one=True)
+
+        # Daily revenue last 30 days
+        daily_rev = query("""
+            SELECT DATE(delivered_at) as day, COUNT(*) as orders,
+            COALESCE(SUM(total),0) as revenue,
+            COALESCE(SUM(delivery_fee),0) as fees,
+            COALESCE(SUM(courier_earnings),0) as payouts
+            FROM Orders WHERE status='delivered' AND DATE(delivered_at)>=?
+            GROUP BY DATE(delivered_at) ORDER BY day
+        """, (month_ago,), fetch=True)
+
+        # Top restaurants by orders
+        top_restaurants = query("""
+            SELECT r.name, r.category, COUNT(*) as order_count,
+            COALESCE(SUM(o.total),0) as revenue
+            FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id
+            WHERE o.status='delivered'
+            GROUP BY r.name, r.category ORDER BY order_count DESC LIMIT 10
+        """, fetch=True)
+
+        # Payment method distribution
+        payment_dist = query("""
+            SELECT COALESCE(payment_method, 'cash') as method, COUNT(*) as cnt
+            FROM Orders WHERE status='delivered' GROUP BY method ORDER BY cnt DESC
+        """, fetch=True)
+
+        # Category distribution
+        category_dist = query("""
+            SELECT r.category, COUNT(*) as cnt, COALESCE(SUM(o.total),0) as revenue
+            FROM Orders o JOIN Restaurants r ON o.restaurant_id=r.id
+            WHERE o.status='delivered' GROUP BY r.category ORDER BY cnt DESC
+        """, fetch=True)
+
+        # Promo code usage
+        promo_stats = query("""
+            SELECT p.code, p.discount_type, p.discount_value, p.used_count,
+            p.usage_limit, p.is_active
+            FROM PromoCodes p ORDER BY p.used_count DESC
+        """, fetch=True)
+
+        return 200, {"success": True, "data": {
+            "revenue": {
+                "today": float(revenue_today['rev'] or 0),
+                "week": float(revenue_week['rev'] or 0),
+                "month": float(revenue_month['rev'] or 0),
+                "total": float(revenue_total['rev'] or 0)
+            },
+            "delivery_fees": {
+                "today": float(delivery_fees_today['fees'] or 0),
+                "total": float(delivery_fees_total['fees'] or 0)
+            },
+            "courier_payouts": {
+                "today": float(courier_payouts_today['payouts'] or 0),
+                "total": float(courier_payouts_total['payouts'] or 0)
+            },
+            "platform_profit": {
+                "today": platform_profit_today,
+                "total": platform_profit_total
+            },
+            "orders": {
+                "today": orders_today_cnt['cnt'] or 0,
+                "week": orders_week_cnt['cnt'] or 0,
+                "month": orders_month_cnt['cnt'] or 0,
+                "total": orders_total_cnt['cnt'] or 0
+            },
+            "users": {
+                "customers": total_customers['cnt'] or 0,
+                "couriers": total_couriers['cnt'] or 0,
+                "partners": total_partners['cnt'] or 0,
+                "support": total_support['cnt'] or 0,
+                "online_couriers": online_couriers['cnt'] or 0
+            },
+            "avg_order_value": float(avg_order['avg'] or 0),
+            "avg_delivery_minutes": float(avg_time['avg_min'] or 0),
+            "daily_revenue": daily_rev or [],
+            "top_restaurants": top_restaurants or [],
+            "payment_methods": payment_dist or [],
+            "category_distribution": category_dist or [],
+            "promo_stats": promo_stats or []
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_zone_map_data(payload):
+    """Get map data for zone management - includes existing zones and Moldova boundaries."""
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        zones = query("SELECT * FROM DeliveryZones ORDER BY name", fetch=True)
+        # Moldova approximate center and bounds for the map
+        return 200, {"success": True, "data": {
+            "zones": zones or [],
+            "map_center": {"lat": 47.0, "lng": 28.8},
+            "map_bounds": {
+                "north": 48.5, "south": 45.5,
+                "east": 30.1, "west": 26.6
+            },
+            "major_cities": [
+                {"name": "Chisinau", "lat": 47.01, "lng": 28.86},
+                {"name": "Balti", "lat": 47.76, "lng": 27.93},
+                {"name": "Cahul", "lat": 45.90, "lng": 28.19},
+                {"name": "Ungheni", "lat": 47.21, "lng": 27.79},
+                {"name": "Orhei", "lat": 47.38, "lng": 28.82},
+                {"name": "Soroca", "lat": 48.15, "lng": 28.30},
+                {"name": "Tiraspol", "lat": 46.85, "lng": 29.63},
+                {"name": "Comrat", "lat": 46.30, "lng": 28.41}
+            ]
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_bulk_menu_upload(body, payload):
+    """Admin uploads menu text for a partner. The 'bot' parses it and adds items to DB.
+    Format: each line is 'Item Name | Description | Price | Sub Category'
+    Lines starting with # are treated as sub-category headers.
+    Lines starting with // are comments/ignored.
+    Example:
+      # Main Course
+      Grilled Salmon | Fresh Atlantic salmon with lemon | 18.50 | Main Course
+      Beef Stew | Traditional recipe with vegetables | 12.99 | Main Course
+    """
+    try:
+        if payload['role'] != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        restaurant_id = body.get('restaurant_id')
+        menu_text = body.get('menu_text', '')
+        clear_existing = body.get('clear_existing', False)
+
+        if not restaurant_id:
+            return 400, {"success": False, "message": "restaurant_id required"}
+        if not menu_text.strip():
+            return 400, {"success": False, "message": "Menu text required"}
+
+        # Verify restaurant exists
+        rest = query("SELECT id, name FROM Restaurants WHERE id=?", (restaurant_id,), fetch_one=True)
+        if not rest:
+            return 404, {"success": False, "message": "Restaurant not found"}
+
+        # Clear existing items if requested
+        if clear_existing:
+            query("DELETE FROM Items WHERE restaurant_id=?", (restaurant_id,))
+
+        # Parse menu text
+        current_sub = 'General'
+        added = 0
+        errors = 0
+        for line in menu_text.strip().split('\n'):
+            line = line.strip()
+            if not line or line.startswith('//'):
+                continue
+            if line.startswith('#'):
+                current_sub = line[1:].strip()
+                continue
+            # Try pipe-separated format
+            parts = [p.strip() for p in line.split('|')]
+            if len(parts) >= 3:
+                name = parts[0]
+                desc = parts[1]
+                try:
+                    price = float(parts[2].replace(',', '.').replace('\u20ac', '').replace('MDL', '').replace('lei', '').strip())
+                except:
+                    errors += 1
+                    continue
+                sub_cat = parts[3].strip() if len(parts) > 3 else current_sub
+            else:
+                # Try comma-separated: Name, Price
+                parts2 = [p.strip() for p in line.split(',')]
+                if len(parts2) >= 2:
+                    name = parts2[0]
+                    try:
+                        price = float(parts2[1].replace(',', '.').replace('\u20ac', '').replace('MDL', '').replace('lei', '').strip())
+                    except:
+                        errors += 1
+                        continue
+                    desc = ''
+                    sub_cat = current_sub
+                else:
+                    errors += 1
+                    continue
+
+            if name and price > 0:
+                try:
+                    insert("INSERT INTO Items (restaurant_id,name,description,price,is_available,sub_category) VALUES (?,?,?,?,TRUE,?)",
+                           (restaurant_id, name, desc, price, sub_cat))
+                    added += 1
+                except:
+                    errors += 1
+
+        # Log activity
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'bulk_menu_upload','restaurant',?,?)",
+                   (payload['uid'], restaurant_id, f"Added {added} items to {rest['name']} ({errors} errors)"))
+        except:
+            pass
+
+        return 200, {"success": True, "data": {
+            "restaurant": rest['name'],
+            "items_added": added,
+            "errors": errors,
+            "cleared_existing": clear_existing
+        }}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: VEHICLE CHANGE REQUESTS ──
+def handle_admin_vehicle_requests(payload):
+    """List all pending vehicle change requests."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("""
+            SELECT vcr.*, u.display_name as courier_name, u.username as courier_username, u.phone as courier_phone
+            FROM VehicleChangeRequests vcr
+            JOIN Users u ON vcr.courier_id=u.id
+            WHERE vcr.status='pending'
+            ORDER BY vcr.created_at DESC
+        """, fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_approve_vehicle(body, payload):
+    """Admin approves a vehicle change request."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        req_id = body.get('request_id')
+        if not req_id:
+            return 400, {"success": False, "message": "request_id required"}
+        req = query("SELECT * FROM VehicleChangeRequests WHERE id=? AND status='pending'", (req_id,), fetch_one=True)
+        if not req:
+            return 404, {"success": False, "message": "Pending request not found"}
+        # Update vehicle in CourierLocations
+        query("UPDATE CourierLocations SET vehicle_type=? WHERE courier_id=?",
+              (req['requested_vehicle'], req['courier_id']))
+        # Mark request as approved
+        query("UPDATE VehicleChangeRequests SET status='approved', resolved_at=CURRENT_TIMESTAMP WHERE id=?", (req_id,))
+        # Notify courier
+        push_notification(req['courier_id'], 'Vehicle Change Approved',
+                         f'Your vehicle has been changed to {req["requested_vehicle"]}',
+                         'vehicle_change_approved', req_id)
+        # Log activity
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'approve_vehicle','courier',?,?)",
+                   (payload['uid'], req['courier_id'], f"Approved vehicle change: {req['current_vehicle']} → {req['requested_vehicle']}"))
+        except:
+            pass
+        return 200, {"success": True, "message": "Vehicle change approved"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_reject_vehicle(body, payload):
+    """Admin rejects a vehicle change request."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        req_id = body.get('request_id')
+        note = body.get('note', '')
+        if not req_id:
+            return 400, {"success": False, "message": "request_id required"}
+        req = query("SELECT * FROM VehicleChangeRequests WHERE id=? AND status='pending'", (req_id,), fetch_one=True)
+        if not req:
+            return 404, {"success": False, "message": "Pending request not found"}
+        query("UPDATE VehicleChangeRequests SET status='rejected', admin_note=?, resolved_at=CURRENT_TIMESTAMP WHERE id=?",
+              (note, req_id))
+        push_notification(req['courier_id'], 'Vehicle Change Rejected',
+                         f'Your vehicle change request was not approved. {note}',
+                         'vehicle_change_rejected', req_id)
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'reject_vehicle','courier',?,?)",
+                   (payload['uid'], req['courier_id'], f"Rejected vehicle change: {req['current_vehicle']} → {req['requested_vehicle']}. Reason: {note}"))
+        except:
+            pass
+        return 200, {"success": True, "message": "Vehicle change rejected"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: PROMO CODES CRUD ──
+def handle_admin_promo_list(payload):
+    """List all promo codes."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        rows = query("SELECT * FROM PromoCodes ORDER BY created_at DESC", fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_promo_create(body, payload):
+    """Create a new promo code."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        code = (body.get('code', '') or '').strip().upper()
+        if not code:
+            return 400, {"success": False, "message": "Promo code required"}
+        existing = query("SELECT id FROM PromoCodes WHERE code=?", (code,), fetch_one=True)
+        if existing:
+            return 409, {"success": False, "message": "Promo code already exists"}
+        discount_type = body.get('discount_type', 'percentage')
+        if discount_type not in ('percentage', 'fixed'):
+            discount_type = 'percentage'
+        discount_value = float(body.get('discount_value', 0))
+        min_order = float(body.get('min_order_amount', 0))
+        max_discount = body.get('max_discount_amount')
+        if max_discount is not None:
+            max_discount = float(max_discount)
+        usage_limit = body.get('usage_limit')
+        if usage_limit is not None:
+            usage_limit = int(usage_limit)
+        valid_from = body.get('valid_from') or datetime.datetime.now().isoformat()
+        valid_until = body.get('valid_until') or (datetime.datetime.now() + datetime.timedelta(days=365)).isoformat()
+        rid = insert("""INSERT INTO PromoCodes (code,description,discount_type,discount_value,max_discount_amount,min_order_amount,usage_limit,is_active,valid_from,valid_until)
+            VALUES (?,?,?,?,?,?,?,?,TRUE,?,?)""",
+            (code, body.get('description', ''), discount_type, discount_value, max_discount, min_order,
+             usage_limit, valid_from, valid_until))
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'create_promo','promo',?,?)",
+                   (payload['uid'], rid, f"Created promo code: {code}"))
+        except:
+            pass
+        return 201, {"success": True, "data": {"id": rid, "code": code}}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_promo_update(body, payload, promo_id):
+    """Update a promo code."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        existing = query("SELECT id FROM PromoCodes WHERE id=?", (promo_id,), fetch_one=True)
+        if not existing:
+            return 404, {"success": False, "message": "Promo code not found"}
+        fields, params = [], []
+        for key in ['description', 'discount_type', 'valid_from', 'valid_until']:
+            if key in body:
+                fields.append(f"{key}=?")
+                params.append(body[key])
+        if 'discount_value' in body:
+            fields.append("discount_value=?")
+            params.append(float(body['discount_value']))
+        if 'max_discount_amount' in body:
+            fields.append("max_discount_amount=?")
+            val = body['max_discount_amount']
+            params.append(float(val) if val is not None else None)
+        if 'min_order_amount' in body:
+            fields.append("min_order_amount=?")
+            params.append(float(body['min_order_amount']))
+        if 'usage_limit' in body:
+            fields.append("usage_limit=?")
+            val = body['usage_limit']
+            params.append(int(val) if val is not None else None)
+        if 'is_active' in body:
+            fields.append("is_active=?")
+            params.append(True if body['is_active'] else False)
+        if not fields:
+            return 400, {"success": False, "message": "No fields to update"}
+        params.append(promo_id)
+        query(f"UPDATE PromoCodes SET {', '.join(fields)} WHERE id=?", tuple(params))
+        return 200, {"success": True, "message": "Promo code updated"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_promo_delete(payload, promo_id):
+    """Delete a promo code."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        existing = query("SELECT code FROM PromoCodes WHERE id=?", (promo_id,), fetch_one=True)
+        if not existing:
+            return 404, {"success": False, "message": "Promo code not found"}
+        query("DELETE FROM PromoCodes WHERE id=?", (promo_id,))
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'delete_promo','promo',?,?)",
+                   (payload['uid'], promo_id, f"Deleted promo code: {existing['code']}"))
+        except:
+            pass
+        return 200, {"success": True, "message": "Promo code deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: ITEM PRICE MANAGEMENT ──
+def handle_admin_items_list(payload):
+    """List all items with prices, filterable by restaurant."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        restaurant_id = None
+        # Optional filter by restaurant
+        rows = query("""
+            SELECT i.*, r.name as restaurant_name, r.category as restaurant_category
+            FROM Items i
+            JOIN Restaurants r ON i.restaurant_id=r.id
+            ORDER BY r.name, i.name
+        """, fetch=True)
+        return 200, {"success": True, "data": rows or []}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_update_item(body, payload, item_id):
+    """Admin updates any item (price, name, availability, sub_category)."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        existing = query("SELECT id FROM Items WHERE id=?", (item_id,), fetch_one=True)
+        if not existing:
+            return 404, {"success": False, "message": "Item not found"}
+        fields, params = [], []
+        for key in ['name', 'description', 'sub_category', 'image_url']:
+            if key in body:
+                fields.append(f"{key}=?")
+                params.append(body[key])
+        if 'price' in body:
+            fields.append("price=?")
+            params.append(float(body['price']))
+        if 'is_available' in body:
+            fields.append("is_available=?")
+            params.append(True if body['is_available'] else False)
+        if not fields:
+            return 400, {"success": False, "message": "No fields to update"}
+        params.append(item_id)
+        query(f"UPDATE Items SET {', '.join(fields)} WHERE id=?", tuple(params))
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'update_item','item',?,?)",
+                   (payload['uid'], item_id, f"Updated item fields: {', '.join(fields)}"))
+        except:
+            pass
+        return 200, {"success": True, "message": "Item updated"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_delete_item(payload, item_id):
+    """Admin deletes an item."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        existing = query("SELECT id, name FROM Items WHERE id=?", (item_id,), fetch_one=True)
+        if not existing:
+            return 404, {"success": False, "message": "Item not found"}
+        query("DELETE FROM Items WHERE id=?", (item_id,))
+        try:
+            insert("INSERT INTO ActivityLog (admin_id,action,target_type,target_id,details) VALUES (?,'delete_item','item',?,?)",
+                   (payload['uid'], item_id, f"Deleted item: {existing['name']}"))
+        except:
+            pass
+        return 200, {"success": True, "message": "Item deleted"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+# ── ADMIN: DELIVERY FEE & COURIER EARNINGS SETTINGS ──
+def handle_admin_settings_get(payload):
+    """Get platform settings (delivery fee, courier earnings rate, etc.)."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        keys = ['default_delivery_fee', 'courier_earnings_percent', 'courier_min_earnings',
+                'min_order_for_free_delivery', 'platform_commission_percent']
+        result = {}
+        for key in keys:
+            row = query("SELECT value FROM AppSettings WHERE key=?", (key,), fetch_one=True)
+            result[key] = row['value'] if row else None
+        # Set defaults
+        if result['default_delivery_fee'] is None:
+            result['default_delivery_fee'] = '2.50'
+        if result['courier_earnings_percent'] is None:
+            result['courier_earnings_percent'] = '70'
+        if result['courier_min_earnings'] is None:
+            result['courier_min_earnings'] = '1.50'
+        if result['min_order_for_free_delivery'] is None:
+            result['min_order_for_free_delivery'] = '25'
+        if result['platform_commission_percent'] is None:
+            result['platform_commission_percent'] = '15'
+        return 200, {"success": True, "data": result}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
+def handle_admin_settings_update(body, payload):
+    """Update platform settings."""
+    try:
+        if payload.get('role') != 'admin':
+            return 403, {"success": False, "message": "Admin only"}
+        allowed_keys = ['default_delivery_fee', 'courier_earnings_percent', 'courier_min_earnings',
+                        'min_order_for_free_delivery', 'platform_commission_percent']
+        updated = []
+        for key in allowed_keys:
+            if key in body:
+                val = str(body[key])
+                existing = query("SELECT key FROM AppSettings WHERE key=?", (key,), fetch_one=True)
+                if existing:
+                    query("UPDATE AppSettings SET value=?, updated_at=CURRENT_TIMESTAMP WHERE key=?", (val, key))
+                else:
+                    insert("INSERT INTO AppSettings (key, value) VALUES (?,?)", (key, val))
+                updated.append(f"{key}={val}")
+        if updated:
+            try:
+                insert("INSERT INTO ActivityLog (admin_id,action,target_type,details) VALUES (?,'update_settings','platform',?)",
+                       (payload['uid'], f"Updated settings: {', '.join(updated)}"))
+            except:
+                pass
+        return 200, {"success": True, "message": f"Settings updated: {', '.join(updated)}"}
+    except Exception as e:
+        return 500, {"success": False, "message": str(e)}
+
+
 # ────────────────────────────────────────────
 # HTTP SERVER
 # ────────────────────────────────────────────
@@ -2823,6 +3950,24 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_create_broadcast(body, p)
                 self._json(code, data)
+            elif path == '/api/admin/zones':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_get_zones(p)
+                self._json(code, data)
+            elif path == '/api/admin/detailed-stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_detailed_stats(p)
+                self._json(code, data)
+            elif path == '/api/courier/earnings-stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_earnings_stats(p)
+                self._json(code, data)
             elif path == '/api/broadcasts':
                 p = self._auth()
                 if not p:
@@ -2846,6 +3991,30 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_stats(p)
+                self._json(code, data)
+            elif path == '/api/admin/full-stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_full_stats(p)
+                self._json(code, data)
+            elif path == '/api/admin/activity-log':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_activity_log(p)
+                self._json(code, data)
+            elif path == '/api/admin/zone-map-data':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_zone_map_data(p)
+                self._json(code, data)
+            elif path == '/api/courier/recommendations':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_recommendations(p)
                 self._json(code, data)
 
             # ── Partner ──
@@ -3146,6 +4315,12 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_courier_set_vehicle(body, p)
                 self._json(code, data)
+            elif path == '/api/courier/vehicle-status':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_courier_vehicle_status(p)
+                self._json(code, data)
 
             # ── Support ──
             elif path == '/api/support/tickets':
@@ -3175,6 +4350,118 @@ class Handler(BaseHTTPRequestHandler):
                 if not p:
                     return self._json(401, {"success": False, "message": "Auth required"})
                 code, data = handle_admin_assign_order(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/change-password':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_change_password(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/reset-password':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_reset_password(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/add-partner':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_add_partner(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/delete-partner':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_delete_partner(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/toggle-partner':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_toggle_partner(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/upload-menu':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_upload_menu(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/zones':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_add_zone(body, p)
+                self._json(s, d)
+            elif path == '/api/admin/detailed-stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_admin_detailed_stats(p)
+                self._json(s, d)
+            elif path == '/api/courier/earnings-stats':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                s, d = handle_courier_earnings_stats(p)
+                self._json(s, d)
+            elif path == '/api/admin/bulk-menu-upload':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_bulk_menu_upload(body, p)
+                self._json(code, data)
+            # ── Admin: Vehicle Change Requests ──
+            elif path == '/api/admin/vehicle-requests':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_vehicle_requests(p)
+                self._json(code, data)
+            elif path == '/api/admin/vehicle-approve':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_approve_vehicle(body, p)
+                self._json(code, data)
+            elif path == '/api/admin/vehicle-reject':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_reject_vehicle(body, p)
+                self._json(code, data)
+            # ── Admin: Promo Codes CRUD ──
+            elif path == '/api/admin/promos':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_promo_list(p)
+                self._json(code, data)
+            elif path == '/api/admin/promos/create':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_promo_create(body, p)
+                self._json(code, data)
+            # ── Admin: Item Management ──
+            elif path == '/api/admin/items':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_items_list(p)
+                self._json(code, data)
+            # ── Admin: Settings ──
+            elif path == '/api/admin/settings':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_settings_get(p)
+                self._json(code, data)
+            elif path == '/api/admin/settings/update':
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                code, data = handle_admin_settings_update(body, p)
                 self._json(code, data)
 
             # ── Partner ──
@@ -3312,6 +4599,39 @@ class Handler(BaseHTTPRequestHandler):
                     return self._json(400, {"success": False, "message": "Invalid ID"})
                 code, data = handle_update_restaurant(body, p, rid)
                 self._json(code, data)
+            # ── Admin zone update ──
+            elif '/api/admin/zones/' in path:
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    zone_id = int(path.split('/api/admin/zones/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid zone ID"})
+                code, data = handle_admin_update_zone(body, p, zone_id)
+                self._json(code, data)
+            # ── Admin promo update ──
+            elif path.startswith('/api/admin/promos/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    promo_id = int(path.split('/api/admin/promos/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid promo ID"})
+                code, data = handle_admin_promo_update(body, p, promo_id)
+                self._json(code, data)
+            # ── Admin item update ──
+            elif path.startswith('/api/admin/items/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    item_id = int(path.split('/api/admin/items/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid item ID"})
+                code, data = handle_admin_update_item(body, p, item_id)
+                self._json(code, data)
             else:
                 self._json(404, {"success": False, "message": "Not found"})
         except Exception as e:
@@ -3342,6 +4662,39 @@ class Handler(BaseHTTPRequestHandler):
                 except:
                     return self._json(400, {"success": False, "message": "Invalid broadcast ID"})
                 code, data = handle_admin_delete_broadcast(p, bid)
+                self._json(code, data)
+            # ── Admin zone delete ──
+            elif '/api/admin/zones/' in path:
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    zone_id = int(path.split('/api/admin/zones/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid zone ID"})
+                code, data = handle_admin_delete_zone(p, zone_id)
+                self._json(code, data)
+            # ── Admin promo delete ──
+            elif path.startswith('/api/admin/promos/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    promo_id = int(path.split('/api/admin/promos/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid promo ID"})
+                code, data = handle_admin_promo_delete(p, promo_id)
+                self._json(code, data)
+            # ── Admin item delete ──
+            elif path.startswith('/api/admin/items/'):
+                p = self._auth()
+                if not p:
+                    return self._json(401, {"success": False, "message": "Auth required"})
+                try:
+                    item_id = int(path.split('/api/admin/items/')[-1])
+                except:
+                    return self._json(400, {"success": False, "message": "Invalid item ID"})
+                code, data = handle_admin_delete_item(p, item_id)
                 self._json(code, data)
             # ── Partner menu item delete ──
             if path.startswith('/api/partner/menu/items/'):

@@ -3,7 +3,7 @@
   "name": "Elyanivery Partner - Merchant & Kitchen",
   "short_name": "Partner Hub",
   "description": "Live incoming order manager, digital menu editor, sales analytics, and kitchen display.",
-  "id": "/partner?source=pwa",
+  "id": "/partner",
   "start_url": "/partner",
   "scope": "/",
   "display": "standalone",

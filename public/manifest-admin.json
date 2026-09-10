@@ -3,7 +3,7 @@
   "name": "Elyanivery Admin - Platform Operations",
   "short_name": "Admin Ops",
   "description": "Full platform administration, user management, courier approvals, dispatch maps, and system settings.",
-  "id": "/admin?source=pwa",
+  "id": "/admin",
   "start_url": "/admin",
   "scope": "/",
   "display": "standalone",

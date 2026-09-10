@@ -3,7 +3,7 @@
   "name": "Elyanivery Customer - Food & Delivery",
   "short_name": "Elyanivery",
   "description": "Browse local restaurants, order meals and groceries, and track deliveries in real time.",
-  "id": "/customer?source=pwa",
+  "id": "/customer",
   "start_url": "/customer",
   "scope": "/",
   "display": "standalone",

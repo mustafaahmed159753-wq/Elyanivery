@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Multi-role food delivery, express courier logistics, restaurant partner management, and live order tracking platform.',
     start_url: '/customer',
     scope: '/',
-    id: '/?source=pwa',
+    id: '/',
     display: 'standalone',
     display_override: ['window-controls-overlay', 'standalone', 'minimal-ui', 'browser'],
     orientation: 'any',

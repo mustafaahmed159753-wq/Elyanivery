@@ -3,7 +3,7 @@
   "name": "Elyanivery Support - Help & Tickets",
   "short_name": "Support Desk",
   "description": "Customer support ticket management, live chat with clients and couriers, and issue resolution.",
-  "id": "/support?source=pwa",
+  "id": "/support",
   "start_url": "/support",
   "scope": "/",
   "display": "standalone",

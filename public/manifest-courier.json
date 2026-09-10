@@ -3,7 +3,7 @@
   "name": "Elyanivery Courier - Driver Fleet",
   "short_name": "Courier App",
   "description": "Live delivery dispatch, route optimization, real-time GPS tracking, and courier earnings wallet.",
-  "id": "/courier?source=pwa",
+  "id": "/courier",
   "start_url": "/courier",
   "scope": "/",
   "display": "standalone",

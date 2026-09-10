@@ -3,7 +3,7 @@
   "name": "Elyanivery Delivery & Logistics",
   "short_name": "Elyanivery",
   "description": "Multi-role food delivery, express courier logistics, restaurant partner management, and live order tracking platform.",
-  "id": "/?source=pwa",
+  "id": "/",
   "start_url": "/customer",
   "scope": "/",
   "display": "standalone",

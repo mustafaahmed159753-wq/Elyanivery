@@ -106,10 +106,11 @@ async function handleRegister(e) {
 }
 
 function saveAuth(u) {
-    token = u.token;
-    user = u;
-    localStorage.setItem('ely_courier_token', token);
-    localStorage.setItem('ely_courier_user', JSON.stringify(u));
+    if (!u) return;
+    token = u.token || (u.data && u.data.token) || token;
+    user = u.user || u.data || u;
+    if (token) localStorage.setItem('ely_courier_token', token);
+    if (user) localStorage.setItem('ely_courier_user', JSON.stringify(user));
     initApp();
 }
 

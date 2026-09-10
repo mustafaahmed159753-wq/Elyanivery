@@ -25,11 +25,20 @@ class Config:
 
     # ── Server Settings ──
     HOST = os.environ.get('HOST', '0.0.0.0')
-    PORT = int(os.environ.get('PORT', '8080'))       # Railway sets PORT automatically
+    PORT = int(os.environ.get('PORT', '8080'))       # Railway/Render sets PORT automatically
 
     # ── JWT Settings ──
     JWT_SECRET = os.environ.get('JWT_SECRET', 'elyanivery-secret-key-change-in-production-2024')
     JWT_EXPIRY_HOURS = int(os.environ.get('JWT_EXPIRY_HOURS', '72'))
+
+    # ── Google Maps API ──
+    GOOGLE_MAPS_API_KEY = os.environ.get('NEXT_PUBLIC_GOOGLE_MAPS_API_KEY', os.environ.get('GOOGLE_MAPS_API_KEY', ''))
+
+    # ── Gmail & SMTP Settings for OTP ──
+    GMAIL_USER = os.environ.get('GMAIL_USER', os.environ.get('SMTP_USER', os.environ.get('EMAIL_USER', '')))
+    GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD', os.environ.get('SMTP_PASS', os.environ.get('GMAIL_PASSWORD', '')))
+    SMTP_HOST = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
+    SMTP_PORT = int(os.environ.get('SMTP_PORT', '465'))
 
     @classmethod
     def get_dsn(cls):

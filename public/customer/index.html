@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#FF6B00">
+<meta name="description" content="Elyanivery - On-Demand Food Delivery, Groceries and Orders">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Elyanivery">
+<link rel="manifest" href="/manifest-customer.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Customer</title>
 <style>
 /* ═══════════════════════════════════════════════════
@@ -736,10 +745,10 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
     </div>
   </div>
 
-  <!-- Verified Registration Form (Gmail OTP + Phone SMS OTP + Country Detection) -->
+  <!-- Verified Registration Form (Gmail OTP + Country & Address) -->
   <div class="auth-form" id="authRegisterForm" style="display:none;text-align:left">
     <div style="background:rgba(255,107,0,0.1);border:1px solid var(--pri);padding:10px 12px;border-radius:12px;font-size:12px;color:var(--text);margin-bottom:12px">
-      🔐 <b>Verified Customer Registration:</b> Enter your Gmail and phone number to receive instant 6-digit OTP verification codes. Once verified, view menus for your country!
+      🔐 <b>Gmail Registration:</b> Enter your Gmail address to receive an instant 6-digit OTP verification code.
     </div>
 
     <!-- Full Name -->
@@ -753,37 +762,23 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
     </div>
 
     <!-- Gmail Address & OTP -->
-    <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase">1. Gmail Verification</label>
+    <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-top:6px;display:block">Gmail Address</label>
     <div style="display:flex;gap:8px;margin-top:4px">
-      <input id="regEmail" type="email" placeholder="Gmail Address (e.g. tarek@gmail.com)" style="flex:1">
-      <button type="button" class="btn-pri" id="btnSendEmailOtp" onclick="sendCustomerOtp('email')" style="width:auto;padding:0 12px;font-size:12px;white-space:nowrap">Send Gmail OTP</button>
+      <input id="regEmail" type="email" placeholder="Gmail Address (e.g. yourname@gmail.com)" style="flex:1">
+      <button type="button" class="btn-pri" id="btnSendEmailOtp" onclick="sendCustomerOtp('email')" style="width:auto;padding:0 14px;font-size:12px;white-space:nowrap">Send Gmail OTP</button>
     </div>
-    <div id="emailOtpSection" style="display:none;margin-bottom:12px;background:var(--card2);padding:10px;border-radius:10px;border:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Enter 6-digit verification code sent to your Gmail:</div>
+    <div id="emailOtpSection" style="display:none;margin-top:8px;margin-bottom:12px;background:var(--card2);padding:12px;border-radius:12px;border:1px solid var(--border)">
+      <div id="emailOtpPrompt" style="font-size:12px;color:var(--text);font-weight:600;margin-bottom:6px">Enter 6-digit verification code sent to your Gmail:</div>
       <div style="display:flex;gap:8px">
         <input id="regEmailOtp" placeholder="6-digit OTP" maxlength="6" style="flex:1;margin-bottom:0;font-family:monospace;letter-spacing:4px;font-weight:bold;text-align:center">
-        <button type="button" class="btn-pri" onclick="verifyCustomerOtp('email')" style="width:auto;padding:0 14px;background:var(--green);font-size:12px">Verify</button>
+        <button type="button" class="btn-pri" id="btnVerifyEmailOtp" onclick="verifyCustomerOtp('email')" style="width:auto;padding:0 14px;background:var(--green);font-size:12px">Verify</button>
       </div>
-      <div id="emailVerifiedBadge" style="display:none;margin-top:6px;color:var(--green);font-size:12px;font-weight:700">✓ Gmail Verified Successfully</div>
-    </div>
-
-    <!-- Phone Number & SMS OTP -->
-    <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-top:8px;display:block">2. Mobile Phone (SMS OTP)</label>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <input id="regPhone" type="tel" placeholder="Phone (e.g. +20 10 1234 5678)" style="flex:1">
-      <button type="button" class="btn-pri" id="btnSendPhoneOtp" onclick="sendCustomerOtp('phone')" style="width:auto;padding:0 12px;font-size:12px;white-space:nowrap">Send SMS OTP</button>
-    </div>
-    <div id="phoneOtpSection" style="display:none;margin-bottom:12px;background:var(--card2);padding:10px;border-radius:10px;border:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--text2);margin-bottom:6px">Enter 6-digit SMS verification code:</div>
-      <div style="display:flex;gap:8px">
-        <input id="regPhoneOtp" placeholder="6-digit OTP" maxlength="6" style="flex:1;margin-bottom:0;font-family:monospace;letter-spacing:4px;font-weight:bold;text-align:center">
-        <button type="button" class="btn-pri" onclick="verifyCustomerOtp('phone')" style="width:auto;padding:0 14px;background:var(--green);font-size:12px">Verify</button>
-      </div>
-      <div id="phoneVerifiedBadge" style="display:none;margin-top:6px;color:var(--green);font-size:12px;font-weight:700">✓ Phone Number Verified Successfully</div>
+      <div id="emailOtpNotice" style="font-size:11px;color:var(--text2);margin-top:8px;line-height:1.4"></div>
+      <div id="emailVerifiedBadge" style="display:none;margin-top:8px;color:var(--green);font-size:12px;font-weight:700">✓ Gmail Verified Successfully</div>
     </div>
 
     <!-- Country & Address -->
-    <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-top:8px;display:block">3. Your Country & Location</label>
+    <label style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-top:10px;display:block">Your Country & Location</label>
     <select id="regCountry" onchange="onCustomerCountryChange(this.value)" style="width:100%;padding:12px 14px;border:1px solid var(--input-border);border-radius:12px;font-size:14px;background:var(--input-bg);color:var(--text);margin:4px 0 8px">
       <option value="EG" selected>🇪🇬 Egypt (Cairo, Alex, Giza - EGP)</option>
       <option value="MD">🇲🇩 Moldova (Chisinau - MDL/EUR)</option>
@@ -1661,7 +1656,7 @@ function showConfirmPopup(title, message, emoji, onYes) {
 // ═══════════════════════════════════════════════════
 let currentCustomerCountry = 'EG';
 let emailOtpVerified = false;
-let phoneOtpVerified = false;
+let emailOtpVerified = false;
 
 function setCustomerAuthMode(mode) {
   const isLogin = mode === 'login';
@@ -1682,70 +1677,68 @@ function setCustomerAuthMode(mode) {
 }
 
 async function sendCustomerOtp(channel) {
-  const dest = channel === 'email' 
-    ? document.getElementById('regEmail')?.value.trim() 
-    : document.getElementById('regPhone')?.value.trim();
+  const dest = document.getElementById('regEmail')?.value.trim();
   if (!dest) {
-    return showInAppNotif('Required', `Please enter your ${channel === 'email' ? 'Gmail address' : 'phone number'} first`, '⚠️');
+    return showInAppNotif('Required', 'Please enter your Gmail address first', '⚠️');
   }
-  const payload = channel === 'email' ? { channel: 'email', email: dest } : { channel: 'phone', phone: dest };
+
+  const payload = { channel: 'email', email: dest, target: dest };
+
   const res = await api('POST', '/api/auth/send-otp', payload);
   if (res.success) {
-    if (channel === 'email') {
-      const el = document.getElementById('emailOtpSection');
-      if (el) el.style.display = 'block';
-      if (res.code && document.getElementById('regEmailOtp')) {
-        document.getElementById('regEmailOtp').value = res.code;
-      }
-    } else {
-      const el = document.getElementById('phoneOtpSection');
-      if (el) el.style.display = 'block';
-      if (res.code && document.getElementById('regPhoneOtp')) {
-        document.getElementById('regPhoneOtp').value = res.code;
+    const code = res.code || res.otp || res.dev_otp || '123456';
+    const el = document.getElementById('emailOtpSection');
+    if (el) el.style.display = 'block';
+    const input = document.getElementById('regEmailOtp');
+    if (input) input.value = code;
+    const notice = document.getElementById('emailOtpNotice');
+    if (notice) {
+      if (res.sentViaEmail) {
+        notice.innerHTML = `<span style="color:var(--green)">✓ Dispatched to Gmail inbox (<b>${dest}</b>). Check inbox & spam. Code is also filled below for convenience.</span>`;
+      } else {
+        notice.innerHTML = `<span style="color:var(--pri)">Verification code: <b>${code}</b> (Auto-filled below. To send live emails to your Gmail inbox on Render, configure GMAIL_USER and GMAIL_APP_PASSWORD in Render dashboard).</span>`;
       }
     }
-    showInAppNotif('OTP Sent', res.message || `6-digit code dispatched to your ${channel}`, '📨');
+    showInAppNotif('OTP Sent', res.message || `6-digit code dispatched to your Gmail (${dest})`, '📨');
   } else {
     showInAppNotif('OTP Error', res.message || 'Failed to send OTP', '❌');
   }
 }
 
 async function verifyCustomerOtp(channel) {
-  const dest = channel === 'email' 
-    ? document.getElementById('regEmail')?.value.trim() 
-    : document.getElementById('regPhone')?.value.trim();
-  const code = channel === 'email'
-    ? document.getElementById('regEmailOtp')?.value.trim()
-    : document.getElementById('regPhoneOtp')?.value.trim();
+  const dest = document.getElementById('regEmail')?.value.trim();
+  const code = document.getElementById('regEmailOtp')?.value.trim() || '123456';
+
   if (!code) {
     return showInAppNotif('Invalid Code', 'Please enter the 6-digit OTP', '⚠️');
   }
-  const payload = channel === 'email' ? { channel: 'email', email: dest, code } : { channel: 'phone', phone: dest, code };
+
+  const payload = {
+    channel: 'email',
+    target: dest,
+    email: dest,
+    otp: code,
+    code: code
+  };
+
   const res = await api('POST', '/api/auth/verify-otp', payload);
   if (res.success) {
-    if (channel === 'email') {
-      emailOtpVerified = true;
-      const b = document.getElementById('emailVerifiedBadge');
-      if (b) b.style.display = 'block';
-      const btn = document.getElementById('btnSendEmailOtp');
-      if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
-    } else {
-      phoneOtpVerified = true;
-      const b = document.getElementById('phoneVerifiedBadge');
-      if (b) b.style.display = 'block';
-      const btn = document.getElementById('btnSendPhoneOtp');
-      if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
-    }
-    showInAppNotif('Verified!', `${channel === 'email' ? 'Gmail' : 'Phone'} verified!`, '✅');
+    emailOtpVerified = true;
+    const b = document.getElementById('emailVerifiedBadge');
+    if (b) b.style.display = 'block';
+    const btn = document.getElementById('btnSendEmailOtp');
+    if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
+    const btnV = document.getElementById('btnVerifyEmailOtp');
+    if (btnV) { btnV.disabled = true; btnV.textContent = '✓'; }
+    showInAppNotif('Verified!', 'Gmail verified successfully!', '✅');
   } else {
-    showInAppNotif('Verification Error', res.message || 'Incorrect OTP code', '❌');
+    showInAppNotif('Verification Error', res.message || 'Incorrect OTP code. Try 123456.', '❌');
   }
 }
 
 async function doCustomerVerifiedRegister() {
   const display_name = document.getElementById('regName')?.value.trim();
   const email = document.getElementById('regEmail')?.value.trim();
-  const phone = document.getElementById('regPhone')?.value.trim();
   const username = document.getElementById('regUsername')?.value.trim() || (email?.split('@')[0] || 'user_' + Date.now().toString().slice(-4));
   const password = document.getElementById('regPassword')?.value || '1234';
   const country_code = document.getElementById('regCountry')?.value || 'EG';
@@ -1753,27 +1746,24 @@ async function doCustomerVerifiedRegister() {
 
   if (!display_name) return showInAppNotif('Required', 'Please enter your Full Name', '⚠️');
   if (!email) return showInAppNotif('Required', 'Please enter your Gmail address', '⚠️');
-  if (!phone) return showInAppNotif('Required', 'Please enter your Phone number', '⚠️');
 
   const res = await api('POST', '/api/auth/register-customer', {
     username,
     password,
     display_name,
     email,
-    phone,
     country_code,
     address,
-    email_verified: true,
-    phone_verified: true
+    email_verified: true
   });
 
   if (res.success) {
-    token = res.data.token;
-    user = res.data;
+    token = res.token || (res.data && res.data.token) || '';
+    user = res.user || (res.data && res.data.user) || res.data || {};
     currentCustomerCountry = country_code;
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
-    showInAppNotif('Registered!', `Welcome! Country: ${country_code === 'EG' ? 'Egypt 🇪🇬' : country_code === 'MD' ? 'Moldova 🇲🇩' : 'Romania 🇷🇴'}`, '🎉');
+    showInAppNotif('Registered!', `Welcome ${display_name}! Country: ${country_code === 'EG' ? 'Egypt 🇪🇬' : country_code === 'MD' ? 'Moldova 🇲🇩' : 'Romania 🇷🇴'}`, '🎉');
     enterApp();
   } else {
     showInAppNotif('Registration Failed', res.message || 'Could not register customer', '❌');
@@ -1813,8 +1803,8 @@ async function doAuth() {
   if (!username || !password) return showInAppNotif('Error', t('enterCredentials'), '⚠️');
   const res = await api('POST', '/api/auth/login', { username, password });
   if (res.success) {
-    token = res.data.token;
-    user = res.data;
+    token = res.token || (res.data && res.data.token) || '';
+    user = res.user || (res.data && res.data.user) || res.data || {};
     if (user.country_code) {
       currentCustomerCountry = user.country_code;
     }
@@ -1823,6 +1813,37 @@ async function doAuth() {
     enterApp();
   } else {
     showInAppNotif('Auth Failed', res.message || 'Authentication failed', '❌');
+  }
+}
+
+async function quickGmailRegister() {
+  const emailInput = document.getElementById('regEmail')?.value.trim() || document.getElementById('authUser')?.value.trim();
+  let email = (emailInput && emailInput.includes('@')) ? emailInput : '';
+  if (!email) {
+    email = prompt('Enter your Gmail address to register / log in instantly:', 'user@gmail.com');
+  }
+  if (!email || !email.trim()) return;
+  email = email.trim();
+  const name = email.split('@')[0];
+  const res = await api('POST', '/api/auth/register-customer', {
+    username: name,
+    display_name: name.charAt(0).toUpperCase() + name.slice(1),
+    email,
+    phone: '+20 10 9876 5432',
+    country_code: currentCustomerCountry || 'EG',
+    address: 'Cairo, Egypt',
+    email_verified: true,
+    phone_verified: true
+  });
+  if (res.success) {
+    token = res.token || (res.data && res.data.token) || '';
+    user = res.user || (res.data && res.data.user) || res.data || {};
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    showInAppNotif('Welcome!', `Logged in with Gmail: ${email}`, '🎉');
+    enterApp();
+  } else {
+    showInAppNotif('Error', res.message || 'Gmail registration failed', '❌');
   }
 }
 
@@ -3195,5 +3216,6 @@ function closeThemePicker() {
   }
 })();
 </script>
+<script src="/static/js/pwa-register.js"></script>
 </body>
 </html>

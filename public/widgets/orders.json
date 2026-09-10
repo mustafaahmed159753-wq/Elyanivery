@@ -1,0 +1,26 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "🛵 Elyanivery Live Status",
+      "weight": "Bolder",
+      "size": "Medium",
+      "color": "Accent"
+    },
+    {
+      "type": "TextBlock",
+      "text": "Your latest orders and delivery updates will appear here.",
+      "wrap": true,
+      "size": "Small"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open Elyanivery",
+      "url": "https://elyanivery.com/customer"
+    }
+  ]
+}

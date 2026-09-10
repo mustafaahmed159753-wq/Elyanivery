@@ -1,172 +1,268 @@
 """
-Elyanivery — Database Module (PostgreSQL)
-Uses psycopg2 with thread-local connections.
-All SQL Server-specific syntax has been converted to PostgreSQL.
-v6.0 — Version-based auto-reseed, Admin approval, broadcasts, phone numbers, Moldova seed data, Deliver Anything addresses
+Elyanivery — Database Module
+Supports PostgreSQL with automatic, seamless SQLite fallback.
+Uses thread-local connections and unified parameter binding.
 """
 
-# ── Current seed version — bump this to force a database reseed on Railway ──
+# ── Current seed version — bump this to force a database reseed ──
 CURRENT_SEED_VERSION = '15'
 
-import psycopg2
-import psycopg2.extras
+import os
+import re
+import sqlite3
 import threading
 from config import Config
 
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
+
 # Thread-local storage for DB connections
 _local = threading.local()
+_DB_ENGINE = None  # 'postgres' or 'sqlite'
+_SQLITE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'elyanivery.db')
+
+
+def _test_postgres():
+    """Check if PostgreSQL connection can be established."""
+    if not HAS_PSYCOPG2:
+        return False
+    try:
+        dsn = Config.get_dsn()
+        c = psycopg2.connect(dsn, connect_timeout=2)
+        c.close()
+        return True
+    except Exception:
+        return False
+
+
+def get_db_engine():
+    """Detect and return database engine ('postgres' or 'sqlite')."""
+    global _DB_ENGINE
+    if _DB_ENGINE is None:
+        if Config.DATABASE_URL:
+            # Explicit database URL configured (e.g. Railway/Render with managed Postgres)
+            if _test_postgres():
+                _DB_ENGINE = 'postgres'
+                print("  [DB] PostgreSQL connection OK (via DATABASE_URL)")
+            else:
+                print("  [DB] DATABASE_URL provided but unreachable, falling back to SQLite")
+                _DB_ENGINE = 'sqlite'
+        elif _test_postgres():
+            _DB_ENGINE = 'postgres'
+            print("  [DB] PostgreSQL connection OK")
+        else:
+            _DB_ENGINE = 'sqlite'
+            print("  [DB] PostgreSQL not found on host. Using SQLite standalone database (elyanivery.db)")
+    return _DB_ENGINE
 
 
 def _get_conn():
-    """Get or create a PostgreSQL connection for the current thread."""
-    if not hasattr(_local, 'conn') or _local.conn is None or _local.conn.closed:
-        dsn = Config.get_dsn()
-        _local.conn = psycopg2.connect(dsn)
-        _local.conn.autocommit = True
-    return _local.conn
+    """Get or create connection for current thread."""
+    engine = get_db_engine()
+    if engine == 'sqlite':
+        if not hasattr(_local, 'sqlite_conn') or _local.sqlite_conn is None:
+            _local.sqlite_conn = sqlite3.connect(_SQLITE_FILE, check_same_thread=False)
+            _local.sqlite_conn.row_factory = sqlite3.Row
+            _local.sqlite_conn.execute("PRAGMA foreign_keys = ON")
+        return _local.sqlite_conn
+    else:
+        if not hasattr(_local, 'pg_conn') or _local.pg_conn is None or _local.pg_conn.closed:
+            dsn = Config.get_dsn()
+            _local.pg_conn = psycopg2.connect(dsn)
+            _local.pg_conn.autocommit = True
+        return _local.pg_conn
 
 
 def close_conn():
     """Close the connection for the current thread."""
-    if hasattr(_local, 'conn') and _local.conn is not None and not _local.conn.closed:
+    if hasattr(_local, 'pg_conn') and _local.pg_conn is not None and not _local.pg_conn.closed:
         try:
-            _local.conn.close()
+            _local.pg_conn.close()
         except:
             pass
-        _local.conn = None
+        _local.pg_conn = None
+    if hasattr(_local, 'sqlite_conn') and _local.sqlite_conn is not None:
+        try:
+            _local.sqlite_conn.commit()
+            _local.sqlite_conn.close()
+        except:
+            pass
+        _local.sqlite_conn = None
 
 
-def _convert_params(sql, params):
-    """Convert ? placeholders to %s for psycopg2 compatibility.
-    This allows the rest of the codebase to keep using ? style."""
-    if params:
-        sql = sql.replace('?', '%s')
-    return sql, params
+def _convert_sql_for_sqlite(sql):
+    """Translate PostgreSQL DDL and keywords for SQLite compatibility."""
+    sql = re.sub(r'\bSERIAL\s+PRIMARY\s+KEY\b', 'INTEGER PRIMARY KEY AUTOINCREMENT', sql, flags=re.I)
+    sql = re.sub(r'\bNUMERIC\(\d+,\s*\d+\)', 'NUMERIC', sql, flags=re.I)
+    sql = re.sub(r'\bBOOLEAN\s+DEFAULT\s+TRUE\b', 'BOOLEAN DEFAULT 1', sql, flags=re.I)
+    sql = re.sub(r'\bBOOLEAN\s+DEFAULT\s+FALSE\b', 'BOOLEAN DEFAULT 0', sql, flags=re.I)
+    sql = re.sub(r'\bILIKE\b', 'LIKE', sql, flags=re.I)
+    sql = re.sub(r'\bTRUNCATE\s+TABLE\s+(\w+).*?$', r'DELETE FROM \1', sql, flags=re.I)
+    sql = re.sub(r"DEFAULT\s*\(\s*CURRENT_TIMESTAMP\s*\+\s*INTERVAL\s+'[^']+'\s*\)", "DEFAULT CURRENT_TIMESTAMP", sql, flags=re.I)
+    # Convert parameter placeholders from %s to ?
+    sql = sql.replace('%s', '?')
+    return sql
+
+
+def _convert_sql_for_postgres(sql):
+    """Convert ? placeholders to %s for psycopg2 compatibility."""
+    return sql.replace('?', '%s')
 
 
 def query(sql, params=(), fetch_one=False, fetch=False):
     """
-    Execute a SELECT query and return results.
+    Execute a query and return results.
     - fetch_one=True -> returns a single dict or None
     - fetch=True     -> returns a list of dicts
     - otherwise      -> returns None (for UPDATE/DELETE)
     """
-    conn = _get_conn()
-    try:
-        cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        sql, params = _convert_params(sql, params)
-        cursor.execute(sql, params)
+    engine = get_db_engine()
+    if engine == 'sqlite':
+        conn = _get_conn()
+        try:
+            clean_sql = _convert_sql_for_sqlite(sql)
+            cur = conn.cursor()
+            cur.execute(clean_sql, params)
+            if clean_sql.strip().upper().startswith(('UPDATE', 'DELETE', 'INSERT', 'CREATE', 'ALTER', 'DROP', 'PRAGMA')):
+                conn.commit()
 
-        # For non-SELECT statements
-        if cursor.description is None:
-            cursor.close()
+            if cur.description is None:
+                cur.close()
+                return None
+
+            if fetch_one:
+                row = cur.fetchone()
+                cur.close()
+                return dict(row) if row else None
+
+            if fetch:
+                rows = cur.fetchall()
+                cur.close()
+                return [dict(r) for r in rows]
+
+            cur.close()
             return None
+        except Exception as e:
+            print(f"  [DB SQLite Query Error]: {e} (SQL: {sql[:120]})")
+            raise
+    else:
+        conn = _get_conn()
+        try:
+            cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            sql_pg = _convert_sql_for_postgres(sql)
+            cursor.execute(sql_pg, params)
 
-        if fetch_one:
-            row = cursor.fetchone()
-            cursor.close()
-            return dict(row) if row else None
-
-        if fetch:
-            rows = cursor.fetchall()
-            cursor.close()
-            return [dict(r) for r in rows]
-
-        cursor.close()
-        return None
-    except Exception as e:
-        if 'closed' in str(e).lower() or 'connection' in str(e).lower():
-            try:
-                close_conn()
-                conn = _get_conn()
-                cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-                sql, params = _convert_params(sql, params)
-                cursor.execute(sql, params)
-                if cursor.description is None:
-                    cursor.close()
-                    return None
-                if fetch_one:
-                    row = cursor.fetchone()
-                    cursor.close()
-                    return dict(row) if row else None
-                if fetch:
-                    rows = cursor.fetchall()
-                    cursor.close()
-                    return [dict(r) for r in rows]
+            if cursor.description is None:
                 cursor.close()
                 return None
-            except Exception as e2:
-                print(f"  DB query retry failed: {e2}")
+
+            if fetch_one:
+                row = cursor.fetchone()
+                cursor.close()
+                return dict(row) if row else None
+
+            if fetch:
+                rows = cursor.fetchall()
+                cursor.close()
+                return [dict(r) for r in rows]
+
+            cursor.close()
+            return None
+        except Exception as e:
+            if 'closed' in str(e).lower() or 'connection' in str(e).lower():
+                try:
+                    close_conn()
+                    conn = _get_conn()
+                    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                    sql_pg = _convert_sql_for_postgres(sql)
+                    cursor.execute(sql_pg, params)
+                    if cursor.description is None:
+                        cursor.close()
+                        return None
+                    if fetch_one:
+                        row = cursor.fetchone()
+                        cursor.close()
+                        return dict(row) if row else None
+                    if fetch:
+                        rows = cursor.fetchall()
+                        cursor.close()
+                        return [dict(r) for r in rows]
+                    cursor.close()
+                    return None
+                except Exception as e2:
+                    print(f"  DB query retry failed: {e2}")
+                    raise
+            else:
+                print(f"  DB query error: {e}")
                 raise
-        else:
-            print(f"  DB query error: {e}")
-            raise
 
 
 def insert(sql, params=()):
     """
     Execute an INSERT and return the newly generated id.
-    Uses PostgreSQL RETURNING id clause for reliable identity retrieval.
     """
-    conn = _get_conn()
-    try:
-        cursor = conn.cursor()
-        sql, params = _convert_params(sql, params)
-
-        # Add RETURNING id if not already present
-        if 'RETURNING' not in sql.upper():
-            sql = sql.rstrip()
-            if sql.endswith(';'):
-                sql = sql[:-1]
-            sql += ' RETURNING id'
-
-        cursor.execute(sql, params)
-        row = cursor.fetchone()
-        cursor.close()
-        if row and row[0] is not None:
-            return int(row[0])
-        return None
-    except Exception as e:
+    engine = get_db_engine()
+    if engine == 'sqlite':
+        conn = _get_conn()
         try:
-            close_conn()
-            conn = _get_conn()
+            clean_sql = _convert_sql_for_sqlite(sql)
+            # Remove RETURNING clause if present
+            clean_sql = re.sub(r'\s+RETURNING\s+.*$', '', clean_sql, flags=re.I).rstrip(';')
+            cur = conn.cursor()
+            cur.execute(clean_sql, params)
+            conn.commit()
+            new_id = cur.lastrowid
+            cur.close()
+            return int(new_id) if new_id is not None else None
+        except Exception as e:
+            print(f"  [DB SQLite Insert Error]: {e} (SQL: {sql[:120]})")
+            raise
+    else:
+        conn = _get_conn()
+        try:
             cursor = conn.cursor()
-            sql, params = _convert_params(sql, params)
-            if 'RETURNING' not in sql.upper():
-                sql = sql.rstrip() + ' RETURNING id'
-            cursor.execute(sql, params)
+            sql_pg = _convert_sql_for_postgres(sql)
+
+            # Add RETURNING id if not already present
+            if 'RETURNING' not in sql_pg.upper():
+                sql_pg = sql_pg.rstrip()
+                if sql_pg.endswith(';'):
+                    sql_pg = sql_pg[:-1]
+                sql_pg += ' RETURNING id'
+
+            cursor.execute(sql_pg, params)
             row = cursor.fetchone()
             cursor.close()
             if row and row[0] is not None:
                 return int(row[0])
             return None
-        except Exception as e2:
-            print(f"  DB insert error: {e2}")
-            raise
+        except Exception as e:
+            try:
+                close_conn()
+                conn = _get_conn()
+                cursor = conn.cursor()
+                sql_pg = _convert_sql_for_postgres(sql)
+                if 'RETURNING' not in sql_pg.upper():
+                    sql_pg = sql_pg.rstrip() + ' RETURNING id'
+                cursor.execute(sql_pg, params)
+                row = cursor.fetchone()
+                cursor.close()
+                if row and row[0] is not None:
+                    return int(row[0])
+                return None
+            except Exception as e2:
+                print(f"  DB insert error: {e2}")
+                raise
 
 
 def init_db():
-    """Create the Elyanivery database and all required tables if they don't exist.
-    PostgreSQL uses CREATE TABLE IF NOT EXISTS instead of SQL Server's sysobjects check."""
-
-    # Test connection
-    params = Config.get_dsn()
-    # Mask password for debug logging
-    safe_params = params
-    try:
-        if 'password=' in params:
-            import re
-            safe_params = re.sub(r'password=[^ ]+', 'password=****', params)
-    except:
-        pass
-    print(f"  DATABASE_URL set: {bool(Config.DATABASE_URL)}")
-    print(f"  Connecting to: {safe_params}")
-    try:
-        conn = _get_conn()
-        print("  PostgreSQL connection OK")
-    except Exception as e:
-        print(f"  PostgreSQL connection failed: {e}")
-        raise
+    """Create the Elyanivery database and all required tables if they don't exist."""
+    engine = get_db_engine()
+    print(f"  Initializing database using engine: {engine}")
 
     # Create tables
     tables = [
@@ -299,7 +395,7 @@ def init_db():
             used_count INT DEFAULT 0,
             is_active BOOLEAN DEFAULT TRUE,
             valid_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            valid_until TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '1 year'),
+            valid_until TIMESTAMP NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""",
 
@@ -381,8 +477,7 @@ def init_db():
 
 
 def _migrate_columns():
-    """Add new columns to existing tables if they don't exist yet.
-    Uses PostgreSQL ALTER TABLE ... ADD COLUMN IF NOT EXISTS (PG 9.6+)."""
+    """Add new columns to existing tables if they don't exist yet."""
     migrations = [
         ("CourierLocations", "vehicle_type", "VARCHAR(20) DEFAULT 'bicycle'"),
         ("Orders", "estimated_prep_minutes", "INT NULL"),
@@ -408,24 +503,33 @@ def _migrate_columns():
         ("Restaurants", "is_active", "BOOLEAN DEFAULT TRUE"),
         ("DeliveryZones", "is_active", "BOOLEAN DEFAULT TRUE"),
     ]
-    for table, column, definition in migrations:
-        try:
-            query(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {definition}")
-        except Exception as e:
-            # Some PG versions don't support IF NOT EXISTS on ALTER TABLE
-            # Try without it and ignore "already exists" errors
+    engine = get_db_engine()
+    if engine == 'sqlite':
+        for table, column, definition in migrations:
             try:
-                query(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
-            except Exception as e2:
-                if 'already exists' not in str(e2).lower():
-                    print(f"  Migration note ({table}.{column}): {e2}")
+                cols = [r['name'] for r in query(f"PRAGMA table_info({table})", fetch=True) or []]
+                if column not in cols:
+                    clean_def = re.sub(r'\bBOOLEAN\s+DEFAULT\s+TRUE\b', 'BOOLEAN DEFAULT 1', definition, flags=re.I)
+                    clean_def = re.sub(r'\bBOOLEAN\s+DEFAULT\s+FALSE\b', 'BOOLEAN DEFAULT 0', clean_def, flags=re.I)
+                    query(f"ALTER TABLE {table} ADD COLUMN {column} {clean_def}")
+            except Exception as e:
+                pass
+    else:
+        for table, column, definition in migrations:
+            try:
+                query(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {definition}")
+            except Exception as e:
+                try:
+                    query(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+                except Exception as e2:
+                    if 'already exists' not in str(e2).lower():
+                        print(f"  Migration note ({table}.{column}): {e2}")
 
 
 def check_seed_version():
-    """Check if the database seed version matches CURRENT_SEED_VERSION.
-    Returns True if reseed is needed, False if version matches."""
+    """Check if the database seed version matches CURRENT_SEED_VERSION."""
     try:
-        row = query("SELECT value FROM AppSettings WHERE key=%s", ('db_seed_version',), fetch_one=True)
+        row = query("SELECT value FROM AppSettings WHERE key=?", ('db_seed_version',), fetch_one=True)
         db_version = row['value'] if row else '0'
         if db_version != CURRENT_SEED_VERSION:
             print(f"  Seed version mismatch: DB={db_version}, Code={CURRENT_SEED_VERSION} → Reseeding...")
@@ -440,12 +544,12 @@ def check_seed_version():
 def update_seed_version():
     """Update the db_seed_version in AppSettings to CURRENT_SEED_VERSION."""
     try:
-        existing = query("SELECT key FROM AppSettings WHERE key=%s", ('db_seed_version',), fetch_one=True)
+        existing = query("SELECT key FROM AppSettings WHERE key=?", ('db_seed_version',), fetch_one=True)
         if existing:
-            query("UPDATE AppSettings SET value=%s, updated_at=CURRENT_TIMESTAMP WHERE key=%s",
+            query("UPDATE AppSettings SET value=?, updated_at=CURRENT_TIMESTAMP WHERE key=?",
                   (CURRENT_SEED_VERSION, 'db_seed_version'))
         else:
-            insert("INSERT INTO AppSettings (key, value) VALUES (%s, %s)",
+            insert("INSERT INTO AppSettings (key, value) VALUES (?, ?)",
                    ('db_seed_version', CURRENT_SEED_VERSION))
         print(f"  Seed version updated to {CURRENT_SEED_VERSION}")
     except Exception as e:

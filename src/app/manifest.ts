@@ -1,0 +1,143 @@
+import type { MetadataRoute } from 'next';
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: 'Elyanivery Delivery & Logistics',
+    short_name: 'Elyanivery',
+    description: 'Multi-role food delivery, express courier logistics, restaurant partner management, and live order tracking platform.',
+    start_url: '/customer',
+    scope: '/',
+    id: '/?source=pwa',
+    display: 'standalone',
+    display_override: ['window-controls-overlay', 'standalone', 'minimal-ui', 'browser'],
+    orientation: 'any',
+    background_color: '#0f172a',
+    theme_color: '#FF6B00',
+    lang: 'en-US',
+    dir: 'auto',
+    categories: ['food', 'shopping', 'business', 'lifestyle', 'utilities'],
+    prefer_related_applications: false,
+    icons: [
+      {
+        src: '/icons/icon-72x72.png',
+        sizes: '72x72',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-96x96.png',
+        sizes: '96x96',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-128x128.png',
+        sizes: '128x128',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-144x144.png',
+        sizes: '144x144',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-152x152.png',
+        sizes: '152x152',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-384x384.png',
+        sizes: '384x384',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icons/maskable-icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+      {
+        src: '/icons/maskable-icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+    ],
+    screenshots: [
+      {
+        src: '/screenshots/desktop-home.png',
+        sizes: '1280x720',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: 'Elyanivery Food Delivery & Ordering Dashboard',
+      },
+      {
+        src: '/screenshots/desktop-dashboard.png',
+        sizes: '1280x720',
+        type: 'image/png',
+        form_factor: 'wide',
+        label: 'Elyanivery Dispatch & Real-Time Tracking',
+      },
+      {
+        src: '/screenshots/mobile-customer.png',
+        sizes: '750x1334',
+        type: 'image/png',
+        form_factor: 'narrow',
+        label: 'Customer Mobile Ordering & Live Menu',
+      },
+      {
+        src: '/screenshots/mobile-courier.png',
+        sizes: '750x1334',
+        type: 'image/png',
+        form_factor: 'narrow',
+        label: 'Courier Fleet Delivery Route & Tasks',
+      },
+    ],
+    shortcuts: [
+      {
+        name: 'Order Food',
+        short_name: 'Order',
+        description: 'Browse restaurants and place an order',
+        url: '/customer',
+        icons: [{ src: '/icons/shortcut-order.png', sizes: '96x96' }],
+      },
+      {
+        name: 'Courier Portal',
+        short_name: 'Courier',
+        description: 'Courier delivery fleet dashboard',
+        url: '/courier',
+        icons: [{ src: '/icons/shortcut-courier.png', sizes: '96x96' }],
+      },
+      {
+        name: 'Partner Portal',
+        short_name: 'Partner',
+        description: 'Restaurant & store order manager',
+        url: '/partner',
+        icons: [{ src: '/icons/shortcut-partner.png', sizes: '96x96' }],
+      },
+      {
+        name: 'Admin Panel',
+        short_name: 'Admin',
+        description: 'Platform management and operations',
+        url: '/admin',
+        icons: [{ src: '/icons/shortcut-admin.png', sizes: '96x96' }],
+      },
+    ],
+  };
+}

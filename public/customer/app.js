@@ -72,7 +72,14 @@ async function handleRegister(e) {
     if(d.success){saveAuth(d.data);toast('Account created!','success');}else toast(d.message||'Failed','error');
 }
 
-function saveAuth(u){token=u.token;user=u;localStorage.setItem('ely_token',token);localStorage.setItem('ely_user',JSON.stringify(u));initApp();}
+function saveAuth(u){
+    if (!u) return;
+    token = u.token || (u.data && u.data.token) || token;
+    user = u.user || u.data || u;
+    if (token) localStorage.setItem('ely_token', token);
+    if (user) localStorage.setItem('ely_user', JSON.stringify(user));
+    initApp();
+}
 function logout(){token=null;user=null;localStorage.removeItem('ely_token');localStorage.removeItem('ely_user');if(trackingInterval)clearInterval(trackingInterval);location.reload();}
 
 

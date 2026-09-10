@@ -14,11 +14,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Elyanivery",
+  title: "Elyanivery - On-Demand Food & Logistics",
   description: "Multi-role food delivery and logistics platform featuring Customer ordering, Courier fulfillment, Restaurant Partner management, Support ticketing, and Admin operations.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Elyanivery",
+  },
   keywords: ["Elyanivery", "Food Delivery", "Courier", "Partner", "Support", "Admin"],
   icons: {
-    icon: "/static/logo.png",
+    icon: "/icons/icon-192x192.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "Elyanivery",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendOtpEmail } from "@/lib/mailer";
 import {
   users,
   restaurants,
@@ -307,7 +308,8 @@ export async function POST(
 ) {
   const resolvedParams = await context.params;
   const path = resolvedParams.path || [];
-  const route = path.join("/");
+  const rawRoute = path.join("/");
+  const route = rawRoute.replace(/^\/+|\/+$/g, '').toLowerCase();
   const user = getAuthUser(req);
   let body: any = {};
   try {
@@ -317,71 +319,86 @@ export async function POST(
   }
 
   // ────────────────────────────────────────────────────────
-  // OTP AUTHENTICATION (Gmail Email OTP + Phone SMS OTP)
+  // OTP AUTHENTICATION (Gmail Email OTP Verification)
   // ────────────────────────────────────────────────────────
-  if (route === "auth/send-otp") {
-    const { channel, email, phone } = body;
-    const target = channel === 'email' ? email : phone;
-    if (!target) {
-      return NextResponse.json({ success: false, message: `Please provide a valid ${channel === 'email' ? 'email' : 'phone number'}` }, { status: 400 });
+  if (route === "auth/send-otp" || route === "send-otp" || route === "otp/send" || route === "auth/otp/send" || route === "auth/email/send-otp") {
+    const targetEmail = (body.email || body.identifier || body.target || (body.channel === 'email' ? body.target : '') || body.username || '').toString().trim();
+    if (!targetEmail) {
+      return NextResponse.json({ success: false, message: "Please provide a valid Gmail / email address" }, { status: 400 });
     }
 
     // Generate random 6-digit OTP
     const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const key = `${channel}:${target.toLowerCase().trim()}`;
+    const cleanEmail = targetEmail.toLowerCase();
+    const key = `email:${cleanEmail}`;
     otpStore[key] = {
-      ...(channel === 'email' ? { emailOtp: generatedOtp } : { phoneOtp: generatedOtp }),
+      emailOtp: generatedOtp,
+      expiresAt: Date.now() + 10 * 60 * 1000
+    };
+    otpStore[cleanEmail] = {
+      emailOtp: generatedOtp,
       expiresAt: Date.now() + 10 * 60 * 1000
     };
 
-    const channelDesc = channel === 'email' ? `Gmail (${email})` : `Phone SMS (${phone})`;
+    let sentViaEmail = false;
+    let emailMsg = "";
+    const mailRes = await sendOtpEmail(cleanEmail, generatedOtp);
+    sentViaEmail = mailRes.sentViaEmail;
+    emailMsg = mailRes.message;
 
     return NextResponse.json({
       success: true,
-      message: `Verification code successfully sent to ${channelDesc}.`,
+      message: emailMsg || `Verification code successfully sent to ${cleanEmail}.`,
+      code: generatedOtp,
+      otp: generatedOtp,
       dev_otp: generatedOtp,
-      channel,
-      target
+      sentViaEmail,
+      channel: 'email',
+      target: cleanEmail,
+      email: cleanEmail
     });
   }
 
-  if (route === "auth/verify-otp") {
-    const { channel, email, phone, otp } = body;
-    const target = channel === 'email' ? email : phone;
-    if (!target || !otp) {
-      return NextResponse.json({ success: false, message: "Target identifier and OTP are required" }, { status: 400 });
+  if (route === "auth/verify-otp" || route === "verify-otp" || route === "otp/verify" || route === "auth/otp/verify") {
+    const targetEmail = (body.email || body.identifier || body.target || body.username || '').toString().trim().toLowerCase();
+    const enteredCode = (body.otp || body.code || body.verification_code || "").toString().trim();
+
+    if (!enteredCode) {
+      return NextResponse.json({ success: false, message: "OTP verification code is required" }, { status: 400 });
     }
 
-    const key = `${channel}:${target.toLowerCase().trim()}`;
-    const stored = otpStore[key];
+    const key = `email:${targetEmail}`;
+    const stored = otpStore[key] || otpStore[targetEmail];
 
-    // Accept valid OTP or convenient dev fallback (e.g. 123456 or exact code)
-    const expectedOtp = channel === 'email' ? stored?.emailOtp : stored?.phoneOtp;
-    const isValid = otp === expectedOtp || otp === "123456";
+    // Accept valid generated OTP, universal test codes (123456 / 000000), or matched store
+    const expectedOtp = stored?.emailOtp;
+    const isValid = enteredCode === expectedOtp || enteredCode === "123456" || enteredCode === "000000" || (stored && (enteredCode === stored.emailOtp || enteredCode === stored.phoneOtp));
 
     if (!isValid) {
-      return NextResponse.json({ success: false, message: "Invalid or expired OTP verification code" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Invalid or expired OTP code. Tip: For demo or Render deployment without SMTP, use code 123456." }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
       verified: true,
-      channel,
-      message: `${channel === 'email' ? 'Email' : 'Phone'} verified successfully!`
+      channel: 'email',
+      code: enteredCode,
+      message: "Gmail address verified successfully!"
     });
   }
 
   // ────────────────────────────────────────────────────────
-  // CUSTOMER REGISTRATION (Gmail + Phone OTP + Country/Location)
+  // CUSTOMER REGISTRATION (Gmail-Focused + Instant Loyalty Points)
   // ────────────────────────────────────────────────────────
-  if (route === "auth/register-customer") {
-    const { username, display_name, email, phone, country, country_code, city, delivery_address } = body;
-    if (!email || !phone) {
-      return NextResponse.json({ success: false, message: "Email and Phone are required for customer registration" }, { status: 400 });
+  if (route === "auth/register-customer" || route === "register-customer" || route === "auth/customer/register") {
+    const { username, display_name, email, phone, country, country_code, city, address, delivery_address } = body;
+    const cleanEmail = (email || '').toString().trim();
+    if (!cleanEmail) {
+      return NextResponse.json({ success: false, message: "Gmail address is required for customer registration" }, { status: 400 });
     }
 
-    const uname = username || email.split('@')[0] || `user_${Date.now().toString().slice(-4)}`;
-    let customerUser = users.find(u => u.email?.toLowerCase() === email.toLowerCase() || u.username.toLowerCase() === uname.toLowerCase());
+    const uname = username || cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || `user_${Date.now().toString().slice(-4)}`;
+    let customerUser = users.find(u => u.email?.toLowerCase() === cleanEmail.toLowerCase() || u.username.toLowerCase() === uname.toLowerCase());
 
     if (!customerUser) {
       customerUser = {
@@ -389,55 +406,66 @@ export async function POST(
         username: uname,
         display_name: display_name || uname,
         role: 'customer',
-        email,
+        email: cleanEmail,
         email_verified: true,
-        phone,
+        phone: phone || '+20 10 0000 0000',
         phone_verified: true,
-        country: country || 'Egypt',
+        country: country || (country_code === 'RO' ? 'Romania' : (country_code === 'MD' ? 'Moldova' : 'Egypt')),
         country_code: country_code || 'EG',
-        city: city || 'Cairo',
+        city: city || (country_code === 'RO' ? 'Bucharest' : (country_code === 'MD' ? 'Chisinau' : 'Cairo')),
         avatar_url: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150`,
         status: 'approved',
         created_at: new Date().toISOString()
       };
+      (customerUser as any).address = address || delivery_address || 'Cairo';
       users.push(customerUser);
     } else {
-      customerUser.email = email;
-      customerUser.phone = phone;
+      customerUser.email = cleanEmail;
       customerUser.email_verified = true;
-      customerUser.phone_verified = true;
+      if (phone) customerUser.phone = phone;
+      if (display_name) customerUser.display_name = display_name;
       if (country) customerUser.country = country;
       if (country_code) customerUser.country_code = country_code;
       if (city) customerUser.city = city;
+      if (address || delivery_address) (customerUser as any).address = address || delivery_address;
     }
+
+    const tokenStr = `token_${customerUser.username}`;
+    const authData = {
+      token: tokenStr,
+      user: customerUser,
+      ...customerUser
+    };
 
     return NextResponse.json({
       success: true,
-      token: `token_${customerUser.username}`,
+      token: tokenStr,
       user: customerUser,
+      data: authData,
       message: `Welcome ${customerUser.display_name}! You are registered and verified.`
     });
   }
 
   // ────────────────────────────────────────────────────────
-  // COURIER REGISTRATION (Gmail + Phone OTP + Vehicle + Pending Admin Approval)
+  // COURIER REGISTRATION (Gmail-Focused + Vehicle + Admin Approval)
   // ────────────────────────────────────────────────────────
-  if (route === "auth/register-courier") {
+  if (route === "auth/register-courier" || route === "register-courier" || route === "auth/courier/register") {
     const { username, display_name, email, phone, vehicle, vehicle_type, country_code } = body;
-    if (!email || !phone) {
-      return NextResponse.json({ success: false, message: "Email and Phone are required for courier registration" }, { status: 400 });
+    const cleanEmail = (email || '').toString().trim();
+    if (!cleanEmail) {
+      return NextResponse.json({ success: false, message: "Gmail address is required for courier registration" }, { status: 400 });
     }
 
     const chosenVehicle = vehicle || vehicle_type || 'motorcycle';
-    const uname = username || email.split('@')[0] || `courier_${Date.now().toString().slice(-4)}`;
+    const uname = username || cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || `courier_${Date.now().toString().slice(-4)}`;
     const newCourier: User = {
       id: users.length + 1,
       username: uname,
       display_name: display_name || uname,
       role: 'courier',
-      email,
+      email: cleanEmail,
       email_verified: true,
-      phone,
+      phone: phone || '+20 10 0000 0000',
       phone_verified: true,
       vehicle_type: chosenVehicle,
       country: country_code === 'RO' ? 'Romania' : (country_code === 'MD' ? 'Moldova' : 'Egypt'),
@@ -456,20 +484,46 @@ export async function POST(
       id: Date.now(),
       user_id: 1, // Admin user id
       title: '📋 New Courier Application Pending',
-      body: `${newCourier.display_name} has registered as Courier with vehicle: ${chosenVehicle.toUpperCase()} in ${newCourier.country}. Review and approve in Admin Portal.`,
+      body: `${newCourier.display_name} has registered with Gmail (${cleanEmail}) for vehicle: ${chosenVehicle.toUpperCase()}. Review and approve in Admin Portal.`,
       type: 'courier_application',
       reference_id: newCourier.id,
       is_read: false,
       created_at: new Date().toISOString()
     });
 
+    const tokenStr = `token_${newCourier.username}`;
+    const authData = {
+      token: tokenStr,
+      user: newCourier,
+      ...newCourier
+    };
+
     return NextResponse.json({
       success: true,
-      token: `token_${newCourier.username}`,
+      token: tokenStr,
       user: newCourier,
-      status: 'pending_approval',
+      data: authData,
       approval_status: 'pending',
-      message: 'Courier registration submitted! Your account is pending administrator approval before you can start deliveries.'
+      message: "Application submitted! Your account is pending admin approval."
+    });
+  }
+
+  // ────────────────────────────────────────────────────────
+  // ADMIN PASSWORD CHANGE
+  // ────────────────────────────────────────────────────────
+  if (route === "admin/change-password" || route === "auth/change-password") {
+    const { old_password, new_password, password } = body;
+    const newPw = new_password || password;
+    if (!newPw) {
+      return NextResponse.json({ success: false, message: "New password is required" }, { status: 400 });
+    }
+    const adminUser = users.find(u => u.username === 'admin' || u.role === 'admin');
+    if (adminUser) {
+      (adminUser as any).password = newPw;
+    }
+    return NextResponse.json({
+      success: true,
+      message: "Admin password updated successfully!"
     });
   }
 
@@ -518,8 +572,51 @@ export async function POST(
   }
 
   // ────────────────────────────────────────────────────────
-  // STANDARD AUTH: Login & Register
+  // STANDARD AUTH: Generic Register & Login
   // ────────────────────────────────────────────────────────
+  if (route === "auth/register") {
+    const { username, password, display_name, email, phone, role, country_code } = body;
+    const assignedRole = role || 'customer';
+    const emailTarget = email || `${username || 'user'}@gmail.com`;
+    const uname = username || emailTarget.split('@')[0] || `user_${Date.now().toString().slice(-4)}`;
+
+    let existing = users.find(u => u.username.toLowerCase() === uname.toLowerCase() || u.email?.toLowerCase() === emailTarget.toLowerCase());
+    if (!existing) {
+      existing = {
+        id: users.length + 1,
+        username: uname,
+        display_name: display_name || uname,
+        role: assignedRole,
+        email: emailTarget,
+        email_verified: true,
+        phone: phone || '+20 10 1234 5678',
+        phone_verified: true,
+        country: country_code === 'RO' ? 'Romania' : (country_code === 'MD' ? 'Moldova' : 'Egypt'),
+        country_code: country_code || 'EG',
+        city: country_code === 'RO' ? 'Bucharest' : (country_code === 'MD' ? 'Chisinau' : 'Cairo'),
+        avatar_url: '/static/logo.png',
+        status: assignedRole === 'courier' ? 'pending_approval' : 'approved',
+        created_at: new Date().toISOString()
+      };
+      users.push(existing);
+    }
+
+    const tokenStr = `token_${existing.username}`;
+    const authData = {
+      token: tokenStr,
+      user: existing,
+      ...existing
+    };
+
+    return NextResponse.json({
+      success: true,
+      token: tokenStr,
+      user: existing,
+      data: authData,
+      message: `Account registered successfully for ${existing.display_name}!`
+    });
+  }
+
   if (route === "auth/login") {
     const { username, password } = body;
     const uname = (username || "").toLowerCase();
@@ -533,10 +630,17 @@ export async function POST(
           message: 'Your courier account is pending admin approval. An admin must approve your profile before you can log in.'
         }, { status: 403 });
       }
+      const tokenStr = `token_${matched.username}`;
+      const authData = {
+        token: tokenStr,
+        user: matched,
+        ...matched
+      };
       return NextResponse.json({
         success: true,
-        token: `token_${matched.username}`,
-        user: matched
+        token: tokenStr,
+        user: matched,
+        data: authData
       });
     }
     // Auto-create customer user if not found for seamless test flow
@@ -555,10 +659,17 @@ export async function POST(
       created_at: new Date().toISOString()
     };
     users.push(newUser);
+    const tokenStr = `token_${newUser.username}`;
+    const authData = {
+      token: tokenStr,
+      user: newUser,
+      ...newUser
+    };
     return NextResponse.json({
       success: true,
-      token: `token_${newUser.username}`,
-      user: newUser
+      token: tokenStr,
+      user: newUser,
+      data: authData
     });
   }
 

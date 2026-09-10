@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "Elyanivery Customer - Food & Delivery",
+  "short_name": "Elyanivery",
+  "description": "Browse local restaurants, order meals and groceries, and track deliveries in real time.",
+  "id": "/customer?source=pwa",
+  "start_url": "/customer",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#FF6B00",
+  "lang": "en-US",
+  "dir": "auto",
+  "categories": [
+    "food",
+    "shopping",
+    "lifestyle"
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-customer.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Customer Ordering Screen"
+    },
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Customer Web Portal"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Restaurants",
+      "short_name": "Restaurants",
+      "description": "Find food and drinks nearby",
+      "url": "/customer",
+      "icons": [
+        {
+          "src": "/icons/shortcut-order.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Live Support",
+      "short_name": "Support",
+      "description": "Chat with order support",
+      "url": "/support",
+      "icons": [
+        {
+          "src": "/icons/shortcut-support.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "navigate-new"
+    ]
+  },
+  "file_handlers": [
+    {
+      "action": "/customer",
+      "name": "Elyanivery Receipt",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "accept": {
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+elyanivery",
+      "url": "/customer?order=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/customer",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "widgets": [
+    {
+      "name": "My Orders",
+      "short_name": "Orders",
+      "description": "Active food delivery tracker",
+      "tag": "customer-orders",
+      "template": "widget-orders",
+      "ms_ac_template": "/widgets/orders.json",
+      "data": "/api/customer/orders",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/screenshots/widget-order.png",
+          "sizes": "400x200",
+          "label": "Customer Order Tracker"
+        }
+      ]
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 440
+  },
+  "note_taking": {
+    "new_note_url": "/support"
+  },
+  "scope_extensions": [
+    {
+      "origin": "*.elyanivery.com"
+    },
+    {
+      "origin": "*.onrender.com"
+    }
+  ]
+}

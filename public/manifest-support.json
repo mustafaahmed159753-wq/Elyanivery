@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "Elyanivery Support - Help & Tickets",
+  "short_name": "Support Desk",
+  "description": "Customer support ticket management, live chat with clients and couriers, and issue resolution.",
+  "id": "/support?source=pwa",
+  "start_url": "/support",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#A855F7",
+  "lang": "en-US",
+  "dir": "auto",
+  "categories": [
+    "business",
+    "utilities",
+    "productivity"
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Support Ticket Resolution Desk"
+    },
+    {
+      "src": "/screenshots/mobile-customer.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Live Chat Support"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Ticket",
+      "short_name": "New Ticket",
+      "description": "Submit a support inquiry",
+      "url": "/support",
+      "icons": [
+        {
+          "src": "/icons/shortcut-support.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Live Chat",
+      "short_name": "Chat",
+      "description": "Message support agent",
+      "url": "/support",
+      "icons": [
+        {
+          "src": "/icons/shortcut-support.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "focus-existing",
+      "navigate-new"
+    ]
+  },
+  "file_handlers": [
+    {
+      "action": "/support",
+      "name": "Ticket Log",
+      "icons": [
+        {
+          "src": "/icons/shortcut-support.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ],
+      "accept": {
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+elyanivery",
+      "url": "/support?ticket=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/support",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "widgets": [
+    {
+      "name": "Support Queue",
+      "short_name": "Tickets",
+      "description": "Open customer inquiries",
+      "tag": "support-tickets",
+      "template": "widget-orders",
+      "ms_ac_template": "/widgets/orders.json",
+      "data": "/api/support/tickets",
+      "type": "application/json",
+      "screenshots": [
+        {
+          "src": "/screenshots/widget-order.png",
+          "sizes": "400x200",
+          "label": "Support Desk Widget"
+        }
+      ]
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 450
+  },
+  "note_taking": {
+    "new_note_url": "/support"
+  },
+  "scope_extensions": [
+    {
+      "origin": "*.elyanivery.com"
+    },
+    {
+      "origin": "*.onrender.com"
+    }
+  ]
+}

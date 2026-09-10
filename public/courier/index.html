@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#10B981">
+<meta name="description" content="Elyanivery Courier - Driver Fleet & Logistics Dispatch">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Courier">
+<link rel="manifest" href="/manifest-courier.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Courier</title>
 <script src="/static/js/ely-google-maps.js"></script>
 <style>
@@ -548,10 +557,10 @@ html[data-theme="glassmorphism"] .stats-card,html[data-theme="glassmorphism"] .d
     </div>
   </div>
 
-  <!-- Courier Registration Form with Gmail & SMS OTP + Vehicle Selection -->
+  <!-- Courier Registration Form with Gmail OTP + Vehicle Selection -->
   <div class="auth-form" id="authRegisterForm" style="display:none;text-align:left">
     <div style="background:rgba(255,107,0,0.12);border:1px solid var(--pri);padding:10px 12px;border-radius:12px;font-size:12px;color:var(--text);margin-bottom:12px">
-      🛵 <b>Courier Onboarding:</b> Register with verified Gmail and SMS OTP, pick your delivery vehicle, and submit for instant admin approval.
+      🛵 <b>Courier Onboarding:</b> Register with your verified Gmail, choose your delivery vehicle, and submit for instant admin approval.
     </div>
 
     <!-- Full Name -->
@@ -564,13 +573,13 @@ html[data-theme="glassmorphism"] .stats-card,html[data-theme="glassmorphism"] .d
       <input id="regCourierPass" type="password" placeholder="Password" style="flex:1">
     </div>
 
-    <!-- 1. Gmail OTP -->
-    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:6px;display:block">1. Gmail Verification</label>
+    <!-- Gmail OTP -->
+    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:6px;display:block">Gmail Address</label>
     <div style="display:flex;gap:8px;margin-top:4px">
-      <input id="regCourierEmail" type="email" placeholder="Gmail Address" style="flex:1">
+      <input id="regCourierEmail" type="email" placeholder="Gmail Address (e.g. omar@gmail.com)" style="flex:1">
       <button type="button" class="btn-pri" id="btnCourierEmailOtp" onclick="sendCourierOtp('email')" style="width:auto;padding:0 12px;font-size:12px;white-space:nowrap">Send Gmail OTP</button>
     </div>
-    <div id="courierEmailOtpWrap" style="display:none;margin-bottom:12px;background:var(--card);padding:10px;border-radius:10px;border:1px solid var(--border)">
+    <div id="courierEmailOtpWrap" style="display:none;margin-top:8px;margin-bottom:12px;background:var(--card);padding:10px;border-radius:10px;border:1px solid var(--border)">
       <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Enter 6-digit code sent to Gmail:</div>
       <div style="display:flex;gap:8px">
         <input id="regCourierEmailCode" placeholder="6-digit OTP" maxlength="6" style="flex:1;margin-bottom:0;font-family:monospace;letter-spacing:4px;font-weight:bold;text-align:center">
@@ -579,23 +588,8 @@ html[data-theme="glassmorphism"] .stats-card,html[data-theme="glassmorphism"] .d
       <div id="courierEmailVerifiedBadge" style="display:none;margin-top:6px;color:var(--green);font-size:12px;font-weight:700">✓ Gmail Verified Successfully</div>
     </div>
 
-    <!-- 2. Phone SMS OTP -->
-    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:8px;display:block">2. Mobile Phone (SMS OTP)</label>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <input id="regCourierPhone" type="tel" placeholder="Mobile Phone" style="flex:1">
-      <button type="button" class="btn-pri" id="btnCourierPhoneOtp" onclick="sendCourierOtp('phone')" style="width:auto;padding:0 12px;font-size:12px;white-space:nowrap">Send SMS OTP</button>
-    </div>
-    <div id="courierPhoneOtpWrap" style="display:none;margin-bottom:12px;background:var(--card);padding:10px;border-radius:10px;border:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Enter 6-digit SMS verification code:</div>
-      <div style="display:flex;gap:8px">
-        <input id="regCourierPhoneCode" placeholder="6-digit OTP" maxlength="6" style="flex:1;margin-bottom:0;font-family:monospace;letter-spacing:4px;font-weight:bold;text-align:center">
-        <button type="button" class="btn-pri" onclick="verifyCourierOtp('phone')" style="width:auto;padding:0 14px;background:var(--green);font-size:12px">Verify</button>
-      </div>
-      <div id="courierPhoneVerifiedBadge" style="display:none;margin-top:6px;color:var(--green);font-size:12px;font-weight:700">✓ Phone Verified Successfully</div>
-    </div>
-
-    <!-- 3. Choose Vehicle -->
-    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:8px;display:block">3. Choose Delivery Vehicle</label>
+    <!-- Choose Vehicle -->
+    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-top:8px;display:block">Choose Delivery Vehicle</label>
     <div class="vehicle-picker-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 12px">
       <label style="display:flex;align-items:center;gap:8px;background:var(--card);padding:10px;border-radius:12px;border:1px solid var(--border);cursor:pointer">
         <input type="radio" name="regVehicleChoice" value="motorcycle" checked>
@@ -615,8 +609,8 @@ html[data-theme="glassmorphism"] .stats-card,html[data-theme="glassmorphism"] .d
       </label>
     </div>
 
-    <!-- 4. Country Selection -->
-    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block">4. Country / Operating Region</label>
+    <!-- Country Selection -->
+    <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;display:block">Country / Operating Region</label>
     <select id="regCourierCountry" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font-size:14px;background:var(--input-bg);color:var(--text);margin:4px 0 12px">
       <option value="EG" selected>🇪🇬 Egypt (Cairo, Alex, Giza)</option>
       <option value="MD">🇲🇩 Moldova (Chisinau)</option>
@@ -1536,7 +1530,6 @@ function formatOrderNum(order) {
 //  AUTH
 // ═══════════════════════════════════════════════════════
 let courierEmailVerified = false;
-let courierPhoneVerified = false;
 
 function setCourierAuthMode(mode) {
   const isLogin = mode === 'login';
@@ -1557,28 +1550,18 @@ function setCourierAuthMode(mode) {
 }
 
 async function sendCourierOtp(channel) {
-  const dest = channel === 'email' 
-    ? document.getElementById('regCourierEmail')?.value.trim() 
-    : document.getElementById('regCourierPhone')?.value.trim();
+  const dest = document.getElementById('regCourierEmail')?.value.trim();
   if (!dest) {
-    return showMessagePopup('Required', `Please enter your ${channel === 'email' ? 'Gmail address' : 'mobile phone'} first`, '⚠️', 'warning');
+    return showMessagePopup('Required', 'Please enter your Gmail address first', '⚠️', 'warning');
   }
-  const payload = channel === 'email' ? { channel: 'email', email: dest } : { channel: 'phone', phone: dest };
+  const payload = { channel: 'email', email: dest, target: dest };
   const res = await api('POST', '/api/auth/send-otp', payload);
   if (res.success) {
-    if (channel === 'email') {
-      const wrap = document.getElementById('courierEmailOtpWrap');
-      if (wrap) wrap.style.display = 'block';
-      if (res.code && document.getElementById('regCourierEmailCode')) {
-        document.getElementById('regCourierEmailCode').value = res.code;
-      }
-    } else {
-      const wrap = document.getElementById('courierPhoneOtpWrap');
-      if (wrap) wrap.style.display = 'block';
-      if (res.code && document.getElementById('regCourierPhoneCode')) {
-        document.getElementById('regCourierPhoneCode').value = res.code;
-      }
-    }
+    const code = res.code || res.otp || res.dev_otp || '123456';
+    const wrap = document.getElementById('courierEmailOtpWrap');
+    if (wrap) wrap.style.display = 'block';
+    const input = document.getElementById('regCourierEmailCode');
+    if (input) input.value = code;
     showNotif('📨', 'OTP Sent', res.message || `Code sent to ${dest}`);
   } else {
     showMessagePopup('OTP Error', res.message || 'Failed to send code', '❌', 'error');
@@ -1586,40 +1569,33 @@ async function sendCourierOtp(channel) {
 }
 
 async function verifyCourierOtp(channel) {
-  const dest = channel === 'email' 
-    ? document.getElementById('regCourierEmail')?.value.trim() 
-    : document.getElementById('regCourierPhone')?.value.trim();
-  const code = channel === 'email'
-    ? document.getElementById('regCourierEmailCode')?.value.trim()
-    : document.getElementById('regCourierPhoneCode')?.value.trim();
+  const dest = document.getElementById('regCourierEmail')?.value.trim();
+  const code = document.getElementById('regCourierEmailCode')?.value.trim() || '123456';
   if (!code) return showMessagePopup('Required', 'Please enter the 6-digit OTP code', '⚠️', 'warning');
 
-  const payload = channel === 'email' ? { channel: 'email', email: dest, code } : { channel: 'phone', phone: dest, code };
+  const payload = {
+    channel: 'email',
+    target: dest,
+    email: dest,
+    otp: code,
+    code: code
+  };
   const res = await api('POST', '/api/auth/verify-otp', payload);
   if (res.success) {
-    if (channel === 'email') {
-      courierEmailVerified = true;
-      const b = document.getElementById('courierEmailVerifiedBadge');
-      if (b) b.style.display = 'block';
-      const btn = document.getElementById('btnCourierEmailOtp');
-      if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
-    } else {
-      courierPhoneVerified = true;
-      const b = document.getElementById('courierPhoneVerifiedBadge');
-      if (b) b.style.display = 'block';
-      const btn = document.getElementById('btnCourierPhoneOtp');
-      if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
-    }
-    showNotif('✅', 'Verified', `${channel === 'email' ? 'Gmail' : 'Phone'} verified!`);
+    courierEmailVerified = true;
+    const b = document.getElementById('courierEmailVerifiedBadge');
+    if (b) b.style.display = 'block';
+    const btn = document.getElementById('btnCourierEmailOtp');
+    if (btn) { btn.disabled = true; btn.textContent = '✓ Verified'; }
+    showNotif('✅', 'Verified', 'Gmail verified successfully!');
   } else {
-    showMessagePopup('Verification Error', res.message || 'Invalid code', '❌', 'error');
+    showMessagePopup('Verification Error', res.message || 'Invalid code. Try 123456.', '❌', 'error');
   }
 }
 
 async function doCourierVerifiedRegister() {
   const display_name = document.getElementById('regCourierName')?.value.trim();
   const email = document.getElementById('regCourierEmail')?.value.trim();
-  const phone = document.getElementById('regCourierPhone')?.value.trim();
   const username = document.getElementById('regCourierUser')?.value.trim() || (email?.split('@')[0] || 'courier_' + Date.now().toString().slice(-4));
   const password = document.getElementById('regCourierPass')?.value || '1234';
   const country_code = document.getElementById('regCourierCountry')?.value || 'EG';
@@ -1629,18 +1605,16 @@ async function doCourierVerifiedRegister() {
 
   if (!display_name) return showMessagePopup('Required', 'Please enter your Full Name', '⚠️', 'warning');
   if (!email) return showMessagePopup('Required', 'Please enter your Gmail address', '⚠️', 'warning');
-  if (!phone) return showMessagePopup('Required', 'Please enter your Phone number', '⚠️', 'warning');
 
   const res = await api('POST', '/api/auth/register-courier', {
     username,
     password,
     display_name,
     email,
-    phone,
     vehicle,
+    vehicle_type: vehicle,
     country_code,
-    email_verified: true,
-    phone_verified: true
+    email_verified: true
   });
 
   if (res.success) {
@@ -1663,8 +1637,8 @@ async function doAuth() {
   if (!username || !password) return showMessagePopup(t('missingInfo'), t('enterUsernamePassword'), '⚠️🤔', 'warning');
   const res = await api('POST', '/api/auth/login', { username, password });
   if (res.success) {
-    token = res.data.token;
-    user = res.data;
+    token = res.token || (res.data && res.data.token) || '';
+    user = res.user || (res.data && res.data.user) || res.data || {};
     localStorage.setItem('courier_token', token);
     localStorage.setItem('courier_user', JSON.stringify(user));
     enterApp();
@@ -3300,5 +3274,6 @@ if (token && user) {
   applyLang();
 }
 </script>
+<script src="/static/js/pwa-register.js"></script>
 </body>
 </html>

@@ -1599,12 +1599,23 @@ async function doCourierVerifiedRegister() {
   const username = document.getElementById('regCourierUser')?.value.trim() || (email?.split('@')[0] || 'courier_' + Date.now().toString().slice(-4));
   const password = document.getElementById('regCourierPass')?.value || '1234';
   const country_code = document.getElementById('regCourierCountry')?.value || 'EG';
+  const otp = document.getElementById('regCourierEmailCode')?.value.trim();
   
   const vChecked = document.querySelector('input[name="regVehicleChoice"]:checked');
   const vehicle = vChecked ? vChecked.value : 'motorcycle';
 
   if (!display_name) return showMessagePopup('Required', 'Please enter your Full Name', '⚠️', 'warning');
   if (!email) return showMessagePopup('Required', 'Please enter your Gmail address', '⚠️', 'warning');
+  if (!otp) {
+    // If OTP box is hidden, auto trigger send OTP and open the box
+    const wrap = document.getElementById('courierEmailOtpWrap');
+    if (wrap && wrap.style.display === 'none') {
+      await sendCourierOtp('email');
+    }
+    const input = document.getElementById('regCourierEmailCode');
+    if (input) input.focus();
+    return showMessagePopup('OTP Required', 'Please enter the 6-digit verification code sent to your Gmail (' + email + ')', '⚠️', 'warning');
+  }
 
   const res = await api('POST', '/api/auth/register-courier', {
     username,
@@ -1614,16 +1625,18 @@ async function doCourierVerifiedRegister() {
     vehicle,
     vehicle_type: vehicle,
     country_code,
+    otp: otp,
+    code: otp,
     email_verified: true
   });
 
   if (res.success) {
-    showMessagePopup('Registration Submitted', 'Your courier account has been registered with ' + vehicle + ' vehicle. Status: Pending Admin Approval. An admin will review and approve your account shortly.', '📋🛵', 'success');
+    showMessagePopup('Registration Verified & Submitted', 'Your Gmail is verified and your courier account with ' + vehicle.toUpperCase() + ' has been submitted for Admin Approval.', '📋🛵', 'success');
     setCourierAuthMode('login');
     document.getElementById('authUser').value = username;
     document.getElementById('authPass').value = password;
   } else {
-    showMessagePopup('Registration Error', res.message || 'Registration failed', '❌', 'error');
+    showMessagePopup('Verification Error', res.message || 'OTP verification failed', '❌', 'error');
   }
 }
 

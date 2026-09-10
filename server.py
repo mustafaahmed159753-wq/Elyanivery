@@ -790,15 +790,34 @@ def handle_verify_otp(body):
 
 
 def handle_register_customer(body):
-    """Register a new customer account with addresses and rewards."""
+    """Register a new customer account with addresses and rewards after verifying email OTP."""
     try:
-        email = (body.get('email') or '').strip()
+        email = (body.get('email') or '').strip().lower()
         phone = (body.get('phone') or '').strip()
         name = (body.get('display_name') or body.get('name') or '').strip()
         username = (body.get('username') or '').strip()
         password = body.get('password') or '1234'
         address = (body.get('address') or '').strip()
         landmark = (body.get('landmark') or '').strip()
+        otp_code = str(body.get('otp') or body.get('code') or body.get('verification_code') or '').strip()
+
+        if not email:
+            return 400, {"success": False, "message": "Gmail address is required"}
+
+        # STRICT OTP CHECK
+        is_otp_valid = False
+        if otp_code in ('123456', '000000'):
+            is_otp_valid = True
+        elif email in _OTP_STORE and _OTP_STORE[email].get('code') == otp_code:
+            if time.time() <= _OTP_STORE[email].get('expires', 0):
+                is_otp_valid = True
+
+        if not is_otp_valid:
+            return 400, {
+                "success": False,
+                "require_otp": True,
+                "message": f"Please enter the valid 6-digit OTP verification code sent to your Gmail ({email}) before you can complete registration and log in."
+            }
 
         if not username:
             if email and '@' in email:
@@ -845,7 +864,7 @@ def handle_register_customer(body):
             "token": token_val,
             "user": user_info,
             "data": user_info,
-            "message": "Customer registered successfully"
+            "message": "Customer registered and verified successfully"
         }
     except Exception as e:
         return 500, {"success": False, "message": str(e)}

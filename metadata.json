@@ -2,7 +2,9 @@
   "name": "Elyanivery",
   "description": "Multi-role food delivery and logistics platform featuring Customer ordering, Courier fulfillment, Restaurant Partner management, Support ticketing, and Admin operations.",
   "requestFramePermissions": [
-    "geolocation"
+    "geolocation",
+    "microphone",
+    "camera"
   ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

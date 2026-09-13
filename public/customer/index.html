@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Customer</title>
+<link rel="stylesheet" href="/static/js/elyanivery-onboarding.css">
 <style>
 /* ═══════════════════════════════════════════════════
    THEME SYSTEM - 8 Themes via CSS Variables
@@ -1664,7 +1665,28 @@ async function api(method, path, body) {
 function showInAppNotif(title, body, emoji, duration) {
   duration = duration || 5000;
   emoji = emoji || NOTIF_EMOJIS.default;
+
+  // 1. Play synthesized notification sound and display in phone notification panel
+  try {
+    if (window.ElyaniveryNotify) {
+      // Map emoji/title to sound step
+      let step = 'order_status';
+      const bLower = (body + ' ' + title).toLowerCase();
+      if (bLower.includes('placed') || bLower.includes('confirm')) step = 'order_placed';
+      else if (bLower.includes('cook') || bLower.includes('prepar')) step = 'cooking';
+      else if (bLower.includes('courier') || bLower.includes('driver') || bLower.includes('way')) step = 'courier_assigned';
+      else if (bLower.includes('deliver') || bLower.includes('enjoy')) step = 'delivered';
+      else if (bLower.includes('message') || bLower.includes('chat')) step = 'message';
+      
+      window.ElyaniveryNotify.notifyStep(step, body, 'customer');
+    }
+  } catch (err) {
+    console.warn('Notification trigger non-blocking error:', err);
+  }
+
+  // 2. Render In-App Floating Toast
   const container = document.getElementById('notifContainer');
+  if (!container) return;
   const notif = document.createElement('div');
   notif.className = 'notif-popup';
   notif.innerHTML = `
@@ -1680,7 +1702,6 @@ function showInAppNotif(title, body, emoji, duration) {
     dismissNotif(notif);
   };
   container.appendChild(notif);
-  // Auto dismiss
   setTimeout(() => dismissNotif(notif), duration);
 }
 
@@ -3349,6 +3370,8 @@ function closeThemePicker() {
   }
 })();
 </script>
+<script src="/notifications.js"></script>
 <script src="/static/js/pwa-register.js"></script>
+<script src="/static/js/elyanivery-onboarding.js"></script>
 </body>
 </html>

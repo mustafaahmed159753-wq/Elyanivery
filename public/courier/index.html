@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Courier</title>
+<link rel="stylesheet" href="/static/js/elyanivery-onboarding.css">
 <script src="/static/js/ely-google-maps.js"></script>
 <style>
 /* ═══════════════════════════════════════════════
@@ -1429,7 +1430,23 @@ function closeLangPicker() {
 // ═══════════════════════════════════════════════════════
 function showNotif(emoji, title, message, duration) {
   duration = duration || 3500;
+
+  // Play synthesized alert sound + show notification in mobile panel
+  try {
+    if (window.ElyaniveryNotify) {
+      let step = 'new_task_alert';
+      const text = (title + ' ' + message).toLowerCase();
+      if (text.includes('deliver') || text.includes('complet')) step = 'delivered';
+      else if (text.includes('pickup') || text.includes('picked')) step = 'order_status';
+      else if (text.includes('message') || text.includes('chat')) step = 'message';
+      window.ElyaniveryNotify.notifyStep(step, message, 'courier');
+    }
+  } catch (err) {
+    console.warn('Courier notification error:', err);
+  }
+
   const container = document.getElementById('notifContainer');
+  if (!container) return;
   const card = document.createElement('div');
   card.className = 'notif-card';
   card.innerHTML = `<div class="notif-emoji">${emoji}</div><div class="notif-body"><h4>${esc(title)}</h4><p>${esc(message)}</p></div>`;
@@ -3293,6 +3310,8 @@ if (token && user) {
   applyLang();
 }
 </script>
+<script src="/notifications.js"></script>
 <script src="/static/js/pwa-register.js"></script>
+<script src="/static/js/elyanivery-onboarding.js"></script>
 </body>
 </html>

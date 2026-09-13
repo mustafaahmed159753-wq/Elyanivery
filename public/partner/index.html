@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Partner Dashboard</title>
+<link rel="stylesheet" href="/static/js/elyanivery-onboarding.css">
 <style>
 /* ════════ THEME VARIABLES ════════ */
 :root{
@@ -1841,7 +1842,22 @@ async function markAllNotifRead(){
 //  IN-APP NOTIFICATIONS
 // ════════════════════════════════════════════════════════
 function showInAppNotif(emoji,title,body){
+  try {
+    if (window.ElyaniveryNotify) {
+      let step = 'new_order_alert';
+      const text = (title + ' ' + body).toLowerCase();
+      if (text.includes('accept')) step = 'cooking';
+      else if (text.includes('ready') || text.includes('pickup')) step = 'order_status';
+      else if (text.includes('deliver')) step = 'delivered';
+      else if (text.includes('message') || text.includes('chat')) step = 'message';
+      window.ElyaniveryNotify.notifyStep(step, body, 'partner');
+    }
+  } catch (err) {
+    console.warn('Partner notification trigger error:', err);
+  }
+
   const container=document.getElementById('inappNotifContainer');
+  if (!container) return;
   const el=document.createElement('div');
   el.className='inapp-notif';
   el.innerHTML=`
@@ -2066,6 +2082,8 @@ document.addEventListener('click',()=>{
   if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
 },{once:true});
 </script>
+<script src="/notifications.js"></script>
 <script src="/static/js/pwa-register.js"></script>
+<script src="/static/js/elyanivery-onboarding.js"></script>
 </body>
 </html>

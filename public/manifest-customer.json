@@ -8,10 +8,9 @@
   "scope": "/",
   "display": "standalone",
   "display_override": [
-    "window-controls-overlay",
     "standalone",
-    "minimal-ui",
-    "browser"
+    "fullscreen",
+    "minimal-ui"
   ],
   "orientation": "any",
   "background_color": "#0f172a",

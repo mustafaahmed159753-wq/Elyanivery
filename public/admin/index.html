@@ -971,7 +971,14 @@ async function apiOrMock(method, path, body, mockKey){
 }
 
 function toast(msg, type='info'){
+  try {
+    if (window.ElyaniveryNotify && type === 'success') {
+      window.ElyaniveryNotify.notifyStep('order_status', msg, 'admin');
+    }
+  } catch (err) {}
+
   const c = $('#toastContainer');
+  if (!c) return;
   const icons = {success:'✓',error:'✕',info:'ℹ'};
   const el = document.createElement('div');
   el.className = 'toast '+type;
@@ -2478,6 +2485,7 @@ applyLang(App.lang);
 initSplash();
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/notifications.js"></script>
 <script src="/static/js/pwa-register.js"></script>
 </body>
 </html>

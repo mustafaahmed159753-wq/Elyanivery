@@ -70,6 +70,23 @@ export async function GET(
     return NextResponse.json({ success: true, message: "Elyanivery API active" });
   }
 
+  // OTA Version Tracker endpoint for live Render & GitHub automatic updates
+  if (route === "version" || route === "api/version") {
+    return NextResponse.json({
+      success: true,
+      version: "2.1.0",
+      app: "Elyanivery",
+      deployed_on: process.env.RENDER ? "render" : "cloud_run",
+      timestamp: Date.now(),
+      features: ["country_selection_egypt_moldova_romania", "blank_squares_otp", "official_logo_welcome", "ota_auto_updates"]
+    }, {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache"
+      }
+    });
+  }
+
   // Google Maps API config endpoint
   if (route === "config/maps") {
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY || "";
@@ -378,12 +395,36 @@ export async function POST(
       return NextResponse.json({ success: false, message: "Invalid or expired OTP code. Tip: For demo or Render deployment without SMTP, use code 123456." }, { status: 400 });
     }
 
+    let userObj = users.find(u => u.email?.toLowerCase() === targetEmail);
+    if (!userObj) {
+      const uname = targetEmail.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') || `user_${Date.now().toString().slice(-4)}`;
+      userObj = {
+        id: users.length + 1,
+        username: uname,
+        display_name: uname,
+        role: (body.role || 'customer') as any,
+        email: targetEmail,
+        email_verified: true,
+        phone: body.phone || '+20 100 000 0000',
+        phone_verified: true,
+        country: body.country || (body.country_code === 'RO' ? 'Romania' : body.country_code === 'MD' ? 'Moldova' : 'Egypt'),
+        country_code: body.country_code || 'EG',
+        city: body.city || (body.country_code === 'RO' ? 'Bucharest' : body.country_code === 'MD' ? 'Chisinau' : 'Cairo'),
+        address: 'Downtown',
+        status: 'approved',
+        created_at: new Date().toISOString()
+      };
+      users.push(userObj);
+    }
+
     return NextResponse.json({
       success: true,
       verified: true,
+      token: `token_${userObj.username}`,
+      user: userObj,
       channel: 'email',
       code: enteredCode,
-      message: "Gmail address verified successfully!"
+      message: "Email address verified successfully! Welcome to Elyanivery."
     });
   }
 

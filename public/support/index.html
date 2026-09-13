@@ -13,6 +13,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Elyanivery - Customer Support</title>
+<link rel="stylesheet" href="/static/js/elyanivery-onboarding.css">
 <style>
 /* ════════════════════════════════════════════════════════════════════
    THEME SYSTEM — 8 Professional Themes
@@ -1714,7 +1715,14 @@ document.addEventListener('click', (e) => {
 // TOAST
 // ════════════════════════════════════════════════════════════════════
 function toast(msg, type) {
+  try {
+    if (window.ElyaniveryNotify && type === 'success') {
+      window.ElyaniveryNotify.notifyStep('message', msg, 'support');
+    }
+  } catch (err) {}
+
   const container = document.getElementById('toastContainer');
+  if (!container) return;
   const el = document.createElement('div');
   el.className = 'toast ' + (type || 'info');
   const icons = {success:'✅', error:'❌', info:'ℹ️'};
@@ -1757,6 +1765,8 @@ document.getElementById('ticketModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('ticketModal')) closeTicketModal();
 });
 </script>
+<script src="/notifications.js"></script>
 <script src="/static/js/pwa-register.js"></script>
+<script src="/static/js/elyanivery-onboarding.js"></script>
 </body>
 </html>

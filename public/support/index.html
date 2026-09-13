@@ -151,6 +151,9 @@ a{color:var(--pri);text-decoration:none}
 @keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
 @keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
 .splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+.splash-logo-wrapper{width:92px;height:92px;border-radius:24px;padding:3px;background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,107,0,.45),rgba(0,0,0,.3));box-shadow:0 12px 32px rgba(0,0,0,.4),0 0 28px rgba(255,107,0,.35);margin-bottom:14px;display:flex;align-items:center;justify-content:center;animation:splashLogoPop .8s cubic-bezier(.16,1,.3,1) forwards}
+.splash-logo-img{width:100%;height:100%;border-radius:21px;object-fit:cover;display:block}
+@keyframes splashLogoPop{0%{opacity:0;transform:scale(0.5) translateY(24px)}70%{transform:scale(1.06) translateY(-4px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 .splash-letters{display:flex;gap:1px;margin-bottom:6px;perspective:600px}
 .splash-letter{font-size:46px;font-weight:900;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 20px rgba(255,107,0,.5)}
 @keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-4px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
@@ -507,7 +510,9 @@ a{color:var(--pri);text-decoration:none}
   <div class="splash-bg"></div>
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
-    <div style="width:60px;height:60px;border-radius:16px;overflow:hidden;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><img src="/static/logo.png" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>
+    <div class="splash-logo-wrapper">
+      <img src="/splash-logo.png" alt="Elyanivery Logo" class="splash-logo-img" onerror="this.src='/static/logo.png'">
+    </div>
     <div class="splash-letters" id="splashLetters"></div>
     <div class="splash-subtitle" id="splashSubtitle">Customer Support</div>
     <div class="splash-progress">

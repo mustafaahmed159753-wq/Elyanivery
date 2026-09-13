@@ -97,6 +97,73 @@ html[data-theme="arctic_light"]{
   --badge-bg:rgba(44,62,80,.08);
 }
 
+/* ── Clean White (Pure Light) ── */
+html[data-theme="clean_white"]{
+  --pri:#FF6B00; --pri2:#CC5500; --accent:#FF8C42;
+  --bg:#f8fafc; --bg2:#ffffff; --card:#ffffff; --card2:#f1f5f9;
+  --text:#0f172a; --text2:#334155; --muted:#64748b;
+  --border:#e2e8f0; --shadow:0 4px 20px rgba(0,0,0,.06);
+  --green:#16a34a; --red:#dc2626; --blue:#2563eb; --yellow:#d97706;
+  --loc-bg:rgba(255,107,0,.1); --loc-text:#FF6B00;
+  --input-bg:#ffffff; --input-border:#cbd5e1;
+  --badge-bg:rgba(255,107,0,.12);
+}
+
+/* ── Nordic Slate Dark ── */
+html[data-theme="nordic_dark"]{
+  --pri:#38bdf8; --pri2:#0284c7; --accent:#7dd3fc;
+  --bg:#0f172a; --bg2:#1e293b; --card:#1e293b; --card2:#334155;
+  --text:#f8fafc; --text2:#cbd5e1; --muted:#94a3b8;
+  --border:#334155; --shadow:0 4px 20px rgba(0,0,0,.4);
+  --loc-bg:rgba(56,189,248,.12); --loc-text:#38bdf8;
+  --input-bg:#0f172a; --input-border:#334155;
+  --badge-bg:rgba(56,189,248,.15);
+}
+
+/* ── Cyberpunk Neon ── */
+html[data-theme="cyberpunk_neon"]{
+  --pri:#00ffcc; --pri2:#00ccaa; --accent:#ff007f;
+  --bg:#080812; --bg2:#101026; --card:#161633; --card2:#202048;
+  --text:#f0f6fc; --text2:#b0b8d0; --muted:#7078a0;
+  --border:#282855; --shadow:0 4px 24px rgba(0,255,204,.15);
+  --loc-bg:rgba(0,255,204,.12); --loc-text:#00ffcc;
+  --input-bg:#0d0d1e; --input-border:#282855;
+  --badge-bg:rgba(0,255,204,.15);
+}
+
+/* ── Luxury Gold ── */
+html[data-theme="luxury_gold"]{
+  --pri:#f59e0b; --pri2:#d97706; --accent:#fbbf24;
+  --bg:#12100e; --bg2:#1c1814; --card:#26201a; --card2:#332b22;
+  --text:#fef3c7; --text2:#fde68a; --muted:#92400e;
+  --border:#453724; --shadow:0 4px 20px rgba(0,0,0,.5);
+  --loc-bg:rgba(245,158,11,.12); --loc-text:#fbbf24;
+  --input-bg:#1c1814; --input-border:#453724;
+  --badge-bg:rgba(245,158,11,.15);
+}
+
+/* ── Coffee Mocha ── */
+html[data-theme="coffee_mocha"]{
+  --pri:#b45309; --pri2:#92400e; --accent:#d97706;
+  --bg:#1c1917; --bg2:#292524; --card:#292524; --card2:#44403c;
+  --text:#f5f5f4; --text2:#d6d3d1; --muted:#a8a29e;
+  --border:#44403c; --shadow:0 4px 20px rgba(0,0,0,.4);
+  --loc-bg:rgba(180,83,9,.12); --loc-text:#d97706;
+  --input-bg:#1c1917; --input-border:#44403c;
+  --badge-bg:rgba(180,83,9,.15);
+}
+
+/* ── Pure AMOLED Black ── */
+html[data-theme="pure_black"]{
+  --pri:#FF6B00; --pri2:#CC5500; --accent:#FF8C42;
+  --bg:#000000; --bg2:#0a0a0a; --card:#121212; --card2:#1a1a1a;
+  --text:#ffffff; --text2:#e0e0e0; --muted:#888888;
+  --border:#222222; --shadow:0 4px 20px rgba(0,0,0,.8);
+  --loc-bg:rgba(255,107,0,.12); --loc-text:#FF8C42;
+  --input-bg:#0a0a0a; --input-border:#222222;
+  --badge-bg:rgba(255,107,0,.15);
+}
+
 /* ── 8. Glassmorphism ── */
 html[data-theme="glassmorphism"]{
   --pri:#FF6B00; --pri2:#CC5500; --accent:#FF8C42;
@@ -160,6 +227,9 @@ a{text-decoration:none;color:var(--pri)}
 @keyframes splashGradient{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:100% 100%}}
 @keyframes splashShift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(2%,-2%) rotate(1deg)}}
 .splash-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+.splash-logo-wrapper{width:92px;height:92px;border-radius:24px;padding:3px;background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,107,0,.45),rgba(0,0,0,.3));box-shadow:0 12px 32px rgba(0,0,0,.4),0 0 28px rgba(255,107,0,.35);margin-bottom:14px;display:flex;align-items:center;justify-content:center;animation:splashLogoPop .8s cubic-bezier(.16,1,.3,1) forwards}
+.splash-logo-img{width:100%;height:100%;border-radius:21px;object-fit:cover;display:block}
+@keyframes splashLogoPop{0%{opacity:0;transform:scale(0.5) translateY(24px)}70%{transform:scale(1.06) translateY(-4px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 .splash-letters{display:flex;gap:2px;margin-bottom:8px;perspective:600px}
 .splash-letter{display:inline-block;font-size:42px;font-weight:900;color:#fff;opacity:0;transform:scale(0) translateY(30px);animation:letterIn .5s cubic-bezier(.16,1,.3,1) forwards;text-shadow:0 2px 12px rgba(0,0,0,.3)}
 @keyframes letterIn{0%{opacity:0;transform:scale(0) translateY(30px) rotateY(-40deg)}60%{opacity:1;transform:scale(1.1) translateY(-3px) rotateY(5deg)}100%{opacity:1;transform:scale(1) translateY(0) rotateY(0)}}
@@ -700,7 +770,9 @@ html[data-theme="glassmorphism"] .toast-popup{background:rgba(15,12,41,.9)!impor
   <div class="splash-bg"></div>
   <div class="splash-surround" id="splashSurround"></div>
   <div class="splash-content">
-    <div style="width:70px;height:70px;border-radius:18px;overflow:hidden;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,.3)"><img src="/static/logo.png" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display='none'"></div>
+    <div class="splash-logo-wrapper">
+      <img src="/splash-logo.png" alt="Elyanivery Logo" class="splash-logo-img" onerror="this.src='/static/logo.png'">
+    </div>
     <div class="splash-letters" id="splashLetters"></div>
     <div class="splash-subtitle">Delivery at your doorstep</div>
     <div class="splash-progress">
@@ -3200,16 +3272,22 @@ function stopAllPolling() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  THEME MANAGEMENT - 8 Themes
+//  THEME MANAGEMENT - 14 Themes
 // ═══════════════════════════════════════════════════════
 const CUSTOMER_THEMES = [
   { id: 'midnight_dark', name: 'Midnight Dark', color: '#12122a', icon: '🌙' },
+  { id: 'clean_white', name: 'Clean White', color: '#f8fafc', icon: '☀️' },
+  { id: 'arctic_light', name: 'Arctic Light', color: '#f0f4f8', icon: '❄️' },
+  { id: 'nordic_dark', name: 'Nordic Slate', color: '#0f172a', icon: '🌌' },
+  { id: 'cyberpunk_neon', name: 'Cyberpunk Neon', color: '#080812', icon: '⚡' },
+  { id: 'luxury_gold', name: 'Luxury Gold', color: '#12100e', icon: '👑' },
+  { id: 'coffee_mocha', name: 'Coffee Mocha', color: '#1c1917', icon: '☕' },
   { id: 'ocean_blue', name: 'Ocean Blue', color: '#0a1628', icon: '🌊' },
   { id: 'emerald_forest', name: 'Emerald Forest', color: '#0a1f14', icon: '🌲' },
   { id: 'sunset_warm', name: 'Sunset Warm', color: '#1f1508', icon: '🌅' },
-  { id: 'royal_purple', name: 'Royal Purple', color: '#150a20', icon: '👑' },
+  { id: 'royal_purple', name: 'Royal Purple', color: '#150a20', icon: '🔮' },
   { id: 'rose_gold', name: 'Rose Gold', color: '#1a1215', icon: '🌹' },
-  { id: 'arctic_light', name: 'Arctic Light', color: '#f0f4f8', icon: '❄️' },
+  { id: 'pure_black', name: 'AMOLED Black', color: '#000000', icon: '🖤' },
   { id: 'glassmorphism', name: 'Glassmorphism', color: 'linear-gradient(135deg,#0f0c29,#302b63)', icon: '✨' }
 ];
 

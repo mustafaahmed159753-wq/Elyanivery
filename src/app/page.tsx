@@ -31,11 +31,11 @@ export default function Home() {
           <div className="flex items-center gap-2 pr-2 border-r border-slate-700">
             <div className="w-7 h-7 rounded-lg overflow-hidden bg-amber-500/20 flex items-center justify-center p-0.5">
               <img
-                src="/static/logo.png"
+                src="/splash-logo.png"
                 alt="Elyanivery"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover rounded-md"
                 onError={(e) => {
-                  (e.currentTarget as HTMLElement).style.display = 'none';
+                  (e.currentTarget as HTMLImageElement).src = '/static/logo.png';
                 }}
               />
             </div>

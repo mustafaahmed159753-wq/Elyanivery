@@ -16,14 +16,37 @@ cd /d "%~dp0"
 
 echo [1/4] Checking Android SDK and Java version...
 
-if exist "%LOCALAPPDATA%\Android\Sdk" (
+if exist "local.properties" (
+    echo  - Found existing local.properties
+) else if exist "..\elyanivery\android\local.properties" (
+    copy /Y "..\elyanivery\android\local.properties" "local.properties" >nul
+    echo  - Copied SDK path from previous version: ..\elyanivery\android\local.properties
+) else if exist "..\..\elyanivery\android\local.properties" (
+    copy /Y "..\..\elyanivery\android\local.properties" "local.properties" >nul
+    echo  - Copied SDK path from previous version: ..\..\elyanivery\android\local.properties
+) else if exist "%LOCALAPPDATA%\Android\Sdk" (
     set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"
     echo  - Detected Android SDK at: %LOCALAPPDATA%\Android\Sdk
-    if not exist "local.properties" (
-        echo sdk.dir=%LOCALAPPDATA:\=\\%\\Android\\Sdk> local.properties
-        echo  - Created local.properties pointing to Android SDK
-    )
+    set "ESCAPED_SDK=%LOCALAPPDATA:\=\\%\\Android\\Sdk"
+    echo sdk.dir=%ESCAPED_SDK%> local.properties
+    echo  - Created local.properties pointing to Android SDK
+) else if exist "C:\Users\%USERNAME%\AppData\Local\Android\Sdk" (
+    echo sdk.dir=C\:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk> local.properties
+    echo  - Created local.properties pointing to Android SDK
+) else if defined ANDROID_HOME (
+    set "ESCAPED_SDK=%ANDROID_HOME:\=\\%"
+    echo sdk.dir=%ESCAPED_SDK%> local.properties
+    echo  - Created local.properties from ANDROID_HOME environment variable
+) else (
+    echo  - WARNING: local.properties not found! Creating default for Windows...
+    echo sdk.dir=C\:\\Users\\%USERNAME%\\AppData\\Local\\Android\\Sdk> local.properties
 )
+
+findstr /i "server.url" local.properties >nul 2>&1
+if errorlevel 1 (
+    echo server.url=https://elyanivery.onrender.com>> local.properties
+)
+echo  - Server target: Render Cloud (configured in local.properties)
 
 if exist "C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\java.exe" (
     set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot"
@@ -46,6 +69,11 @@ if not exist "gradle.properties" (
     echo org.gradle.jvmargs=-Xmx2048m>> gradle.properties
 )
 
+:: Auto-fix logo.png into genuine PNG format to satisfy AAPT2
+if exist "app\src\main\res\drawable\logo.png" (
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "try { Add-Type -AssemblyName System.Drawing; $p = (Resolve-Path 'app\src\main\res\drawable\logo.png').Path; $img = [System.Drawing.Image]::FromFile($p); $tmp = [System.IO.Path]::GetTempFileName() + '.png'; $img.Save($tmp, [System.Drawing.Imaging.ImageFormat]::Png); $img.Dispose(); Move-Item -Force $tmp $p } catch {}" >nul 2>&1
+)
+
 echo.
 echo [3/4] Compiling and signing all 5 APK product flavors with Gradle...
 echo  - 1. Customer (com.elyanivery.customer)
@@ -56,14 +84,12 @@ echo  - 5. Support  (com.elyanivery.support)
 echo.
 
 call gradlew.bat assembleRelease --no-daemon
-
-if %ERRORLEVEL% equ 0 goto copy_apks
+if not errorlevel 1 goto copy_apks
 
 echo.
-echo Release build task returned non-zero, trying assembleDebug (also fully signed)...
+echo Release build returned an error code, running assembleDebug...
 call gradlew.bat assembleDebug --no-daemon
-
-if %ERRORLEVEL% neq 0 goto build_failed
+if errorlevel 1 goto build_failed
 
 :copy_apks
 echo.

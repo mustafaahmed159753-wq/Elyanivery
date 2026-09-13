@@ -38,15 +38,19 @@ class MainActivity : AppCompatActivity() {
     private fun getEffectiveUrl(): String {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val customServer = prefs.getString(KEY_CUSTOM_SERVER, null)
+        val portal = when {
+            BuildConfig.APPLICATION_ID.contains("courier") -> "/courier"
+            BuildConfig.APPLICATION_ID.contains("partner") -> "/partner"
+            BuildConfig.APPLICATION_ID.contains("admin") -> "/admin"
+            BuildConfig.APPLICATION_ID.contains("support") -> "/support"
+            else -> "/customer"
+        }
         if (!customServer.isNullOrBlank()) {
-            val portal = when {
-                BuildConfig.APPLICATION_ID.contains("courier") -> "/courier"
-                BuildConfig.APPLICATION_ID.contains("partner") -> "/partner"
-                BuildConfig.APPLICATION_ID.contains("admin") -> "/admin"
-                BuildConfig.APPLICATION_ID.contains("support") -> "/support"
-                else -> "/customer"
-            }
             return customServer.trimEnd('/') + portal
+        }
+        // Safety guard: Ensure app always loads Render instead of internal Google Studio preview
+        if (BuildConfig.APP_URL.contains("run.app") || BuildConfig.APP_URL.contains("ais-dev")) {
+            return "https://elyanivery.onrender.com$portal"
         }
         return BuildConfig.APP_URL
     }
@@ -54,7 +58,6 @@ class MainActivity : AppCompatActivity() {
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val notificationsGranted = permissions[Manifest.permission.POST_NOTIFICATIONS] ?: true
         val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
         if (locationGranted) {
             webView.reload()
@@ -147,6 +150,9 @@ class MainActivity : AppCompatActivity() {
             userAgentString = "$userAgentString ElyaniveryNativeApp/1.0.0 (Android; Standalone)"
         }
 
+        // Register JavaScript interface for in-app server configuration & alerts
+        webView.addJavascriptInterface(ElyaniveryJsBridge(), "ElyaniveryNative")
+
         // WebChromeClient handles progress, GPS geolocation, and hardware permissions
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -227,6 +233,7 @@ class MainActivity : AppCompatActivity() {
                             <h2>Connecting to Elyanivery...</h2>
                             <p>Unable to connect to the server right now. Please check your connection or tap below to reconnect.</p>
                             <button class="btn" onclick="location.reload()">Retry Connection</button>
+                            <button class="btn btn-sec" onclick="if(window.ElyaniveryNative){ElyaniveryNative.configureServer()}">Configure Server URL</button>
                         </body>
                         </html>
                     """.trimIndent()
@@ -237,8 +244,42 @@ class MainActivity : AppCompatActivity() {
 
         // Long press on webview allows updating server URL if needed
         webView.setOnLongClickListener {
-            // Optional admin shortcut
-            false
+            showServerConfigDialog()
+            true
+        }
+    }
+
+    fun showServerConfigDialog() {
+        val input = EditText(this).apply {
+            hint = "https://your-service.onrender.com"
+            setText(getEffectiveUrl())
+            setPadding(40, 30, 40, 30)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Server Configuration")
+            .setMessage("Set your live Render URL (e.g. https://elyanivery.onrender.com):")
+            .setView(input)
+            .setPositiveButton("Save & Connect") { _, _ ->
+                val newUrl = input.text.toString().trim()
+                if (newUrl.startsWith("http")) {
+                    getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                        .edit()
+                        .putString(KEY_CUSTOM_SERVER, newUrl)
+                        .apply()
+                    Toast.makeText(this, "Connected to: $newUrl", Toast.LENGTH_SHORT).show()
+                    webView.loadUrl(getEffectiveUrl())
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    inner class ElyaniveryJsBridge {
+        @JavascriptInterface
+        fun configureServer() {
+            runOnUiThread {
+                showServerConfigDialog()
+            }
         }
     }
 

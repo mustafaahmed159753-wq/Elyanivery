@@ -21,37 +21,61 @@ android {
         buildConfig = true
     }
 
+    // Dynamic Server Resolution: Prioritize Render URL over dev preview
+    val baseServerUrl: String = run {
+        // 1. Gradle property: -PSERVER_URL=https://...
+        val prop = providers.gradleProperty("SERVER_URL").orNull
+        if (!prop.isNullOrBlank()) return@run prop.trimEnd('/')
+
+        // 2. local.properties: server.url=https://...
+        val localPropFile = rootProject.file("local.properties")
+        if (localPropFile.exists()) {
+            val p = java.util.Properties()
+            localPropFile.inputStream().use { p.load(it) }
+            val serverFromLocal = p.getProperty("server.url") ?: p.getProperty("SERVER_URL")
+            if (!serverFromLocal.isNullOrBlank()) return@run serverFromLocal.trimEnd('/')
+        }
+
+        // 3. Default to Render production service URL
+        "https://elyanivery.onrender.com"
+    }
+
     flavorDimensions += "portal"
     productFlavors {
         create("customer") {
             dimension = "portal"
             applicationId = "com.elyanivery.customer"
             manifestPlaceholders["appName"] = "Elyanivery"
-            buildConfigField("String", "APP_URL", "\"https://ais-dev-eko535lqz7wwumxkhgzonp-524208193732.europe-west2.run.app/customer\"")
+            buildConfigField("String", "APP_URL", "\"$baseServerUrl/customer\"")
+            buildConfigField("String", "BASE_SERVER_URL", "\"$baseServerUrl\"")
         }
         create("courier") {
             dimension = "portal"
             applicationId = "com.elyanivery.courier"
             manifestPlaceholders["appName"] = "Elyanivery Courier"
-            buildConfigField("String", "APP_URL", "\"https://ais-dev-eko535lqz7wwumxkhgzonp-524208193732.europe-west2.run.app/courier\"")
+            buildConfigField("String", "APP_URL", "\"$baseServerUrl/courier\"")
+            buildConfigField("String", "BASE_SERVER_URL", "\"$baseServerUrl\"")
         }
         create("partner") {
             dimension = "portal"
             applicationId = "com.elyanivery.partner"
             manifestPlaceholders["appName"] = "Elyanivery Partner"
-            buildConfigField("String", "APP_URL", "\"https://ais-dev-eko535lqz7wwumxkhgzonp-524208193732.europe-west2.run.app/partner\"")
+            buildConfigField("String", "APP_URL", "\"$baseServerUrl/partner\"")
+            buildConfigField("String", "BASE_SERVER_URL", "\"$baseServerUrl\"")
         }
         create("admin") {
             dimension = "portal"
             applicationId = "com.elyanivery.admin"
             manifestPlaceholders["appName"] = "Elyanivery Admin"
-            buildConfigField("String", "APP_URL", "\"https://ais-dev-eko535lqz7wwumxkhgzonp-524208193732.europe-west2.run.app/admin\"")
+            buildConfigField("String", "APP_URL", "\"$baseServerUrl/admin\"")
+            buildConfigField("String", "BASE_SERVER_URL", "\"$baseServerUrl\"")
         }
         create("support") {
             dimension = "portal"
             applicationId = "com.elyanivery.support"
             manifestPlaceholders["appName"] = "Elyanivery Support"
-            buildConfigField("String", "APP_URL", "\"https://ais-dev-eko535lqz7wwumxkhgzonp-524208193732.europe-west2.run.app/support\"")
+            buildConfigField("String", "APP_URL", "\"$baseServerUrl/support\"")
+            buildConfigField("String", "BASE_SERVER_URL", "\"$baseServerUrl\"")
         }
     }
 

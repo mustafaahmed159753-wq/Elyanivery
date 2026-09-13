@@ -1,0 +1,8 @@
+## This file must NOT be checked into Version Control Systems,
+# as it contains information specific to your local configuration.
+#
+# Location of the SDK on Windows:
+sdk.dir=C\:\\Users\\mustafa.ahmed\\AppData\\Local\\Android\\Sdk
+
+# Set your Render app URL here (e.g., https://elyanivery.onrender.com or your custom URL):
+server.url=https://elyanivery.onrender.com

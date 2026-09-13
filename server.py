@@ -1561,10 +1561,13 @@ def handle_get_order(oid, payload):
             return 404, {"success": False, "message": "Order not found"}
         order['items'] = query("SELECT * FROM OrderItems WHERE order_id=?", (oid,), fetch=True)
         if order['courier_id']:
-            cloc = query("SELECT u.display_name, u.avatar_url, cl.latitude, cl.longitude FROM CourierLocations cl JOIN Users u ON cl.courier_id=u.id WHERE cl.courier_id=? ORDER BY cl.updated_at DESC LIMIT 1", (order['courier_id'],), fetch_one=True)
+            cloc = query("SELECT u.display_name, u.avatar_url, cl.latitude, cl.longitude, cl.vehicle_type FROM CourierLocations cl JOIN Users u ON cl.courier_id=u.id WHERE cl.courier_id=? ORDER BY cl.updated_at DESC LIMIT 1", (order['courier_id'],), fetch_one=True)
             order['courier_location'] = cloc
             order['courier_name'] = cloc['display_name'] if cloc else 'Courier'
             order['courier_avatar'] = cloc.get('avatar_url') if cloc else None
+            order['courier_lat'] = float(cloc['latitude']) if cloc and cloc.get('latitude') is not None else None
+            order['courier_lng'] = float(cloc['longitude']) if cloc and cloc.get('longitude') is not None else None
+            order['courier_vehicle'] = cloc.get('vehicle_type') if cloc else 'bicycle'
         rating = query("SELECT id FROM Ratings WHERE order_id=? AND user_id=?", (oid, payload.get('uid', 0)), fetch_one=True)
         order['is_rated'] = bool(rating)
         return 200, {"success": True, "data": order}

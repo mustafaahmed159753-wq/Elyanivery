@@ -23,13 +23,10 @@ android {
         buildConfig = true
     }
 
-    // Dynamic Server Resolution: Prioritize Render URL over dev preview
     val baseServerUrl: String = run {
-        // 1. Gradle property: -PSERVER_URL=https://...
         val prop = providers.gradleProperty("SERVER_URL").orNull
         if (!prop.isNullOrBlank()) return@run prop.trimEnd('/')
 
-        // 2. local.properties: server.url=https://...
         val localPropFile = rootProject.file("local.properties")
         if (localPropFile.exists()) {
             val p = Properties()
@@ -38,7 +35,6 @@ android {
             if (!serverFromLocal.isNullOrBlank()) return@run serverFromLocal.trimEnd('/')
         }
 
-        // 3. Default to Render production service URL
         "https://elyanivery.onrender.com"
     }
 

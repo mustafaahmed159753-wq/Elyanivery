@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showServerConfigDialog() {
+    fun showServerConfigDialog() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val currentServer = prefs.getString(KEY_CUSTOM_SERVER, "") ?: ""
 
@@ -247,31 +247,6 @@ class MainActivity : AppCompatActivity() {
             showServerConfigDialog()
             true
         }
-    }
-
-    fun showServerConfigDialog() {
-        val input = EditText(this).apply {
-            hint = "https://your-service.onrender.com"
-            setText(getEffectiveUrl())
-            setPadding(40, 30, 40, 30)
-        }
-        AlertDialog.Builder(this)
-            .setTitle("Server Configuration")
-            .setMessage("Set your live Render URL (e.g. https://elyanivery.onrender.com):")
-            .setView(input)
-            .setPositiveButton("Save & Connect") { _, _ ->
-                val newUrl = input.text.toString().trim()
-                if (newUrl.startsWith("http")) {
-                    getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                        .edit()
-                        .putString(KEY_CUSTOM_SERVER, newUrl)
-                        .apply()
-                    Toast.makeText(this, "Connected to: $newUrl", Toast.LENGTH_SHORT).show()
-                    webView.loadUrl(getEffectiveUrl())
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     inner class ElyaniveryJsBridge {

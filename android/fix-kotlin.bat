@@ -1,0 +1,6 @@
+@echo off
+cd /d "%~dp0"
+echo Restoring clean MainActivity.kt...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$c = [IO.File]::ReadAllText('app\src\main\java\com\elyanivery\app\MainActivity.kt'); $c = $c -replace 'private fun showServerConfigDialog\(\)', 'fun showServerConfigDialog()'; $idx = $c.IndexOf('    fun showServerConfigDialog() {`r`n        val input = EditText(this)'); if ($idx -lt 0) { $idx = $c.IndexOf('    fun showServerConfigDialog() {`n        val input = EditText(this)'); }; if ($idx -ge 0) { $endIdx = $c.IndexOf('    inner class ElyaniveryJsBridge', $idx); if ($endIdx -ge 0) { $c = $c.Substring(0, $idx) + $c.Substring($endIdx); } }; [IO.File]::WriteAllText('app\src\main\java\com\elyanivery\app\MainActivity.kt', $c, [System.Text.Encoding]::UTF8)"
+echo Fixed MainActivity.kt! Running build...
+call build-all-apks.bat

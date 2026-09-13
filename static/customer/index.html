@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Elyanivery - Customer</title>
+<script src="/static/js/ely-google-maps.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════
    THEME SYSTEM - 8 Themes via CSS Variables
@@ -2506,62 +2507,34 @@ function stopOrderTrackPolling() {
   if (activeOrderTrackTimer) { clearInterval(activeOrderTrackTimer); activeOrderTrackTimer = null; }
 }
 
-let customerTrackMap = null;
-let customerTrackMarkers = [];
+let customerDeliveryMapInstance = null;
 
-function updateCustomerGoogleMap(order) {
+async function updateCustomerGoogleMap(order) {
   const mapEl = document.getElementById('gmpOrderTrackingMap');
   if (!mapEl || !window.ElyaniveryMaps) return;
 
-  const destLat = order.delivery_lat || userLat || 30.0444;
-  const destLng = order.delivery_lng || userLng || 31.2357;
+  const destLat = parseFloat(order.delivery_lat) || parseFloat(userLat) || 30.0444;
+  const destLng = parseFloat(order.delivery_lng) || parseFloat(userLng) || 31.2357;
+  const restLat = parseFloat(order.restaurant_lat) || (destLat + 0.015);
+  const restLng = parseFloat(order.restaurant_lng) || (destLng + 0.015);
+  const courierLat = order.courier_lat ? parseFloat(order.courier_lat) : (order.status === 'heading_to_customer' ? (restLat + destLat)/2 : restLat);
+  const courierLng = order.courier_lng ? parseFloat(order.courier_lng) : (order.status === 'heading_to_customer' ? (restLng + destLng)/2 : restLng);
 
-  if (!customerTrackMap) {
-    customerTrackMap = window.ElyaniveryMaps.initMap('gmpOrderTrackingMap', {
-      lat: destLat,
-      lng: destLng,
-      zoom: 14
+  if (!customerDeliveryMapInstance) {
+    customerDeliveryMapInstance = await window.ElyaniveryMaps.createDeliveryMap('gmpOrderTrackingMap', {
+      restaurantLat: restLat,
+      restaurantLng: restLng,
+      deliveryLat: destLat,
+      deliveryLng: destLng,
+      courierLat: courierLat,
+      courierLng: courierLng,
+      courierName: order.courier_name || 'Courier',
+      restaurantName: order.restaurant_name || 'Restaurant',
+      vehicleType: order.courier_vehicle || 'bicycle',
+      orderNumber: order.order_number || '#Ely-' + String(order.id).padStart(5, '0')
     });
-  }
-
-  // Clear existing markers
-  customerTrackMarkers.forEach(m => {
-    if (m && m.setMap) m.setMap(null);
-  });
-  customerTrackMarkers = [];
-
-  // Add delivery destination marker
-  const destMarker = window.ElyaniveryMaps.addMarker(customerTrackMap, {
-    lat: destLat,
-    lng: destLng,
-    title: 'Delivery Destination',
-    label: '🏠',
-    iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-  });
-  if (destMarker) customerTrackMarkers.push(destMarker);
-
-  // Add courier marker if assigned
-  if (order.courier_lat && order.courier_lng) {
-    const courierMarker = window.ElyaniveryMaps.addMarker(customerTrackMap, {
-      lat: order.courier_lat,
-      lng: order.courier_lng,
-      title: order.courier_name || 'Courier Live Location',
-      label: '🛵',
-      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-    });
-    if (courierMarker) customerTrackMarkers.push(courierMarker);
-    if (customerTrackMap.panTo) {
-      customerTrackMap.panTo({ lat: (destLat + order.courier_lat)/2, lng: (destLng + order.courier_lng)/2 });
-    }
-  } else if (order.restaurant_lat && order.restaurant_lng) {
-    const restMarker = window.ElyaniveryMaps.addMarker(customerTrackMap, {
-      lat: order.restaurant_lat,
-      lng: order.restaurant_lng,
-      title: order.restaurant_name || 'Restaurant',
-      label: '🍳',
-      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'
-    });
-    if (restMarker) customerTrackMarkers.push(restMarker);
+  } else if (customerDeliveryMapInstance.updateCourier) {
+    customerDeliveryMapInstance.updateCourier(courierLat, courierLng);
   }
 }
 
